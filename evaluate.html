@@ -108,6 +108,40 @@ body.locked{overflow:hidden}
   color:#fff;border-radius:var(--r);padding:8px 11px;font-size:13px;font-family:inherit;min-width:210px}
 .rbar input::placeholder{color:#7F97B2}
 .rbar option{color:var(--ink)}
+.whobtn{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;
+  font-family:inherit;font-size:12.5px;border-radius:20px;padding:8px 16px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px}
+.whobtn::after{content:"";width:6px;height:6px;border-right:1.5px solid #fff;
+  border-bottom:1.5px solid #fff;transform:rotate(45deg) translateY(-2px)}
+.whobtn:hover{background:rgba(255,255,255,.16)}
+.whobtn.set{background:#fff;color:var(--navy);border-color:#fff;font-weight:600}
+.whowrap{position:relative}
+.whopop{position:absolute;z-index:60;top:calc(100% + 8px);left:0;min-width:290px;background:#fff;
+  border-radius:12px;box-shadow:0 14px 38px rgba(8,22,40,.28);padding:12px;color:var(--ink)}
+.whopop-h{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);
+  font-weight:700;margin:2px 4px 8px}
+.whopop-l{display:flex;flex-direction:column;gap:2px;max-height:280px;overflow:auto}
+.whoitem{display:flex;align-items:center;gap:10px;border:0;background:none;width:100%;
+  text-align:left;font-family:inherit;font-size:13px;color:var(--ink);padding:8px 10px;
+  border-radius:8px;cursor:pointer}
+.whoitem:hover{background:var(--paper)}
+.whoitem .box{width:15px;height:15px;border:1.5px solid var(--line);border-radius:4px;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+.whoitem.on .box{background:var(--orange);border-color:var(--orange)}
+.whoitem .org{margin-left:auto;font-size:11px;color:var(--slate)}
+.whopop-o{border-top:1px solid var(--line);margin-top:9px;padding-top:10px;display:grid;
+  grid-template-columns:1fr auto;gap:7px}
+.whopop-o label{grid-column:1/-1;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--slate);font-weight:700}
+.whopop-o input{border:1px solid var(--line);border-radius:6px;padding:8px 10px;
+  font-family:inherit;font-size:12.5px}
+.whopop-o button{border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:6px;
+  padding:8px 14px;font-family:inherit;font-size:12.5px;cursor:pointer}
+.synctag{margin-left:14px;font-size:11.5px;padding:4px 10px;border-radius:12px;
+  background:rgba(255,255,255,.12);color:#CBD9E8}
+.synctag.ok{background:rgba(43,150,88,.24);color:#B6E8C8}
+.synctag.saving{background:rgba(255,255,255,.16);color:#fff}
+.synctag.local,.synctag.off{background:rgba(255,140,60,.2);color:#FFD2AE}
 .rprog{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:12.5px;color:#9FB6CF}
 .rprog b{color:#fff;font-family:"IBM Plex Mono",monospace;font-size:15px}
 .rtrack{width:150px;height:6px;background:rgba(255,255,255,.18);border-radius:3px;overflow:hidden}
@@ -228,12 +262,17 @@ body.locked{overflow:hidden}
 .crit-h{display:flex;align-items:baseline;gap:8px}
 .crit-n{font-size:13px;font-weight:600;flex:1}
 .crit-w{font-size:10.5px;color:var(--slate);font-family:"IBM Plex Mono",monospace}
+.crit-what{font-size:12px;color:var(--ink);margin-top:6px;line-height:1.5}
+.crit-look{font-size:11.5px;color:var(--slate);margin-top:5px;line-height:1.5}
+.crit-look b{color:var(--navy);font-weight:700}
 .scale{display:flex;gap:5px;margin-top:9px}
 .scale button{flex:1;border:1px solid var(--line);background:#fff;border-radius:5px;padding:9px 0;
   font-size:14px;font-weight:600;color:var(--slate);font-family:"IBM Plex Mono",monospace;
   transition:all .13s}
 .scale button:hover{border-color:var(--navy-mid);color:var(--navy)}
 .scale button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.anchor.set{color:var(--ink)}
+.anchor b{font-family:"IBM Plex Mono",monospace;color:var(--orange)}
 .anchor{font-size:11.5px;color:var(--slate);margin-top:7px;min-height:16px;line-height:1.4}
 .reco{display:flex;gap:6px;margin-top:9px}
 .reco button{flex:1;border:1px solid var(--line);background:#fff;border-radius:5px;padding:9px 0;
@@ -318,6 +357,10 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
       <input id="suTab" type="text" placeholder="2026">
       <label for="suUrl">Published CSV URL (optional)</label>
       <input id="suUrl" type="text" placeholder="https://docs.google.com/…output=csv">
+      <label for="suScript">Apps Script URL (scores, optional)</label>
+      <input id="suScript" type="text" placeholder="https://script.google.com/macros/s/…/exec">
+      <label for="suKey">Apps Script key (optional)</label>
+      <input id="suKey" type="text" placeholder="the shared key from the script">
       <button type="button" onclick="buildVault()">Generate</button>
       <textarea id="suOut" hidden readonly></textarea>
       <div id="suHint" hidden>Replace the <b>const VAULT = …</b> line at the top of the
@@ -369,7 +412,20 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 <section class="rbar">
   <div class="wrap rbar-in">
     <label for="who">Reviewing as</label>
-    <input id="who" type="email" placeholder="your.name@company.com" autocomplete="email">
+    <div class="whowrap">
+    <button class="whobtn" id="whoBtn" type="button">Choose your name</button>
+    <input id="who" type="hidden" value="">
+    <div class="whopop" id="whoPop" hidden>
+      <div class="whopop-h">Who is reviewing?</div>
+      <div class="whopop-l" id="whoList"></div>
+      <div class="whopop-o">
+        <label for="whoOther">Not on the list</label>
+        <input id="whoOther" type="text" placeholder="name or email" autocomplete="off">
+        <button type="button" id="whoOtherGo">Use this</button>
+      </div>
+    </div>
+    </div>
+    <span class="synctag" id="syncTag" hidden></span>
     <div class="rprog">
       <span>Reviewed <b id="pgN">0</b> of <b id="pgT">0</b></span>
       <span class="rtrack"><span class="rfill" id="pgFill" style="width:0"></span></span>
@@ -379,8 +435,9 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 
 <div class="proto" id="proto" hidden><div class="wrap" id="protoTxt"></div></div>
 
-<div class="proto"><div class="wrap"><b>Prototype.</b> Scores stay in this browser tab only and are lost
-  on refresh, so use <b>Export scores</b> before closing.</div></div>
+<div class="proto"><div class="wrap"><b>Export your scores before you close this tab.</b>
+  Scores are held in this browser only, so refreshing or closing the page clears them.
+  Use <b>Export scores</b> at the top right and keep the file.</div></div>
 
 <main class="wrap sect">
   <div class="sect-head">
@@ -406,7 +463,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
    To change the password or the sheet, open this page with #setup
    appended to the URL and paste the new block over VAULT.
    ══════════════════════════════════════════════════════════════════ */
-const VAULT = {"v":1,"it":250000,"salt":"XNFHQSkxCVfq/kl6AqN3+w==","iv":"aIoIfjmS4hyd1r1O","ct":"sZCDlaoR9C3oMshxsD+cK+Binz6OLcX5KvbgDY6hRu3FuHTWO3U2KS+ShCv/NrRAeIfnhTEJZRbzXGY+LWIrvhQrubtyqkrDmnbdUPv/uxB726SnAflDuT152GLaCNYlgIz9gT80s6v+vGnujbMNwmg8"};
+const VAULT = {"v":1,"it":250000,"salt":"+ZZ7BeM6wJDhk31s+zebdQ==","iv":"6WbxFP25iEhCT4fh","ct":"SLdP2NyaCB8unlVHock8yrMazy7jx3pYd2GC76oyCJazLzOtb6Wv1Fxd2cIL0CfywUSAtgVdUYh3i09A1RVecfsR9MqmoxkG/9K2b+h1f/8uv5F/fqh+dzZyzfVdmUthu4ZAEcEmPHmBvCQytg6IHLyQ/QZrasf6xEGgNCyOFNvUscxS5465yCZkQWxKaczAqAFE5q+VbeiP9IMGJB41VOg0Ijk+LrtPtLcp/akGGVlIwxWwFMQfFVK04WhfwWC+DA45qB/HuhERRfSCGTTpw6LxWLMUHVq1DgnjxZ6sXozmXLfTuYlhGbnc7CqN9LTdtqOgFwK8KlspvmInggQSChQtoMJxTSGSqbNLKQ=="};
 
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 let CFG=null;
@@ -455,7 +512,9 @@ async function buildVault(){
   const pw=document.getElementById("suPw").value.trim();
   const cfg={sheetId:document.getElementById("suId").value.trim(),
              sheetName:document.getElementById("suTab").value.trim()||"2026",
-             publishedCsvUrl:document.getElementById("suUrl").value.trim()};
+             publishedCsvUrl:document.getElementById("suUrl").value.trim(),
+             scriptUrl:(document.getElementById("suScript")||{value:""}).value.trim(),
+             scriptKey:(document.getElementById("suKey")||{value:""}).value.trim()};
   if(!pw||(!cfg.sheetId&&!cfg.publishedCsvUrl)){ alert("Enter a password and a sheet ID."); return; }
   const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
   const key=await deriveKey(pw,salt,250000,["encrypt"]);
@@ -812,24 +871,32 @@ const isImg=u=>/\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(u);
    ══════════════════════════════════════════════════════════════════ */
 const CRITERIA=[
  {id:"business", name:"Business potential & fit with HCM", w:.40,
+  what:"Could this become real business for HCM, in a line HCM already operates in or plans to enter? Judge the opportunity, not the pitch.",
+  look:"A named business line it plugs into, a plausible route to revenue or cost saving, and a reason HCM specifically is the right partner.",
   anchors:{1:"No clear link to an HCM business line.",
            2:"Adjacent, but the connection has to be argued.",
            3:"Plausible fit that still needs shaping.",
            4:"Clear fit with an identified business line.",
            5:"Direct fit, and HCM is the natural first partner."}},
  {id:"track", name:"Track record", w:.20,
+  what:"What the company has already done with real customers, not what it plans to do.",
+  look:"Paying customers, completed pilots, contract values, repeat business, referenceable names.",
   anchors:{1:"No customers or projects yet.",
            2:"Unpaid trials only.",
            3:"One or two paid pilots.",
            4:"Several paying customers, some repeat business.",
            5:"Referenceable customers at scale."}},
  {id:"maturity", name:"Maturity of the application", w:.20,
+  what:"How well this application is put together. A weak application from a strong company still scores low here.",
+  look:"Specific answers, numbers rather than adjectives, a concrete pilot proposal, clear ask of HCM.",
   anchors:{1:"Vague; the key questions are unanswered.",
            2:"Readable but thin on evidence.",
            3:"Clear, with gaps in one or two areas.",
            4:"Specific and largely evidenced.",
            5:"Precise, evidenced, ready to assess as it stands."}},
  {id:"team", name:"Founding team & solution fit", w:.20,
+  what:"Whether this particular team is the right one to solve this particular problem.",
+  look:"Domain experience in construction, mining or heavy equipment; technical depth matching the solution; commercial capability to deploy it.",
   anchors:{1:"Team lacks the relevant domain entirely.",
            2:"Some relevant experience, significant gaps.",
            3:"Credible team, gaps remain.",
@@ -837,26 +904,179 @@ const CRITERIA=[
            5:"Demonstrably the right team to solve it."}}
 ];
 const RECO=["Advance","Discuss","Pass"];
+const SHORT_THEME={"Autonomous Operations":"Autonomous",
+  "Site Intelligence & Planning":"Site intelligence",
+  "Lifecycle Decision Intelligence":"Lifecycle"};
 const RECO_COLOR={Advance:"#1B6B3A",Discuss:"#E08A2B",Pass:"#B6C2CE"};
 
 /* ── storage ──────────────────────────────────────────────────────
-   The two functions below are the only integration point with a
-   backend. Swap their bodies for fetch() calls and everything else
-   keeps working unchanged.
+   Two layers, in this order:
+   1. the browser, so a refresh never loses work;
+   2. the private Scores tab of the application sheet, through an
+      Apps Script endpoint, so scores survive a new laptop.
+   Each reviewer only ever loads their own scores. Nobody sees
+   anybody else's, by design.
    ────────────────────────────────────────────────────────────────── */
-let REVIEWS=[];                                   // {app, reviewer, scores{}, reco, themeVote, coi, comment, at}
+let REVIEWS=[];              // {app, reviewer, scores{}, reco, themeVote, coi, comment, at}
+let SYNC={state:"idle", detail:""};   // idle | saving | ok | local | off
+
+const LS_KEY   = who => "hcm26.reviews."+String(who||"").toLowerCase();
+const LS_QUEUE = who => "hcm26.pending."+String(who||"").toLowerCase();
+
+function lsRead(k,fallback){
+  try{ const v=localStorage.getItem(k); return v?JSON.parse(v):fallback; }catch(e){ return fallback; }
+}
+function lsWrite(k,v){
+  try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; }
+}
+
+function syncBadge(state,detail){
+  SYNC={state,detail:detail||""};
+  const el=$("syncTag"); if(!el) return;
+  const txt={saving:"Saving…", ok:"Saved to the sheet", local:"Saved in this browser",
+             off:"Saved in this browser", idle:""}[state]||"";
+  el.textContent=txt;
+  el.className="synctag "+state;
+  el.hidden=!txt;
+}
+
+async function postReview(rec){
+  if(!CFG||!CFG.scriptUrl) return false;
+  const res=await fetch(CFG.scriptUrl,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},   // keeps it a simple request
+    body:JSON.stringify({key:CFG.scriptKey||"", action:"save", review:rec})
+  });
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  const out=await res.json().catch(()=>({ok:true}));
+  if(out && out.ok===false) throw new Error(out.error||"rejected by the script");
+  return true;
+}
+
+/* anything that failed to reach the sheet waits here and is retried */
+async function flushQueue(){
+  const who=me(); if(!who) return;
+  let q=lsRead(LS_QUEUE(who),[]);
+  if(!q.length) return;
+  if(!CFG||!CFG.scriptUrl){ syncBadge("off"); return; }
+  const left=[];
+  for(const rec of q){
+    try{ await postReview(rec); }catch(e){ left.push(rec); }
+  }
+  lsWrite(LS_QUEUE(who),left);
+  syncBadge(left.length?"local":"ok", left.length?left.length+" waiting":"");
+}
+
 async function saveReview(rec){
   const i=REVIEWS.findIndex(r=>r.app===rec.app && r.reviewer===rec.reviewer);
   if(i>=0) REVIEWS[i]=rec; else REVIEWS.push(rec);
+
+  const who=rec.reviewer;
+  lsWrite(LS_KEY(who),REVIEWS);          // never lost on refresh
+
+  if(!CFG||!CFG.scriptUrl){ syncBadge("off"); return rec; }
+  syncBadge("saving");
+  try{
+    await postReview(rec);
+    syncBadge("ok");
+  }catch(e){
+    const q=lsRead(LS_QUEUE(who),[]).filter(r=>r.app!==rec.app);
+    q.push(rec); lsWrite(LS_QUEUE(who),q);
+    syncBadge("local", e.message);
+  }
   return rec;
 }
-async function loadReviews(){ return REVIEWS; }
+
+async function loadReviews(){
+  const who=me();
+  if(!who){ REVIEWS=[]; return REVIEWS; }
+
+  REVIEWS=lsRead(LS_KEY(who),[]);                    // browser copy first
+
+  if(CFG&&CFG.scriptUrl){                            // then whatever the sheet holds
+    try{
+      const u=CFG.scriptUrl+"?action=load&reviewer="+encodeURIComponent(who)
+             +"&key="+encodeURIComponent(CFG.scriptKey||"");
+      const res=await fetch(u);
+      if(res.ok){
+        const out=await res.json();
+        if(out&&Array.isArray(out.reviews)){
+          out.reviews.forEach(r=>{
+            const i=REVIEWS.findIndex(x=>x.app===r.app);
+            if(i<0) REVIEWS.push(r);
+            else if(new Date(r.at)>new Date(REVIEWS[i].at)) REVIEWS[i]=r;   // newest wins
+          });
+          lsWrite(LS_KEY(who),REVIEWS);
+          syncBadge("ok");
+        }
+      }
+    }catch(e){ syncBadge("local",e.message); }
+    await flushQueue();
+  }else{
+    syncBadge(REVIEWS.length?"off":"idle");
+  }
+  return REVIEWS;
+}
 
 /* ── state ── */
 let VIEW="queue", CURRENT=null, DRAFT=null, ALL=[];
 let QF={theme:"", only:false};
+/* Jury roster. Add or remove a line to change the list; anyone missing
+   can still type their own name under "Not on the list". */
+const REVIEWERS=[
+  {name:"Nobuhiro Murase",  org:"HCM Europe"},
+  {name:"Stephen Daff",     org:"HCM Japan"},
+  {name:"Jeeyoun Ho",       org:"Impulse Partners"},
+  {name:"Thomas Le Diouron",org:"Impulse Partners"},
+  {name:"Margaux",          org:"Impulse Partners"},
+  {name:"Brick & Mortar",   org:"Partner"},
+  {name:"CRH Ventures",     org:"Partner"},
+  {name:"Ferrovial",        org:"Partner"},
+  {name:"Leonard",          org:"Partner"},
+  {name:"Loxam",            org:"Partner"},
+  {name:"Zacua",            org:"Partner"}
+];
 const me=()=>($("who").value||"").trim().toLowerCase();
 
+async function setReviewer(name){
+  $("who").value=name||"";
+  const btn=$("whoBtn");
+  btn.textContent=name||"Choose your name";
+  btn.classList.toggle("set",!!name);
+  $("whoPop").hidden=true;
+  try{ localStorage.setItem("hcm26.lastReviewer", name||""); }catch(e){}
+  await loadReviews();
+  render();
+}
+function renderWhoList(){
+  const cur=me();
+  $("whoList").innerHTML=REVIEWERS.map(r=>{
+    const on=r.name.toLowerCase()===cur;
+    return `<button type="button" class="whoitem${on?" on":""}" data-who="${esc(r.name)}">
+      <span class="box">${on?"&#10003;":""}</span>${esc(r.name)}
+      <span class="org">${esc(r.org)}</span></button>`;}).join("");
+}
+document.addEventListener("click",e=>{
+  if(e.target.closest("#whoBtn")){
+    const pop=$("whoPop"); renderWhoList(); pop.hidden=!pop.hidden; return;
+  }
+  const item=e.target.closest("[data-who]");
+  if(item){ setReviewer(item.dataset.who===me()?"":item.dataset.who); return; }
+  if(e.target.id==="whoOtherGo"){
+    const v=$("whoOther").value.trim(); if(v) setReviewer(v);
+    return;
+  }
+  if(!e.target.closest(".whowrap")) $("whoPop").hidden=true;
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter"&&e.target.id==="whoOther"){
+    const v=$("whoOther").value.trim(); if(v) setReviewer(v);
+  }
+  if(e.key==="Escape") $("whoPop").hidden=true;
+});
+
+/* REVIEWS only ever holds the signed-in reviewer's own records, so
+   everything below is scoped to that person by construction. */
 function reviewsFor(app){ return REVIEWS.filter(r=>r.app===app && !r.coi); }
 function myReview(app){ return REVIEWS.find(r=>r.app===app && r.reviewer===me()); }
 function weighted(sc){
@@ -879,7 +1099,7 @@ function renderQueue(){
   const done=ALL.filter(d=>myReview(d.name)).length;
   $("secNote").textContent=me()
     ? `Sorted so the least-reviewed applications come first.`
-    : `Enter your email above to start scoring.`;
+    : `Choose your name above to start scoring.`;
   $("pgN").textContent=done; $("pgT").textContent=ALL.length;
   $("pgFill").style.width=(ALL.length?done/ALL.length*100:0)+"%";
 
@@ -904,8 +1124,8 @@ function renderQueue(){
             return `<span class="tag" style="background:${pastel(tc)};color:${tc}">${esc(t)}</span>`;}).join("")}
             ${d.trl?`<span class="pill" style="background:${tr.bg};color:${tr.fg}">${esc(d.trl)}</span>`:""}</div>
         </div>
-        <div class="qc-stat"><div class="qc-k">Reviews</div>
-          <div class="qc-v${s?"":" none"}">${s?s.n:"0"}</div></div>
+        <div class="qc-stat"><div class="qc-k">Status</div>
+          <div class="qc-v${mine?"":" none"}" style="font-size:12.5px">${mine?(mine.coi?"Conflict":"Scored"):"Not yet"}</div></div>
         <div class="qc-stat"><div class="qc-k">Your score</div>
           <div class="qc-v${mine?"":" none"}">${mine?weighted(mine.scores).toFixed(1):"–"}</div></div>
         <button class="btn ${mine?"ghost":"go"}" data-open="${esc(d.name)}">${mine?"Edit":"Review"}</button>
@@ -980,7 +1200,7 @@ function renderReview(){
       <aside class="score">
         <div class="score-top">
           <h3>Your assessment</h3>
-          <div class="st-sub">${me()?esc(me()):"Enter your email above to save"}</div>
+          <div class="st-sub">${me()?esc($("who").value):"Choose your name above to save"}</div>
         </div>
         <div class="score-body">
           ${CRITERIA.map(c=>{
@@ -988,9 +1208,12 @@ function renderReview(){
             return `<div class="crit">
               <div class="crit-h"><span class="crit-n">${esc(c.name)}</span>
                 <span class="crit-w">${Math.round(c.w*100)}%</span></div>
+              ${c.what?`<div class="crit-what">${esc(c.what)}</div>`:""}
+              ${c.look?`<div class="crit-look"><b>Look for</b> ${esc(c.look)}</div>`:""}
               <div class="scale">${[1,2,3,4,5].map(n=>
-                `<button data-crit="${c.id}" data-n="${n}" class="${v===n?"on":""}">${n}</button>`).join("")}</div>
-              <div class="anchor">${v?esc(c.anchors[v]):"&nbsp;"}</div>
+                `<button data-crit="${c.id}" data-n="${n}" class="${v===n?"on":""}"
+                   title="${esc(c.anchors[n])}">${n}</button>`).join("")}</div>
+              <div class="anchor${v?" set":""}">${v?"<b>"+v+"</b> "+esc(c.anchors[v]):"Hover a number to see what it means"}</div>
             </div>`;}).join("")}
 
           <div class="crit">
@@ -1034,37 +1257,36 @@ function renderReview(){
 
 /* ── ranking ── */
 function renderRank(){
-  $("secTitle").textContent="Ranking";
-  const scored=ALL.map(d=>({d,s:stats(d.name)})).filter(x=>x.s);
-  $("secNote").textContent=scored.length
-    ? `${scored.length} of ${ALL.length} applications have at least one score.`
-    : "";
-  if(!scored.length){ $("view").innerHTML=
+  $("secTitle").textContent="Your ranking";
+  const mine=ALL.map(d=>({d,r:myReview(d.name)})).filter(x=>x.r);
+  $("secNote").textContent=me()
+    ? `${mine.length} of ${ALL.length} applications scored by you.`
+    : "Choose your name above to see your ranking.";
+  if(!mine.length){ $("view").innerHTML=
     `<div class="empty">No scores yet. Review a few applications and the ranking builds itself.</div>`; return; }
-  scored.sort((a,b)=>b.s.mean-a.s.mean);
+  mine.sort((a,b)=>weighted(b.r.scores)-weighted(a.r.scores));
   $("view").innerHTML=`<div style="overflow-x:auto"><table>
-    <thead><tr><th>#</th><th>Company</th><th>Theme</th><th>Weighted</th><th>Spread</th>
-      <th>Reviews</th><th>Recommendation</th><th>Your score</th></tr></thead>
-    <tbody>${scored.map((x,i)=>{
-      const mine=myReview(x.d.name), tot=x.s.n||1;
+    <thead><tr><th>#</th><th>Company</th><th>Theme</th><th>Your score</th>
+      ${CRITERIA.map(c=>`<th>${esc(c.name.split(" ")[0])}</th>`).join("")}
+      <th>Recommendation</th></tr></thead>
+    <tbody>${mine.map((x,i)=>{
+      const w=weighted(x.r.scores);
       return `<tr>
         <td class="rank${i<8?" top":""}">${i+1}</td>
         <td style="font-weight:600">${esc(x.d.name)}</td>
         <td>${x.d.themes.map(t=>{const c=THEME_COLOR[t]||"#7086A0";
-          return `<span class="tag" style="background:${pastel(c)};color:${c}">${esc(t)}</span>`;}).join("")}</td>
-        <td class="mean">${x.s.mean.toFixed(2)}</td>
-        <td class="sd${x.s.sd>=1.2?" wide":""}">±${x.s.sd.toFixed(2)}${x.s.sd>=1.2?" ⚠":""}</td>
-        <td class="rev-n">${x.s.n}</td>
-        <td><span class="split">${RECO.map(k=>x.s.split[k]
-          ? `<span style="flex:${x.s.split[k]};background:${RECO_COLOR[k]}" title="${k}: ${x.s.split[k]}"></span>`
-          : "").join("")}</span></td>
-        <td class="mean" style="font-size:13px;color:${mine?"var(--ink)":"#B6C2CE"}">${
-          mine?weighted(mine.scores).toFixed(1):"–"}</td>
+          return `<span class="tag" style="background:${pastel(c)};color:${c}">${esc(SHORT_THEME[t]||t)}</span>`;}).join("")}</td>
+        <td class="mean">${w.toFixed(2)}</td>
+        ${CRITERIA.map(c=>`<td class="mono" style="font-size:12px;color:var(--slate)">${x.r.scores[c.id]||"–"}</td>`).join("")}
+        <td><span class="pill" style="background:${pastel(RECO_COLOR[x.r.reco]||"#B6C2CE")};
+          color:${RECO_COLOR[x.r.reco]||"#5C7186"}">${esc(x.r.reco||"–")}${x.r.coi?" · conflict":""}</span></td>
       </tr>`;}).join("")}</tbody></table></div>
     <div style="font-size:11.5px;color:var(--slate);margin-top:12px;line-height:1.6">
+      This is your own ranking. Reviewers do not see each other's scores, so nobody is anchored by
+      what someone else gave. The Challenge team combines every reviewer's scores from the Scores tab
+      of the application sheet.
       Weighted score applies ${CRITERIA.map(c=>`${Math.round(c.w*100)}% ${c.name.toLowerCase()}`).join(", ")}.
-      A spread of ±1.2 or more is flagged: the reviewers disagree and the company is worth discussing.
-      Scores marked as a conflict of interest are excluded.
+      Anything marked as a conflict of interest is recorded but left out of the combined ranking.
     </div>`;
 }
 
@@ -1086,7 +1308,7 @@ document.addEventListener("click",async e=>{
   const t=e.target.closest("[data-view],[data-open],[data-crit],[data-reco],#saveBtn,#saveOnly,#backBtn");
   if(!t) return;
   if(t.dataset.view){ VIEW=t.dataset.view; render(); return; }
-  if(t.dataset.open){ if(!me()){ $("who").focus(); return; } openReview(t.dataset.open); return; }
+  if(t.dataset.open){ if(!me()){ renderWhoList(); $("whoPop").hidden=false; return; } openReview(t.dataset.open); return; }
   if(t.id==="backBtn"){ VIEW="queue"; render(); return; }
   if(t.dataset.crit){ DRAFT.scores[t.dataset.crit]=+t.dataset.n; renderReview(); return; }
   if(t.dataset.reco){ DRAFT.reco=DRAFT.reco===t.dataset.reco?"":t.dataset.reco; renderReview(); return; }
@@ -1123,7 +1345,7 @@ $("exportBtn").addEventListener("click",()=>{
     weighted(r.scores).toFixed(2),r.reco,r.themeVote,r.coi?"Yes":"No",r.comment,r.at].map(q).join(","));
   const blob=new Blob(["\uFEFF"+head.map(q).join(",")+"\n"+body.join("\n")],{type:"text/csv;charset=utf-8"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-  a.download=`LANDCROS_EuropeChallenge2026_scores_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download=`LANDCROS_EC2026_scores_${(me()||"reviewer").replace(/[^a-z0-9]+/gi,"-")}_${new Date().toISOString().slice(0,10)}.csv`;
   a.click(); URL.revokeObjectURL(a.href);
 });
 
@@ -1154,6 +1376,11 @@ async function start(){
     const live=raw.filter(r=>(r["Company name"]||"").trim()!=="");
     ALL=normalise(live);
     DATA = live.length ? {mode:"live",detail:"",attempts} : {mode:"empty",detail:"",attempts};
+  }
+  let last=""; try{ last=localStorage.getItem("hcm26.lastReviewer")||""; }catch(e){}
+  if(last){
+    $("who").value=last;
+    $("whoBtn").textContent=last; $("whoBtn").classList.add("set");
   }
   await loadReviews();
   finishLoad();
