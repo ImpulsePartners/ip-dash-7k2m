@@ -137,7 +137,7 @@ body.locked{overflow:hidden}
 .tog button:last-child{border-right:0}
 .tog button.on{background:var(--navy);color:#fff}
 .tog button:hover:not(.on){background:var(--paper);color:var(--navy)}
-.wchart{margin-top:14px}
+.wchart{margin-top:12px}
 .wchart svg{width:100%;height:auto;display:block}
 .wgrid{stroke:var(--line);stroke-width:1}
 .wax{fill:var(--slate);font-size:10px;font-family:"IBM Plex Mono",monospace}
@@ -230,6 +230,9 @@ select:hover{border-color:#B9C6D6}
 /* acquisition source bars */
 .sbars{margin-top:12px}
 .card.c6{display:flex;flex-direction:column}
+.card.c6 .wchart{flex:1 1 auto;display:flex;align-items:center;justify-content:stretch}
+.card.c6 .wchart svg{width:100%}
+.card.c6 .prof{flex:1 1 auto;align-content:center}
 .card.c6 .donut-wrap,.card.c6 .sbars{flex:1 1 auto;align-content:center}
 .sbar{display:grid;grid-template-columns:150px 1fr auto;gap:12px;align-items:center;
   padding:6px 0;cursor:pointer}
@@ -414,6 +417,11 @@ tbody tr:hover .co{color:var(--orange)}
 .fld-v a{color:var(--navy);text-decoration:underline;text-underline-offset:2px}
 .fld-v a:hover{color:var(--orange)}
 
+.fpair{display:inline-flex;align-items:center;gap:4px;margin:0 8px 8px 0}
+.fpair .fchip{margin:0}
+.fdl{border:1px solid var(--line);border-radius:50%;width:26px;height:26px;display:flex;
+  align-items:center;justify-content:center;color:var(--slate);text-decoration:none;font-size:13px}
+.fdl:hover{border-color:var(--orange);color:var(--orange)}
 .fchip{display:inline-flex;flex:0 0 auto;align-items:center;gap:8px;border:1px solid var(--line);
   border-radius:20px;padding:6px 14px 6px 6px;font-size:12.5px;color:var(--ink);
   text-decoration:none;margin:0 8px 8px 0;transition:border-color .15s,background .15s}
@@ -447,7 +455,11 @@ tbody tr:hover .co{color:var(--orange)}
 .bub:hover .bub-c{fill-opacity:1}
 .bub.on .bub-c{fill:var(--navy);fill-opacity:1;stroke-width:2.5}
 .bub.dim{opacity:.3}
-.mapmiss{font-size:11px;color:var(--slate);margin-top:8px}
+.mapmiss{font-size:11px;color:var(--slate);margin-top:10px;line-height:1.7}
+.missbtn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:2px 9px;
+  font-family:inherit;font-size:11px;color:var(--ink);cursor:pointer}
+.missbtn:hover{border-color:var(--orange);color:var(--orange)}
+.missraw{font-family:"IBM Plex Mono",monospace;font-size:10.5px}
 .maplegend{display:flex;flex-wrap:wrap;gap:2px 4px;margin-top:8px}
 .maplegend .lg2.off{opacity:.6}
 .maplegend .lg2.off .lg2-l::after{content:" (not mapped)";font-size:10px;color:var(--slate)}
@@ -469,7 +481,7 @@ tbody tr:hover .co{color:var(--orange)}
 
 /* ---------- sections ---------- */
 .toolbar{background:#fff;border-bottom:1px solid var(--line);padding:14px 0 0}
-.toolbar .filters{margin:0}
+.toolbar .filters{margin:0 auto}
 .toolbar .chips{margin:10px 0 0;padding-bottom:0}
 .toolbar .chips:not(:empty){padding-bottom:12px}
 .sect{padding:26px 0 34px}
@@ -627,7 +639,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 <section class="sect sect-insight">
   <div class="wrap">
     <div class="grid">
-      <div class="card c7" style="--cc:var(--orange)">
+      <div class="card c6" style="--cc:var(--orange)">
         <div class="card-head">
           <h3>Weekly application status</h3>
           <div class="tog" id="wTog">
@@ -641,7 +653,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
         <div class="legend2" id="chWeekLeg"></div>
       </div>
 
-      <div class="card c5" style="--cc:var(--navy-mid)">
+      <div class="card c6" style="--cc:var(--navy-mid)">
         <h3>Company profile</h3>
         <div class="hint">Self-declared at application. The Challenge targets TRL 6&ndash;9.</div>
         <div class="prof">
@@ -1160,7 +1172,7 @@ const NAME_ALIAS={"usa":"US","u.s.":"US","u.s.a.":"US","united states of america
   "turkey":"TR","turkiye":"TR","türkiye":"TR",
   "czech republic":"CZ","czechia":"CZ",
   "south korea":"KR","korea":"KR","republic of korea":"KR","korea, republic of":"KR",
-  "korea (south)":"KR","corée du sud":"KR","대한민국":"KR","한국":"KR",
+  "korea (south)":"KR","korea, south":"KR","south korea (republic of korea)":"KR","corée du sud":"KR","대한민국":"KR","한국":"KR","taiwan, province of china":"TW","hong kong, sar":"HK","macau":"HK","united states (usa)":"US","usa (united states)":"US","uk (united kingdom)":"GB","netherlands (holland)":"NL","emirates":"AE",
   "hong kong sar":"HK","hong kong (sar)":"HK","hongkong":"HK",
   "viet nam":"VN","vietnam":"VN","russia":"RU","russian federation":"RU",
   "ivory coast":"CI","côte d'ivoire":"CI","cote d'ivoire":"CI",
@@ -1173,7 +1185,7 @@ function isoOf(name){
   return NAME2ISO[name] || NAME_LC[k] || NAME_ALIAS[k] || (k.length===2?k.toUpperCase():null);
 }
 
-function bubbleMap(el,data,key){
+function bubbleMap(el,data,key,rows){
   const geoFor = key==="region"
     ? (name=>REGION_GEO[name])
     : (name=>{ const iso=isoOf(name); return iso&&GEO[iso]; });
@@ -1203,7 +1215,15 @@ function bubbleMap(el,data,key){
       return `<button class="lg2${on?" on":""}" data-k="${key}" data-v="${esc(d.name)}">
         <span class="lg2-l">${esc(d.name)}</span><span class="lg2-n">${d.n}</span></button>`;}).join("")}
 </div>
-    ${miss.length?`<div class="mapmiss">${miss.reduce((a,b)=>a+b.n,0)} application${miss.reduce((a,b)=>a+b.n,0)===1?"":"s"} not placed on the map: ${miss.map(d=>esc(d.name)).join(", ")}</div>`:""}
+    ${miss.length?`<div class="mapmiss">${miss.reduce((a,b)=>a+b.n,0)} application${miss.reduce((a,b)=>a+b.n,0)===1?"":"s"} not placed on the map &mdash;
+      ${miss.map(d=>{
+        const src=(rows||[]).filter(x=>x[key]===d.name)
+          .map(x=>(g(x.raw,"Country")||"").trim())
+          .filter((v,i,a)=>a.indexOf(v)===i)
+          .map(v=>v?`&ldquo;${esc(v)}&rdquo;`:"blank");
+        return `<button class="missbtn" data-k="${key}" data-v="${esc(d.name)}">${esc(d.name)} ${d.n}</button>`
+          + (src.length?` <span class="missraw">Country field: ${src.join(", ")}</span>`:"");
+      }).join(" &middot; ")}</div>`:""}
     ${placed.length?"":'<div class="empty">No applications yet</div>'}`;
 }
 
@@ -1443,8 +1463,8 @@ function render(){
   stacked($("chRev"),counts(filtered("revenue"),d=>d.revenue),"revenue");
   stacked($("chTrl"),counts(filtered("trl"),d=>d.trl),"trl");
   GEO_MODE==="region"
-    ? bubbleMap($("chCountry"),counts(filtered("region"),d=>d.region),"region")
-    : bubbleMap($("chCountry"),counts(filtered("country"),d=>d.country),"country");
+    ? bubbleMap($("chCountry"),counts(filtered("region"),d=>d.region),"region",filtered("region"))
+    : bubbleMap($("chCountry"),counts(filtered("country"),d=>d.country),"country",filtered("country"));
   sourceBars($("chSource"),filtered("source"));
   weekChart($("chWeek"),$("chWeekLeg"),WEEK_DIM);
 
@@ -1585,8 +1605,12 @@ function openDrawer(i){
     if(site) html+=`<a class="fchip" href="${esc(site)}" target="_blank" rel="noopener">
         <span class="fchip-x">WWW</span>${esc(site.replace(/^https?:\/\//,"").replace(/\/$/,"").slice(0,38))}</a>`;
     files.forEach(({k,u})=>{
-      html+=`<a class="fchip" href="${esc(u)}" target="_blank" rel="noopener">
-        <span class="fchip-x">${esc(EXT(u).slice(0,4))}</span>${esc(LABELS[k]||k)}</a>`;
+      const ext=EXT(u), viewable=ext==="pdf";
+      const open=viewable?`https://docs.google.com/viewer?url=${encodeURIComponent(u)}`:u;
+      html+=`<span class="fpair"><a class="fchip" href="${esc(open)}" target="_blank" rel="noopener">
+        <span class="fchip-x">${esc(ext.slice(0,4))}</span>${esc(LABELS[k]||k)}</a>${
+        viewable?`<a class="fdl" href="${esc(u)}" target="_blank" rel="noopener"
+          title="Download instead">&darr;</a>`:""}</span>`;
     });
     html+=`</div></div>`;
   }
@@ -1818,7 +1842,7 @@ window.addEventListener("scroll",closeColFilter,{passive:true});
 /* ── events ── */
 
 document.addEventListener("click",e=>{
-  const bar=e.target.closest(".bar-row,.sbar,.slice,.lg-row,.seg,.lg2,.bub,.wseg");
+  const bar=e.target.closest(".bar-row,.sbar,.slice,.lg-row,.seg,.lg2,.bub,.wseg,.missbtn");
   if(bar&&bar.dataset.k){ const k=bar.dataset.k,v=bar.dataset.v;
     F[k]=F[k]===v?"":v; page=1; render(); return; }
   const cl=e.target.closest("[data-clear]");
