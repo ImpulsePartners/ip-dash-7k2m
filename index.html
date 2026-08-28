@@ -467,7 +467,8 @@ tbody tr:hover .co{color:var(--orange)}
 
 /* ---------- stacked profile bars ---------- */
 .stack{display:flex;height:26px;border-radius:3px;overflow:hidden;margin-top:12px;gap:2px}
-.seg{border:0;padding:0;cursor:pointer;transition:opacity .15s,transform .15s;min-width:6px}
+.seg{border:0;padding:0;cursor:pointer;transition:opacity .15s,transform .15s;min-width:6px;
+  display:flex;align-items:center;justify-content:center}
 .seg:hover{opacity:.85}
 .seg.on{transform:scaleY(1.14)}
 .seg.dim{opacity:.28}
@@ -479,6 +480,12 @@ tbody tr:hover .co{color:var(--orange)}
 .lg2.on .lg2-l,.lg2.on .lg2-n{color:#fff}
 .lg2-l{color:var(--ink)}
 .lg2-n{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--slate)}
+.pill-n{background:#E7ECF3;color:var(--navy);border-radius:9px;padding:1px 7px;
+  font-size:11px;line-height:1.5;min-width:20px;text-align:center}
+.lg2:hover .pill-n{background:#DCE4EE}
+.lg2.on .pill-n{background:rgba(255,255,255,.22);color:#fff}
+.seg-n{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:700;
+  line-height:1;pointer-events:none}
 
 /* ---------- sections ---------- */
 .toolbar{background:#fff;border-bottom:1px solid var(--line);padding:14px 0 0}
@@ -1019,10 +1026,31 @@ function themesOf(r){
 }
 function trlOf(r){ const m=g(r,"TRL").match(/TRL\s*(\d)/i); return m?("TRL "+m[1]):""; }
 function trlNum(r){ const m=g(r,"TRL").match(/TRL\s*(\d)/i); return m?+m[1]:0; }
+/* Applicants sometimes list several countries in one answer
+   ("Singapore / Australia / Sweden"). The whole string is tried first,
+   so "Bosnia and Herzegovina" or "Korea, South" still resolve; only if
+   that fails is the answer split and the first country that resolves
+   used for the map, the region and the table. */
+function splitCountries(raw){
+  return String(raw).split(/\s*(?:[,/;|&+]|\band\b|\bet\b|\by\b)\s*/i)
+    .map(x=>x.trim()).filter(Boolean);
+}
 function countryOf(r){
   const raw=g(r,"Country"); if(!raw) return "—";
-  const iso=isoOf(raw);
-  return (iso&&COUNTRY[iso])||raw;
+  const whole=isoOf(raw);
+  if(whole&&COUNTRY[whole]) return COUNTRY[whole];
+  for(const part of splitCountries(raw)){
+    const iso=isoOf(part);
+    if(iso&&COUNTRY[iso]) return COUNTRY[iso];
+  }
+  return raw;
+}
+/* every country the applicant named, for the detail panel */
+function countriesOf(r){
+  const raw=g(r,"Country"); if(!raw) return [];
+  if(isoOf(raw)&&COUNTRY[isoOf(raw)]) return [];
+  const all=splitCountries(raw).map(x=>{const i=isoOf(x); return (i&&COUNTRY[i])||x;});
+  return all.length>1?all:[];
 }
 function statusOf(r){ const s=g(r,"Status"); return STATUSES.includes(s)?s:"Received"; }
 function demoOf(r){ return /^(true|yes|1|oui)$/i.test(g(r,"Attend Demoday")); }
@@ -1040,7 +1068,7 @@ function normalise(raw){
     _i:i, raw:r,
     name:g(r,"Company name")||"Untitled application",
     themes:themesOf(r), trl:trlOf(r), trlN:trlNum(r),
-    country:countryOf(r), city:g(r,"City"),
+    country:countryOf(r), countries:countriesOf(r), city:g(r,"City"),
     region:regionOf(countryOf(r)), source:sourceOf(r), partner:partnerOf(r),
     size:g(r,"Nb full-time employees")||"—",
     revenue:g(r,"Total revenues in 2025")||"—",
@@ -1214,7 +1242,7 @@ function bubbleMap(el,data,key,rows){
     <div class="maplegend">${placed.sort((a,b)=>b.n-a.n).map(d=>{
       const on=F.country===d.name;
       return `<button class="lg2${on?" on":""}" data-k="${key}" data-v="${esc(d.name)}">
-        <span class="lg2-l">${esc(d.name)}</span><span class="lg2-n">${d.n}</span></button>`;}).join("")}
+        <span class="lg2-l">${esc(d.name)}</span><span class="lg2-n pill-n">${d.n}</span></button>`;}).join("")}
 </div>
     ${miss.length?`<div class="mapmiss">${miss.reduce((a,b)=>a+b.n,0)} application${miss.reduce((a,b)=>a+b.n,0)===1?"":"s"} not placed on the map &mdash;
       ${miss.map(d=>{
@@ -1251,6 +1279,14 @@ function bucketColor(key,label){
   return i<0?"#7086A0":rampColor(i,b.length);
 }
 
+/* white on dark fills, ink on pale ones */
+function readable(hex){
+  const h=String(hex).replace("#","");
+  if(h.length<6) return "#fff";
+  const r=parseInt(h.slice(0,2),16),g2=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+  return (0.299*r+0.587*g2+0.114*b)>168 ? "#12283F" : "#fff";
+}
+
 function stacked(el,data,key){
   const total=data.reduce((s,d)=>s+d[1],0);
   if(!total){ el.innerHTML='<div class="empty">No data yet</div>'; return; }
@@ -1260,14 +1296,15 @@ function stacked(el,data,key){
   el.innerHTML=`
     <div class="stack">${list.map(([lab,n],i)=>{
       const on=F[key]===lab, dim=F[key]&&!on;
+      const share=n/total;
       return `<button class="seg${on?" on":""}${dim?" dim":""}" data-k="${key}" data-v="${esc(lab)}"
-        style="flex:${n};background:${cols[i]}" title="${esc(lab)} — ${n} (${Math.round(n/total*100)}%)"
-        aria-label="${esc(lab)}, ${n}"></button>`;}).join("")}</div>
+        style="flex:${n};background:${cols[i]}" title="${esc(lab)} — ${n} (${Math.round(share*100)}%)"
+        aria-label="${esc(lab)}, ${n}">${share>=0.07?`<span class="seg-n" style="color:${readable(cols[i])}">${n}</span>`:""}</button>`;}).join("")}</div>
     <div class="legend2">${list.map(([lab,n],i)=>{
       const on=F[key]===lab;
       return `<button class="lg2${on?" on":""}" data-k="${key}" data-v="${esc(lab)}">
         <span class="lg-dot" style="background:${cols[i]}"></span>
-        <span class="lg2-l">${esc(lab)}</span><span class="lg2-n">${n}</span></button>`;}).join("")}</div>`;
+        <span class="lg2-l">${esc(lab)}</span><span class="lg2-n pill-n">${n}</span></button>`;}).join("")}</div>`;
 }
 
 function sourceBars(el,rows){
@@ -1397,7 +1434,7 @@ function weekChart(el,legEl,dim){
     const n=per.reduce((a,m)=>a+(m.get(lab)||0),0);
     return `<button class="lg2${on?" on":""}" data-k="${fk}" data-v="${esc(lab)}">
       <span class="lg-dot" style="background:${segColor(dim,lab)}"></span>
-      <span class="lg2-l">${esc(lab)}</span><span class="lg2-n">${n}</span></button>`;}).join("");
+      <span class="lg2-l">${esc(lab)}</span><span class="lg2-n pill-n">${n}</span></button>`;}).join("");
 }
 
 /* compact profile summary: dominant bucket up front, full split on hover */
@@ -1586,7 +1623,8 @@ function openDrawer(i){
   /* at a glance — two properties per row, values colour-coded like the charts */
   const swatch=(v,c)=>`<span class="swatch" style="background:${c}"></span>${esc(v)}`;
   const props=[
-    ["Country", esc(d.country)], ["Region", esc(d.region)], ["City", esc(d.city)],
+    ["Country", esc(d.country)+(d.countries.length>1?` <span class="alsoc">also ${esc(d.countries.filter(c=>c!==d.country).join(", "))}</span>`:"")],
+    ["Region", esc(d.region)], ["City", esc(d.city)],
     ["Founded", esc(d.year)],
     ["Revenue 2025", d.revenue!=="—"?swatch(d.revenue,bucketColor("revenue",d.revenue)):""],
     ["Full-time employees", d.size!=="—"?swatch(d.size,bucketColor("size",d.size)):""],
