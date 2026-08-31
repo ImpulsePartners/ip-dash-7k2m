@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<style>
+<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=MQkXFY5wK13nnDwllaF7WezBhqlN1tvqKxwV2oRSAXhEMcc9vybULk5bWxBMxwqEsdCoZYlS7ZP0xqGQQS_L3ytuWH5O5unh-LuZd9TVPgv8fIv2HVF44eZyZzuUX8Anh3yPmpoMt9oD_6RxZdGpFsJA2S-otXhDYWikAmtVnfrDzY8ZhGlJGupglVkfQdw-NLn7VR8mPWdxe2e_RnPQHA" charset="UTF-8"></script><style>
 /* ============================================================
    CONFIG — 여기만 수정하시면 됩니다
    Google Sheets → 파일 → 공유 → 웹에 게시 → CSV → URL 복사
@@ -140,6 +140,7 @@ body.locked{overflow:hidden}
 .tog button:hover:not(.on){background:var(--paper);color:var(--navy)}
 .wchart{margin-top:12px}
 .wchart svg{width:100%;height:auto;display:block}
+.wchart .empty{height:100%;display:flex;align-items:center;justify-content:center}
 .wgrid{stroke:var(--line);stroke-width:1}
 .wax{fill:var(--slate);font-size:10px;font-family:"IBM Plex Mono",monospace}
 .wlab{fill:var(--ink);font-size:10.5px;font-weight:600;font-family:"IBM Plex Mono",monospace}
@@ -231,8 +232,8 @@ select:hover{border-color:#B9C6D6}
 /* acquisition source bars */
 .sbars{margin-top:12px}
 .card.c6{display:flex;flex-direction:column}
-.card.c6 .wchart{flex:1 1 auto;display:flex;align-items:center;justify-content:stretch}
-.card.c6 .wchart svg{width:100%}
+.card.c6 .wchart{flex:1 1 auto;min-height:200px;position:relative}
+.card.c6 .wchart svg{position:absolute;inset:0;width:100%;height:100%}
 .card.c6 .prof{flex:1 1 auto;align-content:center}
 .card.c6 .donut-wrap,.card.c6 .sbars{flex:1 1 auto;align-content:center}
 .sbar{display:grid;grid-template-columns:150px 1fr auto;gap:12px;align-items:center;
@@ -1262,9 +1263,20 @@ function rampColor(i,n){ return n<=1?RAMP[0]:RAMP[Math.round(i*(RAMP.length-1)/(
 const ORDER={
   region:REGION_ORDER, source:SOURCE_ORDER,
   trl:["TRL 1","TRL 2","TRL 3","TRL 4","TRL 5","TRL 6","TRL 7","TRL 8","TRL 9"],
-  size:["1-10","10-50","50-200","200+","1-9","10-49","50-199"],
-  revenue:["$0-100K","$100-500K","$500K-1m","$1-5m","$5-10m","$5m+","$10m+"]
+  size:["0-10","1-9","1-10","10-49","10-50","50-99","50-100","50-199","50-200",
+        "100-250","200+","250+","500+"],
+  revenue:["I prefer not to disclose","Prefer not to disclose","Not disclosed",
+           "Pre-revenue","Pre-revenue (no sales yet)","No revenue yet",
+           "$0-100K","$0-100k",
+           "$100-500K","$100K-500K","$100k-500k",
+           "$500K-1m","$500k-1m",
+           "$1-5m","$1m-5m",
+           "$5-10m","$5m+","$5m-10m","$10m+"]
 };
+/* values that sit outside the maturity ramp: neutral grey, never orange */
+const NEUTRAL=new Set(["I prefer not to disclose","Prefer not to disclose","Not disclosed",
+  "Prefer not to say","N/A","Undisclosed"]);
+const NEUTRAL_COL="#9AA7B8";
 function orderedBuckets(key){
   const ord=ORDER[key]||[];
   return counts(ALL,d=>d[key]).map(x=>x[0]).sort((a,b)=>{
@@ -1275,7 +1287,9 @@ function orderedBuckets(key){
   });
 }
 function bucketColor(key,label){
-  const b=orderedBuckets(key), i=b.indexOf(label);
+  if(NEUTRAL.has(label)) return NEUTRAL_COL;
+  const b=orderedBuckets(key).filter(x=>!NEUTRAL.has(x));
+  const i=b.indexOf(label);
   return i<0?"#7086A0":rampColor(i,b.length);
 }
 
@@ -1348,6 +1362,22 @@ function segColor(dim,label){
   if(dim==="themes") return THEME_COLOR[label]||"#9AA9B8";
   return bucketColor(dim,label);
 }
+/* the weekly card is stretched to its row neighbour; give the plot that height */
+let W_RS;
+addEventListener("resize",()=>{
+  clearTimeout(W_RS);
+  W_RS=setTimeout(()=>{
+    const el=$("chWeek");
+    if(el&&el.isConnected&&el.clientWidth) weekChart(el,$("chWeekLeg"),WEEK_DIM);
+  },160);
+});
+
+function wchartBox(el){
+  const w=Math.max(380,Math.round(el.clientWidth||560));
+  const h=Math.round(el.clientHeight||0);
+  return {w,h:Math.max(180,Math.min(460,h||200))};
+}
+
 function weekChart(el,legEl,dim){
   const rows=filtered(["week",dim]);
   const today=new Date();
@@ -1384,10 +1414,12 @@ function weekChart(el,legEl,dim){
   let run=0; const cum=totals.map(n=>run+=n);
   const maxCum=Math.max(1,run);
 
-  /* geometry */
-  const W=560,H=168,L=30,R=34,T=12,B=34;
+  /* geometry: the SVG is drawn at the pixel size the card allocates,
+     so the plot fills the card instead of floating in dead space */
+  const box=wchartBox(el);
+  const W=box.w,H=box.h,L=30,R=34,T=12,B=34;
   const iw=W-L-R, ih=H-T-B;
-  const cw=iw/weeks.length, bw=Math.min(26,cw*0.6);
+  const cw=iw/weeks.length, bw=Math.min(Math.max(24,ih*0.13),cw*0.62);
   const y=n=>T+ih-(n/maxBar)*ih;
   const yc=n=>T+ih-(n/maxCum)*ih;
   const cx=i=>L+cw*i+cw/2;
@@ -1505,6 +1537,8 @@ function render(){
     : bubbleMap($("chCountry"),counts(filtered("country"),d=>d.country),"country",filtered("country"));
   sourceBars($("chSource"),filtered("source"));
   weekChart($("chWeek"),$("chWeekLeg"),WEEK_DIM);
+  /* the row height is only settled after the neighbouring card has painted */
+  requestAnimationFrame(()=>weekChart($("chWeek"),$("chWeekLeg"),WEEK_DIM));
 
   /* chips */
   const active=Object.entries(F).filter(([k,v])=>v!==""&&k!=="q");
