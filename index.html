@@ -233,7 +233,8 @@ select:hover{border-color:#B9C6D6}
 .sbars{margin-top:12px}
 .card.c6{display:flex;flex-direction:column}
 .card.c6 .wchart{flex:1 1 auto;min-height:200px;position:relative}
-.card.c6 .wchart svg{position:absolute;inset:0;width:100%;height:100%}
+.card.c6 .wchart svg{position:absolute;top:14px;bottom:22px;left:0;right:0;
+  width:100%;height:auto}
 .card.c6 .prof{flex:1 1 auto;align-content:center}
 .card.c6 .donut-wrap,.card.c6 .sbars{flex:1 1 auto;align-content:center}
 .sbar{display:grid;grid-template-columns:150px 1fr auto;gap:12px;align-items:center;
@@ -1372,10 +1373,11 @@ addEventListener("resize",()=>{
   },160);
 });
 
+const WPAD=36;   /* breathing room kept above and below the plot */
 function wchartBox(el){
   const w=Math.max(380,Math.round(el.clientWidth||560));
-  const h=Math.round(el.clientHeight||0);
-  return {w,h:Math.max(180,Math.min(460,h||200))};
+  const h=Math.round(el.clientHeight||0)-WPAD;
+  return {w,h:Math.max(170,Math.min(400,h||190))};
 }
 
 function weekChart(el,legEl,dim){
@@ -1419,7 +1421,7 @@ function weekChart(el,legEl,dim){
   const box=wchartBox(el);
   const W=box.w,H=box.h,L=30,R=34,T=12,B=34;
   const iw=W-L-R, ih=H-T-B;
-  const cw=iw/weeks.length, bw=Math.min(Math.max(24,ih*0.13),cw*0.62);
+  const cw=iw/weeks.length, bw=Math.min(Math.max(24,ih*0.11),cw*0.55);
   const y=n=>T+ih-(n/maxBar)*ih;
   const yc=n=>T+ih-(n/maxCum)*ih;
   const cx=i=>L+cw*i+cw/2;
