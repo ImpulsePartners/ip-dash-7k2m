@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>LANDCROS Innovation Studios Europe Challenge 2026 — Shortlist vote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#15365C; --orange:#FF6600; --navy-deep:#0E2440; --navy-mid:#4A7FB5;
+  --orange-soft:#FFEDE0; --paper:#EAEFF5; --paper-deep:#DFE7F0;
+  --ink:#101E2E; --slate:#5C7186;
+  --line:#DBE2EA; --white:#fff; --r:3px;
+  --t1:#F26522; --t2:#1E9E8A; --t3:#6C63C8;
+  --t1-soft:#FDEDE4; --t2-soft:#E3F4F1; --t3-soft:#ECEBF9;
+  --red:#D62839;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:Archivo,Inter,sans-serif;margin:0;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+/* ---------- access gate (identical password to Dashboard / Evaluate) ---------- */
+body.locked{overflow:hidden}
+.gate{position:fixed;inset:0;z-index:200;background:var(--navy);
+  display:flex;align-items:center;justify-content:center;padding:24px;transition:opacity .3s}
+.gate.gone{opacity:0;pointer-events:none}
+.gate-box{width:100%;max-width:410px;text-align:center}
+.gate h1{font-family:Archivo,sans-serif;font-size:19px;font-weight:700;color:#fff;
+  letter-spacing:-.015em;line-height:1.35}
+.gate .sub{font-size:12.5px;color:#9FB6CF;margin-top:8px;letter-spacing:.02em}
+#gateForm{margin-top:26px;display:flex;flex-direction:column;gap:10px}
+#gateForm.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.gate input{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.07);
+  color:#fff;border-radius:var(--r);padding:12px 14px;font-size:14px;font-family:inherit;
+  text-align:center;letter-spacing:.04em}
+.gate input::placeholder{color:#7F97B2;letter-spacing:0}
+.gate input:focus{border-color:var(--orange);outline:none;background:rgba(255,255,255,.11)}
+.gate button{background:var(--orange);border:0;color:#fff;border-radius:var(--r);
+  padding:12px 16px;font-size:13.5px;font-weight:700;font-family:inherit;letter-spacing:.02em}
+.gate button:hover:not(:disabled){background:#E65C00}
+.gate button:disabled{opacity:.6}
+.gate-err{color:#FFB088;font-size:12.5px;line-height:1.45;margin-top:2px}
+.gate-note{font-size:11px;color:#6E88A5;margin-top:22px;line-height:1.5}
+
+/* ---------- header ---------- */
+.hdr{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid var(--line)}
+.hdr-in{display:flex;align-items:center;gap:18px;height:60px}
+.hdr-title{font-size:14px;font-weight:700;font-family:Archivo,sans-serif;letter-spacing:-.005em}
+.hdr-sub{font-size:11px;color:var(--slate);letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
+.nav{display:flex;gap:2px;margin-left:26px}
+.nav a{font-size:12.5px;font-weight:600;color:var(--slate);text-decoration:none;
+  padding:7px 13px;border-radius:20px;transition:background .15s,color .15s}
+.nav a:hover{background:var(--paper);color:var(--ink)}
+.nav a.on{background:var(--navy);color:#fff}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.btn{border:1px solid var(--navy);background:var(--navy);color:#fff;padding:8px 14px;
+  border-radius:var(--r);font-size:12px;font-weight:600;transition:background .15s,border-color .15s}
+.btn:hover:not(:disabled){background:var(--navy-deep);border-color:var(--navy-deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.ghost{background:transparent;color:var(--navy)}
+.btn.ghost:hover{background:var(--paper)}
+.btn.go{background:var(--orange);border-color:var(--orange)}
+.btn.go:hover:not(:disabled){background:#E65C00;border-color:#E65C00}
+.btn.small{padding:6px 11px;font-size:11.5px}
+
+/* ---------- hero ---------- */
+.hero{background:#fff;border-bottom:1px solid var(--line)}
+.hero-in{padding:30px 0 28px}
+.hero-eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);font-weight:700}
+.hero-h1{font-family:Archivo,sans-serif;font-size:34px;font-weight:800;line-height:1.08;
+  letter-spacing:-.03em;color:var(--ink);margin:10px 0 0}
+.hero-p{font-size:13px;color:var(--slate);max-width:640px;margin-top:10px;line-height:1.6}
+
+/* ---------- admin panel ---------- */
+.admin{background:#FFF8F0;border-bottom:1px solid #F0DCC0}
+.admin-in{padding:14px 0}
+.admin-head{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.admin-head b{font-size:12.5px}
+.admin-head .tag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#A9660C;
+  background:#FCE7CC;border-radius:10px;padding:2px 9px;font-weight:700}
+.admin-body{margin-top:12px;display:flex;flex-direction:column;gap:12px}
+.admin-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.admin textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:var(--r);
+  padding:10px;font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+.admin-note{font-size:11.5px;color:#7A5C2A;line-height:1.5}
+
+/* ---------- partner bar ---------- */
+.rbar{background:var(--navy);color:#fff}
+.rbar-in{display:flex;align-items:center;gap:18px;padding:15px 0;flex-wrap:wrap}
+.rbar label{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9FB6CF;font-weight:600}
+.whobtn{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;
+  font-family:inherit;font-size:12.5px;border-radius:20px;padding:8px 16px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px}
+.whobtn::after{content:"";width:6px;height:6px;border-right:1.5px solid #fff;
+  border-bottom:1.5px solid #fff;transform:rotate(45deg) translateY(-2px)}
+.whobtn:hover{background:rgba(255,255,255,.16)}
+.whobtn.set{background:#fff;color:var(--navy);border-color:#fff;font-weight:600}
+.whowrap{position:relative}
+.whopop{position:absolute;z-index:60;top:calc(100% + 8px);left:0;min-width:260px;background:#fff;
+  border-radius:12px;box-shadow:0 14px 38px rgba(8,22,40,.28);padding:10px;color:var(--ink)}
+.whopop-h{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);
+  font-weight:700;margin:2px 4px 8px}
+.whoitem{display:flex;align-items:center;gap:10px;border:0;background:none;width:100%;
+  text-align:left;font-family:inherit;font-size:13px;color:var(--ink);padding:8px 10px;
+  border-radius:8px;cursor:pointer}
+.whoitem:hover{background:var(--paper)}
+.whoitem .box{width:15px;height:15px;border:1.5px solid var(--line);border-radius:4px;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+.whoitem.on .box{background:var(--orange);border-color:var(--orange)}
+.pcount{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#CBD9E8}
+.pcount b{color:#fff;font-family:"IBM Plex Mono",monospace;font-size:16px}
+.pdot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.synctag{margin-left:10px;font-size:11.5px;padding:4px 10px;border-radius:12px;
+  background:rgba(255,255,255,.12);color:#CBD9E8}
+.synctag.ok{background:rgba(43,150,88,.24);color:#B6E8C8}
+.synctag.saving{background:rgba(255,255,255,.16);color:#fff}
+.synctag.local,.synctag.off{background:rgba(255,140,60,.2);color:#FFD2AE}
+
+/* ---------- notices ---------- */
+.notice{background:var(--orange-soft);border-bottom:1px solid #F4C9A8;padding:10px 0;
+  font-size:12.5px;color:#7A3A00}
+.notice b{font-weight:700}
+.notice code{background:#fff;padding:1px 6px;border-radius:2px;font-size:11.5px;
+  font-family:"IBM Plex Mono",monospace;border:1px solid #F0C4A0}
+.notice.ok{background:#EAF3EC;border-bottom-color:#C6E0CD;color:#1B5B33}
+.notice.locked{background:#EDF1F6;border-bottom-color:var(--line);color:var(--slate)}
+
+/* ---------- vote section ---------- */
+.sect{padding:26px 0 44px}
+.sect-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.sect-head h2{font-size:19px;font-weight:700;letter-spacing:-.02em}
+.pick-track{margin-left:auto;display:flex;align-items:center;gap:10px}
+.pick-dots{display:flex;gap:5px}
+.pick-dots span{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--line);background:#fff}
+.pick-dots span.on{background:var(--red);border-color:var(--red)}
+.pick-label{font-size:12.5px;color:var(--slate)}
+.pick-label b{color:var(--ink)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.vcard{background:#fff;border:1.5px solid var(--line);border-radius:6px;padding:16px;cursor:pointer;
+  transition:border-color .15s,box-shadow .15s,transform .1s;position:relative}
+.vcard:hover{border-color:var(--navy-mid)}
+.vcard.on{border-color:var(--red);box-shadow:0 0 0 1.5px var(--red) inset}
+.vcard.disabled{opacity:.4;cursor:not-allowed}
+.vcard .vc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.vcard h4{font-size:14.5px;font-weight:700;letter-spacing:-.005em;line-height:1.3}
+.vc-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.vcard.on .vc-check{background:var(--red);border-color:var(--red)}
+.vc-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.vc-chip{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:12px;color:#fff}
+.vc-country{font-size:11px;color:var(--slate);font-family:"IBM Plex Mono",monospace}
+.vc-blurb{font-size:12px;color:var(--slate);margin-top:9px;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+.submit-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);
+  padding:14px 0;margin-top:22px;display:flex;align-items:center;gap:14px}
+.submit-bar .msg{font-size:12.5px;color:var(--slate)}
+.submit-bar .msg b{color:var(--ink)}
+
+/* ---------- results (reveal) ---------- */
+.rk-row{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);
+  border-radius:6px;padding:12px 16px;margin-bottom:8px}
+.rk-n{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--slate);width:22px;flex:0 0 auto}
+.rk-name{font-weight:700;font-size:13.5px;flex:1 1 auto}
+.rk-bar{flex:2 1 220px;height:8px;background:var(--paper-deep);border-radius:4px;overflow:hidden}
+.rk-fill{height:100%;background:var(--red)}
+.rk-votes{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink);width:70px;text-align:right}
+.rk-who{font-size:11px;color:var(--slate);width:100%;margin-top:6px}
+
+footer{padding:34px 0 50px;text-align:center;font-size:11.5px;color:var(--slate)}
+</style>
+</head>
+<body class="locked">
+
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h1>LANDCROS Innovation Studios<br>Europe Challenge 2026</h1>
+    <div class="sub">Challenge partner access</div>
+
+    <form id="gateForm" onsubmit="submitGate(event)">
+      <input id="gatePw" type="password" placeholder="Enter the access password"
+             autocomplete="current-password" autofocus>
+      <button id="gateBtn" type="submit">Enter</button>
+      <div class="gate-err" id="gateErr" hidden></div>
+    </form>
+
+    <div class="gate-note">
+      Same password as the Dashboard and Evaluate pages. Shortlist votes shown here are
+      confidential to the voting partner until Impulse reveals the results.
+    </div>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap hdr-in">
+    <div class="hdr-titles">
+      <div class="hdr-title">LANDCROS Innovation Studios Europe Challenge 2026</div>
+      <div class="hdr-sub">Medium List to Short List</div>
+    </div>
+    <nav class="nav">
+      <a href="index.html">Dashboard</a>
+      <a href="evaluate.html">Evaluate</a>
+      <a href="shortlist.html" class="on">Shortlist</a>
+    </nav>
+    <div class="hdr-right">
+      <button class="btn ghost small" id="revealBtn">Reveal results</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-in">
+    <div class="hero-eyebrow">Cohort 2026 &middot; Medium List to Short List</div>
+    <h1 class="hero-h1">Pick your five</h1>
+    <p class="hero-p">Each partner selects up to five startups from the Medium List. Choices stay
+      private to your own organisation until Impulse reveals the combined results after the
+      on-site review meetings in October. This mirrors the red dot system used on paper: one
+      dot per startup, five dots per partner.</p>
+  </div>
+</section>
+
+<section class="admin">
+  <div class="wrap admin-in">
+    <div class="admin-head" id="adminToggle">
+      <span class="tag">Admin</span>
+      <b>Load the Medium List</b>
+      <span style="color:#A9660C;font-size:12px" id="adminChevron">Show</span>
+    </div>
+    <div class="admin-body" id="adminBody" hidden>
+      <div class="admin-note">Paste the Medium List as CSV (first row = headers, must include a
+        <code style="background:#fff;border:1px solid #F0C4A0;border-radius:2px;padding:1px 5px">Company name</code>
+        column; <code style="background:#fff;border:1px solid #F0C4A0;border-radius:2px;padding:1px 5px">Theme</code>,
+        <code style="background:#fff;border:1px solid #F0C4A0;border-radius:2px;padding:1px 5px">Country</code> and a
+        description column are used if present). Loading a new list replaces the current one and
+        does not delete any votes already submitted for names that still match.</div>
+      <textarea id="csvPaste" placeholder="Company name,Theme,Country,Company description, mission and vision
+Dig Robotics,Autonomous Operations,Israel,..."></textarea>
+      <div class="admin-row">
+        <button class="btn small" id="csvLoadBtn" type="button">Load list</button>
+        <button class="btn ghost small" id="csvFileBtn" type="button">Load a CSV file instead</button>
+        <input id="csvFile" type="file" accept=".csv,text/csv" hidden>
+        <span class="admin-note" id="adminStatus"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="rbar">
+  <div class="wrap rbar-in">
+    <label for="who">Voting as</label>
+    <div class="whowrap">
+      <button class="whobtn" id="whoBtn" type="button">Choose your partner organisation</button>
+      <div class="whopop" id="whoPop" hidden>
+        <div class="whopop-h">Which partner is voting?</div>
+        <div id="whoList"></div>
+      </div>
+    </div>
+    <span class="synctag" id="syncTag" hidden></span>
+    <div class="pcount">
+      <span class="pdot"></span>
+      <span><b id="ballotsIn">0</b> of <b id="ballotsTotal">6</b> partners have voted</span>
+    </div>
+  </div>
+</section>
+
+<div class="notice" id="notice" hidden><div class="wrap" id="noticeTxt"></div></div>
+
+<div class="wrap" id="voteSection" hidden>
+  <section class="sect">
+    <div class="sect-head">
+      <h2>Medium List</h2>
+      <div class="pick-track">
+        <div class="pick-dots" id="pickDots"></div>
+        <span class="pick-label"><b id="pickN">0</b> of 5 selected</span>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+</div>
+
+<div class="wrap" id="submitWrap" hidden>
+  <div class="submit-bar">
+    <button class="btn go" id="submitBtn" type="button" disabled>Submit our five</button>
+    <span class="msg" id="submitMsg"></span>
+  </div>
+</div>
+
+<div class="wrap" id="resultsSection" hidden>
+  <section class="sect">
+    <div class="sect-head"><h2>Combined results</h2></div>
+    <div id="resultsList"></div>
+  </section>
+</div>
+
+<footer>LANDCROS Innovation Studios Europe Challenge 2026 &middot;
+  Hitachi Construction Machinery &times; Impulse Partners</footer>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   ACCESS GATE — identical password/vault mechanism to index.html and
+   evaluate.html. Regenerate with the #setup flow on those pages and
+   paste the same VAULT block here so all three stay in sync.
+   ══════════════════════════════════════════════════════════════════ */
+const VAULT = {"v":1,"it":250000,"salt":"+ZZ7BeM6wJDhk31s+zebdQ==","iv":"6WbxFP25iEhCT4fh","ct":"SLdP2NyaCB8unlVHock8yrMazy7jx3pYd2GC76oyCJazLzOtb6Wv1Fxd2cIL0CfywUSAtgVdUYh3i09A1RVecfsR9MqmoxkG/9K2b+h1f/8uv5F/fqh+dzZyzfVdmUthu4ZAEcEmPHmBvCQytg6IHLyQ/QZrasf6xEGgNCyOFNvUscxS5465yCZkQWxKaczAqAFE5q+VbeiP9IMGJB41VOg0Ijk+LrtPtLcp/akGGVlIwxWwFMQfFVK04WhfwWC+DA45qB/HuhERRfSCGTTpw6LxWLMUHVq1DgnjxZ6sXozmXLfTuYlhGbnc7CqN9LTdtqOgFwK8KlspvmInggQSChQtoMJxTSGSqbNLKQ=="};
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+let CFG=null;
+async function deriveKey(pw,salt,it,usage){
+  const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:it,hash:"SHA-256"},
+    km,{name:"AES-GCM",length:256},false,usage);
+}
+async function unlock(pw){
+  const key=await deriveKey(pw,b64(VAULT.salt),VAULT.it,["decrypt"]);
+  const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(VAULT.iv)},key,b64(VAULT.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+function gateError(msg){
+  const e=document.getElementById("gateErr");
+  e.textContent=msg; e.hidden=false;
+  document.getElementById("gateForm").classList.add("shake");
+  setTimeout(()=>document.getElementById("gateForm").classList.remove("shake"),420);
+}
+async function submitGate(ev){
+  ev.preventDefault();
+  const btn=document.getElementById("gateBtn"), pw=document.getElementById("gatePw").value;
+  if(!pw) return;
+  if(!window.crypto||!crypto.subtle){
+    gateError("This page must be opened over https. Opening the file directly from disk disables the browser's decryption engine.");
+    return;
+  }
+  btn.disabled=true; btn.textContent="Checking…";
+  try{
+    CFG=await unlock(pw);
+    document.getElementById("gate").classList.add("gone");
+    setTimeout(()=>document.getElementById("gate").remove(),320);
+    document.body.classList.remove("locked");
+    start();
+  }catch(e){
+    gateError("That password does not match. Check with the Challenge team.");
+    document.getElementById("gatePw").select();
+  }finally{ btn.disabled=false; btn.textContent="Enter"; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ADMIN REVEAL LOCK — separate from the page password above. Only
+   someone with this second passphrase can flip the results into view.
+   It is stored as a SHA-256 hash, not the password itself, so reading
+   this file never reveals the passphrase. Generate a new one in the
+   browser console with:
+     crypto.subtle.digest("SHA-256", new TextEncoder().encode("your phrase"))
+       .then(b=>console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
+   and paste the resulting hex string below.
+   ══════════════════════════════════════════════════════════════════ */
+const REVEAL_HASH = "REPLACE_WITH_SHA256_HEX_OF_YOUR_REVEAL_PASSPHRASE";
+async function sha256Hex(s){
+  const buf=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+
+/* ── partner roster for this stage (Medium List → Short List jury:
+   partners only, per the 8 September recap — Impulse and HCM do not
+   vote here) ── */
+const PARTNERS=["Brick & Mortar","CRH Ventures","Ferrovial","Leonard","Loxam","Zacua"];
+const PICKS_MAX=5;
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const g=(r,k)=>(r[k]??"").toString().trim();
+
+/* ── CSV parser (RFC 4180, handles quoted newlines) — same routine as
+   the Dashboard and Evaluate pages ── */
+function parseCSV(t){
+  const rows=[];let row=[],cur="",q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else if(c==='"') q=true;
+    else if(c===",") {row.push(cur);cur="";}
+    else if(c==="\n"){row.push(cur);rows.push(row);row=[];cur="";}
+    else if(c!=="\r") cur+=c;
+  }
+  if(cur!==""||row.length){row.push(cur);rows.push(row);}
+  return rows;
+}
+function toObjects(rows){
+  if(!rows.length) return [];
+  const h=rows[0].map(s=>s.trim());
+  return rows.slice(1)
+    .filter(r=>r.some(v=>String(v).trim()!==""))
+    .map(r=>{const o={};h.forEach((k,i)=>o[k]=(r[i]??"").trim());return o;});
+}
+
+const THEME_COLOR={"Autonomous Operations":"#F26522","Site Intelligence & Planning":"#1E9E8A",
+  "Lifecycle Decision Intelligence":"#6C63C8"};
+function themeColor(name){
+  const k=Object.keys(THEME_COLOR).find(t=>name && t.toLowerCase().includes(name.toLowerCase().split(" ")[0]));
+  return THEME_COLOR[name] || THEME_COLOR[k] || "#5C7186";
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   STATE
+   COMPANIES — the Medium List, loaded by Jee via the admin panel below
+   (paste or upload the CSV once the Long List → Medium List vote is
+   final). BALLOTS — one record per partner, {partner, picks:[names],
+   at}. Storage mirrors evaluate.html: browser first, then an Apps
+   Script endpoint if CFG.scriptUrl is configured, so votes survive a
+   refresh and sync across each partner's own device.
+
+   IMPORTANT — this front end is ready, but reading every partner's
+   ballot for the reveal screen and flipping the shared "revealed"
+   flag both need a small addition on the Apps Script side: an
+   action=loadAllShortlist endpoint that returns every saved ballot,
+   and an action=revealShortlist endpoint that stores the reveal flag
+   centrally. Until that exists, "Reveal results" only reveals on the
+   browser that clicks it, and results are limited to ballots already
+   synced through the browser you are using.
+   ══════════════════════════════════════════════════════════════════ */
+let COMPANIES=[];
+let BALLOTS=[];              // {partner, picks:[], at}
+let CURRENT=null, DRAFT=[];
+let SYNC={state:"idle"};
+
+const LS_COMPANIES = "hcm26.shortlist.companies";
+const LS_BALLOT = p => "hcm26.shortlist.ballot."+String(p||"").toLowerCase();
+const LS_REVEALED = "hcm26.shortlist.revealed";
+
+function lsRead(k,fallback){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):fallback; }catch(e){ return fallback; } }
+function lsWrite(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
+
+function syncBadge(state){
+  SYNC={state};
+  const el=$("syncTag"); if(!el) return;
+  const txt={saving:"Saving…",ok:"Saved",local:"Saved in this browser",off:"Saved in this browser",idle:""}[state]||"";
+  el.textContent=txt; el.className="synctag "+state; el.hidden=!txt;
+}
+
+async function postBallot(rec){
+  if(!CFG||!CFG.scriptUrl) return false;
+  const res=await fetch(CFG.scriptUrl,{method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({key:CFG.scriptKey||"", action:"saveShortlist", ballot:rec})});
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  const out=await res.json().catch(()=>({ok:true}));
+  if(out && out.ok===false) throw new Error(out.error||"rejected by the script");
+  return true;
+}
+async function saveBallot(partner,picks){
+  const rec={partner,picks,at:new Date().toISOString()};
+  const i=BALLOTS.findIndex(b=>b.partner===partner);
+  if(i>=0) BALLOTS[i]=rec; else BALLOTS.push(rec);
+  lsWrite(LS_BALLOT(partner),rec);
+  if(!CFG||!CFG.scriptUrl){ syncBadge("off"); return rec; }
+  syncBadge("saving");
+  try{ await postBallot(rec); syncBadge("ok"); }
+  catch(e){ syncBadge("local"); }
+  return rec;
+}
+function loadOwnBallot(partner){
+  return lsRead(LS_BALLOT(partner),null);
+}
+/* every ballot this browser has ever saved locally — used as a
+   fallback for the reveal screen until the loadAllShortlist Apps
+   Script action above exists */
+function loadAllKnownBallots(){
+  const out=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k && k.indexOf("hcm26.shortlist.ballot.")===0){
+      const v=lsRead(k,null); if(v) out.push(v);
+    }
+  }
+  return out;
+}
+
+/* ── admin: load the Medium List ── */
+function loadCompaniesFromCSV(txt){
+  const objs=toObjects(parseCSV(txt));
+  if(!objs.length || objs[0]["Company name"]===undefined){
+    $("adminStatus").textContent="That text has no 'Company name' column in its first row.";
+    return;
+  }
+  COMPANIES=objs.filter(r=>g(r,"Company name")!=="").map((r,i)=>({
+    _i:i,
+    name:g(r,"Company name"),
+    theme:g(r,"Theme"),
+    country:g(r,"Country"),
+    blurb:g(r,"Company description, mission and vision")||g(r,"Blurb")||""
+  }));
+  lsWrite(LS_COMPANIES,COMPANIES);
+  $("adminStatus").textContent=COMPANIES.length+" companies loaded.";
+  render();
+}
+$("csvLoadBtn").addEventListener("click",()=>{
+  const t=$("csvPaste").value.trim();
+  if(!t){ $("adminStatus").textContent="Paste the CSV first."; return; }
+  loadCompaniesFromCSV(t);
+});
+$("csvFileBtn").addEventListener("click",()=>$("csvFile").click());
+$("csvFile").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{ $("csvPaste").value=String(rd.result); loadCompaniesFromCSV(String(rd.result)); };
+  rd.readAsText(f,"utf-8"); e.target.value="";
+});
+$("adminToggle").addEventListener("click",()=>{
+  const b=$("adminBody"); b.hidden=!b.hidden; $("adminChevron").textContent=b.hidden?"Show":"Hide";
+});
+
+/* ── partner picker ── */
+const me=()=>CURRENT;
+function renderWhoList(){
+  $("whoList").innerHTML=PARTNERS.map(p=>{
+    const on=p===CURRENT;
+    const voted=!!loadOwnBallot(p);
+    return `<button type="button" class="whoitem${on?" on":""}" data-who="${esc(p)}">
+      <span class="box">${on?"&#10003;":""}</span>${esc(p)}
+      <span style="margin-left:auto;font-size:11px;color:${voted?"#1B6B3A":"#9FB6CF"}">${voted?"Voted":"Not yet"}</span>
+      </button>`;}).join("");
+}
+function setPartner(p){
+  CURRENT=p||null;
+  $("whoBtn").textContent=p||"Choose your partner organisation";
+  $("whoBtn").classList.toggle("set",!!p);
+  $("whoPop").hidden=true;
+  const saved=p?loadOwnBallot(p):null;
+  DRAFT = saved ? saved.picks.slice() : [];
+  render();
+}
+document.addEventListener("click",e=>{
+  if(e.target.closest("#whoBtn")){ const pop=$("whoPop"); renderWhoList(); pop.hidden=!pop.hidden; return; }
+  const item=e.target.closest("[data-who]");
+  if(item){ setPartner(item.dataset.who); return; }
+  if(!e.target.closest(".whowrap")) $("whoPop").hidden=true;
+});
+
+/* ── voting grid ── */
+function togglePick(name){
+  const i=DRAFT.indexOf(name);
+  if(i>=0){ DRAFT.splice(i,1); }
+  else{ if(DRAFT.length>=PICKS_MAX) return; DRAFT.push(name); }
+  render();
+}
+function renderGrid(){
+  $("grid").innerHTML=COMPANIES.map(c=>{
+    const on=DRAFT.includes(c.name);
+    const full=DRAFT.length>=PICKS_MAX && !on;
+    return `<div class="vcard${on?" on":""}${full?" disabled":""}" data-pick="${esc(c.name)}">
+      <div class="vc-top"><h4>${esc(c.name)}</h4><span class="vc-check">${on?"&#10003;":""}</span></div>
+      <div class="vc-meta">
+        ${c.theme?`<span class="vc-chip" style="background:${themeColor(c.theme)}">${esc(c.theme)}</span>`:""}
+        ${c.country?`<span class="vc-country">${esc(c.country)}</span>`:""}
+      </div>
+      ${c.blurb?`<div class="vc-blurb">${esc(c.blurb)}</div>`:""}
+    </div>`;
+  }).join("");
+}
+$("grid").addEventListener("click",e=>{
+  const card=e.target.closest("[data-pick]"); if(!card||card.classList.contains("disabled")) return;
+  togglePick(card.dataset.pick);
+});
+
+function renderPickTrack(){
+  $("pickN").textContent=DRAFT.length;
+  $("pickDots").innerHTML=Array.from({length:PICKS_MAX},(_,i)=>
+    `<span class="${i<DRAFT.length?"on":""}"></span>`).join("");
+}
+
+$("submitBtn").addEventListener("click",async()=>{
+  if(!CURRENT || DRAFT.length!==PICKS_MAX) return;
+  $("submitBtn").disabled=true; $("submitBtn").textContent="Saving…";
+  await saveBallot(CURRENT,DRAFT.slice());
+  $("submitBtn").textContent="Saved — you can still change it";
+  $("submitMsg").innerHTML=`Submitted for <b>${esc(CURRENT)}</b>. You can keep adjusting your five
+    until the vote closes — every change overwrites your previous ballot.`;
+  setTimeout(()=>{ $("submitBtn").disabled=DRAFT.length!==PICKS_MAX; $("submitBtn").textContent="Submit our five"; },1600);
+  render();
+});
+
+/* ── reveal ── */
+let REVEALED = lsRead(LS_REVEALED,false);
+$("revealBtn").addEventListener("click",async()=>{
+  if(REVEALED){ REVEALED=false; lsWrite(LS_REVEALED,false); render(); return; }
+  const pw=prompt("Enter the reveal passphrase to show combined results:");
+  if(!pw) return;
+  const hash=await sha256Hex(pw);
+  if(hash!==REVEAL_HASH){ alert("That passphrase does not match."); return; }
+  REVEALED=true; lsWrite(LS_REVEALED,true);
+  BALLOTS=loadAllKnownBallots();
+  render();
+});
+
+function renderResults(){
+  const counts={};
+  BALLOTS.forEach(b=>b.picks.forEach(name=>{ counts[name]=(counts[name]||0)+1; }));
+  const rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const max=rows.length?rows[0][1]:1;
+  if(!rows.length){
+    $("resultsList").innerHTML=`<p style="color:var(--slate);font-size:13px">No ballots found in
+      this browser yet. Until the Apps Script loadAllShortlist action is wired up, this view can
+      only combine ballots that were saved from this same browser.</p>`;
+    return;
+  }
+  $("resultsList").innerHTML=rows.map(([name,n],i)=>{
+    const who=BALLOTS.filter(b=>b.picks.includes(name)).map(b=>b.partner).join(", ");
+    return `<div class="rk-row">
+      <span class="rk-n">${i+1}</span>
+      <span class="rk-name">${esc(name)}</span>
+      <span class="rk-bar"><span class="rk-fill" style="width:${(n/max*100)}%"></span></span>
+      <span class="rk-votes">${n} vote${n===1?"":"s"}</span>
+      <span class="rk-who">${esc(who)}</span>
+    </div>`;
+  }).join("");
+}
+
+/* ── render / notices ── */
+function render(){
+  $("revealBtn").textContent=REVEALED?"Hide results":"Reveal results";
+  $("voteSection").hidden=REVEALED || !CURRENT;
+  $("submitWrap").hidden=REVEALED || !CURRENT;
+  $("resultsSection").hidden=!REVEALED;
+
+  const n=$("notice"), t=$("noticeTxt");
+  if(REVEALED){
+    n.hidden=false; n.className="notice ok";
+    t.innerHTML=`<b>Results revealed.</b> Every partner can now see the combined picks and who chose what.`;
+    renderResults();
+  }else if(!COMPANIES.length){
+    n.hidden=false; n.className="notice";
+    t.innerHTML=`<b>No Medium List loaded yet.</b> Use the Admin panel above to paste or upload the
+      confirmed Medium List before partners start voting.`;
+  }else if(!CURRENT){
+    n.hidden=false; n.className="notice locked";
+    t.innerHTML=`<b>Choose your partner organisation above to start voting.</b>
+      Your picks stay private to your organisation until Impulse reveals the combined results.`;
+  }else{
+    n.hidden=true;
+  }
+
+  if(COMPANIES.length && CURRENT){ renderGrid(); renderPickTrack();
+    $("submitBtn").disabled=DRAFT.length!==PICKS_MAX;
+  }
+
+  const known=PARTNERS.filter(p=>loadOwnBallot(p));
+  $("ballotsIn").textContent=known.length;
+  $("ballotsTotal").textContent=PARTNERS.length;
+}
+
+function start(){
+  COMPANIES=lsRead(LS_COMPANIES,[]);
+  render();
+}
+/* start() runs once the page password is accepted, from submitGate() above */
+</script>
+</body>
+</html>
