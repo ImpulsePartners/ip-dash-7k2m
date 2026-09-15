@@ -428,6 +428,34 @@ function themeColor(name){
    browser that clicks it, and results are limited to ballots already
    synced through the browser you are using.
    ══════════════════════════════════════════════════════════════════ */
+/* placeholder Medium List so the page is not empty before Jee loads the
+   real one via the Admin panel — replaced the moment a CSV is loaded */
+const DEMO_COMPANIES=[
+  {_i:0, name:"Startup 1", theme:"Autonomous Operations", country:"Germany",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:1, name:"Startup 2", theme:"Autonomous Operations", country:"France",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:2, name:"Startup 3", theme:"Autonomous Operations", country:"Sweden",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:3, name:"Startup 4", theme:"Site Intelligence & Planning", country:"Netherlands",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:4, name:"Startup 5", theme:"Site Intelligence & Planning", country:"Spain",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:5, name:"Startup 6", theme:"Site Intelligence & Planning", country:"United Kingdom",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:6, name:"Startup 7", theme:"Site Intelligence & Planning", country:"Israel",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:7, name:"Startup 8", theme:"Lifecycle Decision Intelligence", country:"Japan",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:8, name:"Startup 9", theme:"Lifecycle Decision Intelligence", country:"Italy",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:9, name:"Startup 10", theme:"Lifecycle Decision Intelligence", country:"South Korea",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:10, name:"Startup 11", theme:"Autonomous Operations", country:"Belgium",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."},
+  {_i:11, name:"Startup 12", theme:"Site Intelligence & Planning", country:"Denmark",
+   blurb:"Placeholder entry. Replace with the real Medium List via the Admin panel above."}
+];
 let COMPANIES=[];
 let BALLOTS=[];              // {partner, picks:[], at}
 let CURRENT=null, DRAFT=[];
@@ -637,6 +665,10 @@ function render(){
     n.hidden=false; n.className="notice ok";
     t.innerHTML=`<b>Results revealed.</b> Every partner can now see the combined picks and who chose what.`;
     renderResults();
+  }else if(COMPANIES===DEMO_COMPANIES){
+    n.hidden=false; n.className="notice";
+    t.innerHTML=`<b>Placeholder data.</b> The twelve "Startup" cards below are dummy entries so the
+      page is not empty. Use the Admin panel above to load the real Medium List — this replaces them.`;
   }else if(!COMPANIES.length){
     n.hidden=false; n.className="notice";
     t.innerHTML=`<b>No Medium List loaded yet.</b> Use the Admin panel above to paste or upload the
@@ -659,7 +691,7 @@ function render(){
 }
 
 function start(){
-  COMPANIES=lsRead(LS_COMPANIES,[]);
+  COMPANIES=lsRead(LS_COMPANIES,DEMO_COMPANIES);
   render();
 }
 /* start() runs once the page password is accepted, from submitGate() above */
