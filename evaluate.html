@@ -252,7 +252,9 @@ body.locked{overflow:hidden}
 
 /* scoring panel */
 .score{position:sticky;top:76px;background:#fff;border:1px solid var(--line);border-radius:7px;
-  overflow:hidden}
+  overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 92px)}
+.score-top{flex:0 0 auto}
+.score-body{flex:1 1 auto;overflow-y:auto}
 .score-top{background:var(--navy);color:#fff;padding:15px 18px}
 .score-top h3{font-size:15px;font-weight:700}
 .score-top .st-sub{font-size:11.5px;color:#9FB6CF;margin-top:3px}
@@ -318,7 +320,8 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 
 @media (max-width:1100px){
   .rev{grid-template-columns:1fr}
-  .score{position:static}
+  .score{position:static;max-height:none}
+  .score-body{overflow-y:visible}
 }
 @media (max-width:820px){
   .hero-in{flex-direction:column;align-items:flex-start;gap:22px;padding:26px 0 30px}
@@ -382,9 +385,8 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
       <div class="hdr-sub">Evaluation</div>
     </div>
     <nav class="nav">
-      <a href="Archive/index%20v9.html">Dashboard</a>
+      <a href="index.html">Dashboard</a>
       <a href="evaluate.html" class="on">Evaluate</a>
-      <a href="shortlist.html">Shortlist</a>
     </nav>
     <div class="hdr-right">
       <button class="btn ghost" id="exportBtn">Export scores</button>
@@ -868,41 +870,60 @@ const isImg=u=>/\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(u);
 
 /* ══════════════════════════════════════════════════════════════════
    EVALUATION MODEL
-   Criteria are the jury criteria published on the Challenge page.
+   Six criteria proposed by Stephen Daff (HCM), 17 September 2026.
+   Equal weight, 1–5 each; the panel shows the mean, not the sum.
+   The wording of "5" on each criterion is Stephen's own; the 1–4
+   anchors were drafted by Impulse and are open to correction.
    ══════════════════════════════════════════════════════════════════ */
 const CRITERIA=[
- {id:"business", name:"Business potential & fit with HCM", w:.40,
-  what:"Could this become real business for HCM, in a line HCM already operates in or plans to enter? Judge the opportunity, not the pitch.",
-  look:"A named business line it plugs into, a plausible route to revenue or cost saving, and a reason HCM specifically is the right partner.",
-  anchors:{1:"No clear link to an HCM business line.",
-           2:"Adjacent, but the connection has to be argued.",
-           3:"Plausible fit that still needs shaping.",
-           4:"Clear fit with an identified business line.",
-           5:"Direct fit, and HCM is the natural first partner."}},
- {id:"track", name:"Track record", w:.20,
+ {id:"innovation", name:"Innovation / IP strength", short:"Innovation", w:1/6,
+  what:"How different this is from what is already on the market, and whether that difference is protected.",
+  look:"Patents or filings, proprietary data or models, a technical approach a competitor could not rebuild quickly.",
+  anchors:{1:"Little differentiation; comparable offers already exist.",
+           2:"Some differentiation, but easily replicated.",
+           3:"Genuinely different, with limited protection.",
+           4:"Clear differentiation backed by defensible assets.",
+           5:"Highly innovative, significant differentiation, seems to possess strong and defensible moat / IP."}},
+ {id:"business", name:"Business potential", short:"Business", w:1/6,
+  what:"The size of the opportunity — inside HCM and beyond it. Judge the opportunity, not the pitch.",
+  look:"A plausible route to revenue or cost saving, demand beyond a single use case, evidence the solution travels to other contexts.",
+  anchors:{1:"Narrow use case with no visible route to scale.",
+           2:"Real but limited potential; one context only.",
+           3:"Solid potential, but adaptation needed to travel.",
+           4:"Strong potential across several contexts.",
+           5:"Excellent potential both with and outside the business; easily adaptable to varied contexts."}},
+ {id:"traction", name:"Traction", short:"Traction", w:1/6,
   what:"What the company has already done with real customers, not what it plans to do.",
   look:"Paying customers, completed pilots, contract values, repeat business, referenceable names.",
   anchors:{1:"No customers or projects yet.",
            2:"Unpaid trials only.",
            3:"One or two paid pilots.",
            4:"Several paying customers, some repeat business.",
-           5:"Referenceable customers at scale."}},
- {id:"maturity", name:"Maturity of the application", w:.20,
-  what:"How well this application is put together. A weak application from a strong company still scores low here.",
-  look:"Specific answers, numbers rather than adjectives, a concrete pilot proposal, clear ask of HCM.",
-  anchors:{1:"Vague; the key questions are unanswered.",
-           2:"Readable but thin on evidence.",
-           3:"Clear, with gaps in one or two areas.",
-           4:"Specific and largely evidenced.",
-           5:"Precise, evidenced, ready to assess as it stands."}},
- {id:"team", name:"Founding team & solution fit", w:.20,
-  what:"Whether this particular team is the right one to solve this particular problem.",
+           5:"Strong traction with core customers; high level of interest and engagement."}},
+ {id:"team", name:"Team", short:"Team", w:1/6,
+  what:"Whether this particular team can both build and sell this particular solution.",
   look:"Domain experience in construction, mining or heavy equipment; technical depth matching the solution; commercial capability to deploy it.",
-  anchors:{1:"Team lacks the relevant domain entirely.",
+  anchors:{1:"Key capabilities missing, with no plan to fill them.",
            2:"Some relevant experience, significant gaps.",
-           3:"Credible team, gaps remain.",
-           4:"Strong team for this problem.",
-           5:"Demonstrably the right team to solve it."}}
+           3:"Credible team; one function clearly thin.",
+           4:"Well-rounded team with directly relevant background.",
+           5:"Right combination of technical, operational and financial profiles, strong previous experience."}},
+ {id:"value", name:"Added value", short:"Added value", w:1/6,
+  what:"How closely this maps to what the Challenge is trying to achieve, in the theme it applied under.",
+  look:"A direct answer to the theme statement, and relevance to HCM machines, customers or sites rather than a generic product.",
+  anchors:{1:"Little connection to the challenge goals.",
+           2:"Connection has to be argued.",
+           3:"Relevant, but only to part of the theme.",
+           4:"Clearly aligned with the theme and its goals.",
+           5:"Excellent alignment with the challenge's strategic goals."}},
+ {id:"pilot", name:"Pilot feasibility", short:"Pilot", w:1/6,
+  what:"How realistically a pilot could run with HCM in the coming months.",
+  look:"Product maturity in the TRL 6–9 band, clear data or hardware requirements, a scope that can be bounded, no blocking dependency.",
+  anchors:{1:"Not deployable in any realistic near-term pilot.",
+           2:"Major barriers — integration, certification or hardware.",
+           3:"Possible, with significant effort and preparation.",
+           4:"Straightforward pilot; minor prerequisites only.",
+           5:"Feasible with reasonable effort and resources; few or no barriers."}}
 ];
 const RECO=["Advance","Discuss","Pass"];
 const SHORT_THEME={"Autonomous Operations":"Autonomous",
@@ -921,8 +942,11 @@ const RECO_COLOR={Advance:"#1B6B3A",Discuss:"#E08A2B",Pass:"#B6C2CE"};
 let REVIEWS=[];              // {app, reviewer, scores{}, reco, themeVote, coi, comment, at}
 let SYNC={state:"idle", detail:""};   // idle | saving | ok | local | off
 
-const LS_KEY   = who => "hcm26.reviews."+String(who||"").toLowerCase();
-const LS_QUEUE = who => "hcm26.pending."+String(who||"").toLowerCase();
+/* Namespace bumped to v2 when the criteria moved from 4 to 6 on 22 Sep 2026.
+   Any draft left in a browser under the old 4-criterion model is ignored
+   rather than loaded half-filled. */
+const LS_KEY   = who => "hcm26v2.reviews."+String(who||"").toLowerCase();
+const LS_QUEUE = who => "hcm26v2.pending."+String(who||"").toLowerCase();
 
 function lsRead(k,fallback){
   try{ const v=localStorage.getItem(k); return v?JSON.parse(v):fallback; }catch(e){ return fallback; }
@@ -1206,8 +1230,7 @@ function renderReview(){
           ${CRITERIA.map(c=>{
             const v=DRAFT.scores[c.id];
             return `<div class="crit">
-              <div class="crit-h"><span class="crit-n">${esc(c.name)}</span>
-                <span class="crit-w">${Math.round(c.w*100)}%</span></div>
+              <div class="crit-h"><span class="crit-n">${esc(c.name)}</span></div>
               ${c.what?`<div class="crit-what">${esc(c.what)}</div>`:""}
               ${c.look?`<div class="crit-look"><b>Look for</b> ${esc(c.look)}</div>`:""}
               <div class="scale">${[1,2,3,4,5].map(n=>
@@ -1242,7 +1265,7 @@ function renderReview(){
 
           <div class="total">
             <span class="total-n" style="color:${total?accent:"#B6C2CE"}">${total?total.toFixed(1):"–"}</span>
-            <span class="total-l">Weighted score &middot; ${filled}/${CRITERIA.length} scored</span>
+            <span class="total-l">Score out of 5 &middot; ${filled}/${CRITERIA.length} scored</span>
           </div>
 
           <div class="score-act">
@@ -1267,7 +1290,7 @@ function renderRank(){
   mine.sort((a,b)=>weighted(b.r.scores)-weighted(a.r.scores));
   $("view").innerHTML=`<div style="overflow-x:auto"><table>
     <thead><tr><th>#</th><th>Company</th><th>Theme</th><th>Your score</th>
-      ${CRITERIA.map(c=>`<th>${esc(c.name.split(" ")[0])}</th>`).join("")}
+      ${CRITERIA.map(c=>`<th>${esc(c.short||c.name)}</th>`).join("")}
       <th>Recommendation</th></tr></thead>
     <tbody>${mine.map((x,i)=>{
       const w=weighted(x.r.scores);
@@ -1285,7 +1308,7 @@ function renderRank(){
       This is your own ranking. Reviewers do not see each other's scores, so nobody is anchored by
       what someone else gave. The Challenge team combines every reviewer's scores from the Scores tab
       of the application sheet.
-      Weighted score applies ${CRITERIA.map(c=>`${Math.round(c.w*100)}% ${c.name.toLowerCase()}`).join(", ")}.
+      Your score is the mean of the ${CRITERIA.length} criteria, each rated 1 to 5 and weighted equally.
       Anything marked as a conflict of interest is recorded but left out of the combined ranking.
     </div>`;
 }
@@ -1339,7 +1362,7 @@ document.addEventListener("keydown",e=>{
 });
 $("exportBtn").addEventListener("click",()=>{
   const q=s=>`"${String(s??"").replace(/"/g,'""')}"`;
-  const head=["Company","Reviewer",...CRITERIA.map(c=>c.name),"Weighted","Recommendation",
+  const head=["Company","Reviewer",...CRITERIA.map(c=>c.name),"Score (mean of 6)","Recommendation",
               "Best-fitting theme","Conflict of interest","Comment","Saved at"];
   const body=REVIEWS.map(r=>[r.app,r.reviewer,...CRITERIA.map(c=>r.scores[c.id]||""),
     weighted(r.scores).toFixed(2),r.reco,r.themeVote,r.coi?"Yes":"No",r.comment,r.at].map(q).join(","));
