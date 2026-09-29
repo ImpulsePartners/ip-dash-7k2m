@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="googlebot" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<title>LANDCROS Innovation Studios Europe Challenge 2026 — Evaluate</title>
+<title>LANDCROS Innovation Studios Europe Challenge 2026 — Long list evaluation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -279,9 +279,33 @@ body.locked{overflow:hidden}
 .reco{display:flex;gap:6px;margin-top:9px}
 .reco button{flex:1;border:1px solid var(--line);background:#fff;border-radius:5px;padding:9px 0;
   font-size:12px;font-weight:600;color:var(--slate);transition:all .13s}
-.reco button[data-v="Advance"].on{background:#DCEFE1;border-color:#1B6B3A;color:#1B6B3A}
-.reco button[data-v="Discuss"].on{background:#FFE3CC;border-color:#A94E00;color:#A94E00}
-.reco button[data-v="Pass"].on{background:#F1F4F7;border-color:#7086A0;color:#54677A}
+.reco button[data-v="Proceed"].on{background:#DCEFE1;border-color:#1B6B3A;color:#1B6B3A}
+.reco button[data-v="Do not proceed"].on{background:#F1F4F7;border-color:#7086A0;color:#54677A}
+.rhelp{margin-top:9px}
+.rhelp summary{font-size:11.5px;color:var(--navy);font-weight:700;cursor:pointer;list-style:none}
+.rhelp summary::-webkit-details-marker{display:none}
+.rhelp summary::before{content:"\2139  "}
+.rhelp dl{margin:8px 0 0;font-size:11.5px;color:var(--slate);line-height:1.5}
+.rhelp dt{font-weight:700;color:var(--ink);margin-top:6px}
+.rhelp dd{margin:1px 0 0}
+.crit-hint{font-size:11.5px;color:var(--slate);margin-top:5px;line-height:1.5}
+.req{color:#B3261E;font-weight:700;margin-left:3px}
+.needed{font-size:11.5px;color:#B3261E;margin-top:7px}
+.rkbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.rkbar select,.rkbar input{border:1px solid var(--line);background:#fff;border-radius:var(--r);
+  padding:9px 10px;font-size:12.5px;font-family:inherit;color:var(--ink)}
+.rkbar input{min-width:190px}
+.rkbar .clr{border:1px solid var(--line);background:#fff;border-radius:20px;padding:8px 14px;
+  font-size:12.5px;color:var(--slate);cursor:pointer;font-family:inherit}
+.rkbar .clr:hover{border-color:var(--navy);color:var(--navy)}
+tr.rowlink{cursor:pointer}
+tr.rowlink:hover{background:#F2F7FF}
+.tag.click,.pill.click{cursor:pointer}
+.tag.click:hover,.pill.click:hover{filter:brightness(.94)}
+.tdim{color:#9FB0C0;font-size:12px}
+.editbtn{border:1px solid var(--line);background:#fff;border-radius:5px;padding:6px 12px;
+  font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;white-space:nowrap;font-family:inherit}
+.editbtn:hover{border-color:var(--navy);background:#F4F8FD}
 .score-body textarea,.score-body select{width:100%;border:1px solid var(--line);border-radius:5px;
   padding:9px 11px;font-size:13px;font-family:inherit;color:var(--ink);resize:vertical}
 .score-body textarea{min-height:74px}
@@ -382,11 +406,11 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
   <div class="wrap hdr-in">
     <div class="hdr-titles">
       <div class="hdr-title">LANDCROS Innovation Studios Europe Challenge 2026</div>
-      <div class="hdr-sub">Evaluation</div>
+      <div class="hdr-sub">Long list evaluation</div>
     </div>
     <nav class="nav">
       <a href="index.html">Dashboard</a>
-      <a href="evaluate.html" class="on">Evaluate</a>
+      <a href="evaluate.html" class="on">Long list</a>
     </nav>
     <div class="hdr-right">
       <button class="btn ghost" id="exportBtn">Export scores</button>
@@ -403,10 +427,10 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 
     <div class="hero-copy">
       <div class="hero-eyebrow">Cohort 2026</div>
-      <h1 class="hero-h1">Evaluate the<br>applications</h1>
+      <h1 class="hero-h1">Long list<br>evaluation</h1>
       <div class="hero-meta">
-        <span><b>Scoring closes</b> 18 October 2026</span>
-        <span><b>Selection meeting</b> 5 November 2026</span>
+        <span><b>Scoring closes</b> 7 October 2026</span>
+        <span><b>Selection meeting</b> week of 21 October 2026</span>
       </div>
     </div>
   </div>
@@ -437,10 +461,6 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 </section>
 
 <div class="proto" id="proto" hidden><div class="wrap" id="protoTxt"></div></div>
-
-<div class="proto"><div class="wrap"><b>Export your scores before you close this tab.</b>
-  Scores are held in this browser only, so refreshing or closing the page clears them.
-  Use <b>Export scores</b> at the top right and keep the file.</div></div>
 
 <main class="wrap sect">
   <div class="sect-head">
@@ -885,7 +905,7 @@ const CRITERIA=[
            4:"Clear differentiation backed by defensible assets.",
            5:"Highly innovative, significant differentiation, seems to possess strong and defensible moat / IP."}},
  {id:"business", name:"Business potential", short:"Business", w:1/6,
-  what:"The size of the opportunity — inside HCM and beyond it. Judge the opportunity, not the pitch.",
+  what:"The size of the opportunity — for the Challenge partners and beyond them. Judge the opportunity, not the pitch.",
   look:"A plausible route to revenue or cost saving, demand beyond a single use case, evidence the solution travels to other contexts.",
   anchors:{1:"Narrow use case with no visible route to scale.",
            2:"Real but limited potential; one context only.",
@@ -925,11 +945,17 @@ const CRITERIA=[
            4:"Straightforward pilot; minor prerequisites only.",
            5:"Feasible with reasonable effort and resources; few or no barriers."}}
 ];
-const RECO=["Advance","Discuss","Pass"];
+const RECO=["Proceed","Do not proceed"];
+const RECO_MEANING={
+  "Proceed":"Take it to the mid list. There is enough substance here to be worth more partner time.",
+  "Do not proceed":"Stop here. On what this application shows, it does not warrant further partner time."
+};
+/* Scores saved under the old three-way scale are carried over on load. */
+const RECO_LEGACY={"Advance":"Proceed","Pass":"Do not proceed","Discuss":""};
 const SHORT_THEME={"Autonomous Operations":"Autonomous",
   "Site Intelligence & Planning":"Site intelligence",
   "Lifecycle Decision Intelligence":"Lifecycle"};
-const RECO_COLOR={Advance:"#1B6B3A",Discuss:"#E08A2B",Pass:"#B6C2CE"};
+const RECO_COLOR={"Proceed":"#1B6B3A","Do not proceed":"#7086A0"};
 
 /* ── storage ──────────────────────────────────────────────────────
    Two layers, in this order:
@@ -1040,26 +1066,38 @@ async function loadReviews(){
   }else{
     syncBadge(REVIEWS.length?"off":"idle");
   }
+  REVIEWS.forEach(r=>{ if(r && RECO_LEGACY.hasOwnProperty(r.reco)) r.reco=RECO_LEGACY[r.reco]; });
   return REVIEWS;
 }
 
 /* ── state ── */
 let VIEW="queue", CURRENT=null, DRAFT=null, ALL=[];
 let QF={theme:"", only:false};
-/* Jury roster. Add or remove a line to change the list; anyone missing
-   can still type their own name under "Not on the list". */
-const REVIEWERS=[
-  {name:"Nobuhiro Murase",  org:"HCM Europe"},
-  {name:"Stephen Daff",     org:"HCM Japan"},
-  {name:"Jeeyoun Ho",       org:"Impulse Partners"},
-  {name:"Thomas Le Diouron",org:"Impulse Partners"},
-  {name:"Brick & Mortar",   org:"Partner"},
-  {name:"CRH Ventures",     org:"Partner"},
-  {name:"Ferrovial",        org:"Partner"},
-  {name:"Leonard",          org:"Partner"},
-  {name:"Loxam",            org:"Partner"},
-  {name:"Zacua",            org:"Partner"}
+let RF={theme:"", reco:"", q:""};      /* ranking filters */
+let BACKTO="queue";                     /* where the Back button returns to */
+let HELP={reco:false};                  /* keeps the "what do these mean" panel open across re-renders */
+/* Jury roster for the whole Challenge. "stages" says which evaluation a
+   member votes in, so the Long list and the Mid list pages can share one
+   list: Zacua and Brick & Mortar score the Long list only, CRH Ventures
+   and Loxam join at the Mid list. Anyone missing can still type their own
+   name under "Not on the list". */
+const REVIEWERS_ALL=[
+  {name:"Nobuhiro Murase",  org:"HCM Europe",        stages:["long","mid"]},
+  {name:"Stephen Daff",     org:"HCM Japan",         stages:["long","mid"]},
+  {name:"Kaoru Kobayashi",  org:"HCM Japan",         stages:["long","mid"]},
+  {name:"Yoshiaki Kanayama",org:"HCM Japan",         stages:["long","mid"]},
+  {name:"Kenichi Moriwaki", org:"HCM Japan",         stages:["long","mid"]},
+  {name:"Jeeyoun Ho",       org:"Impulse Partners",  stages:["long","mid"]},
+  {name:"Thomas Le Diouron",org:"Impulse Partners",  stages:["long","mid"]},
+  {name:"Brick & Mortar",   org:"Partner",           stages:["long"]},
+  {name:"Zacua",            org:"Partner",           stages:["long"]},
+  {name:"Ferrovial",        org:"Partner",           stages:["long","mid"]},
+  {name:"Leonard",          org:"Partner",           stages:["long","mid"]},
+  {name:"CRH Ventures",     org:"Partner",           stages:["mid"]},
+  {name:"Loxam",            org:"Partner",           stages:["mid"]}
 ];
+const STAGE="long";                     /* the Mid list page sets this to "mid" */
+const REVIEWERS=REVIEWERS_ALL.filter(r=>r.stages.includes(STAGE));
 const me=()=>($("who").value||"").trim().toLowerCase();
 
 async function setReviewer(name){
@@ -1215,10 +1253,13 @@ function renderReview(){
   $("secTitle").textContent=d.name;
   $("secNote").textContent=`${d.country}${d.trl?" · "+d.trl:""}`;
   const total=weighted(DRAFT.scores), filled=CRITERIA.filter(c=>DRAFT.scores[c.id]).length;
-  const ready=filled===CRITERIA.length && DRAFT.reco && me();
+  const ready=isReady();
+  /* keep the reader where they were: this panel is redrawn on every click */
+  const oldBody=document.querySelector(".score-body");
+  const keepY=oldBody?oldBody.scrollTop:0, keepW=window.scrollY;
 
   $("view").innerHTML=`
-    <button class="back" id="backBtn">&larr; Back to the queue</button>
+    <button class="back" id="backBtn">&larr; Back to the ${BACKTO==="rank"?"ranking":"queue"}</button>
     <div class="rev" style="--accent:${accent}">
       <div>${detailHTML(d)}</div>
       <aside class="score">
@@ -1240,13 +1281,19 @@ function renderReview(){
             </div>`;}).join("")}
 
           <div class="crit">
-            <div class="crit-h"><span class="crit-n">Recommendation</span></div>
+            <div class="crit-h"><span class="crit-n">Recommendation</span><span class="req">required</span></div>
             <div class="reco">${RECO.map(k=>
-              `<button data-reco="${k}" data-v="${k}" class="${DRAFT.reco===k?"on":""}">${k}</button>`).join("")}</div>
+              `<button data-reco="${k}" data-v="${k}" class="${DRAFT.reco===k?"on":""}">${esc(k)}</button>`).join("")}</div>
+            <details class="rhelp"${HELP.reco?" open":""}><summary>What do these mean?</summary>
+              <dl>${RECO.map(k=>`<dt>${esc(k)}</dt><dd>${esc(RECO_MEANING[k]||"")}</dd>`).join("")}</dl>
+            </details>
           </div>
 
           <div class="crit">
             <div class="crit-h"><span class="crit-n">Best-fitting theme</span></div>
+            <div class="crit-hint">Which of the three Challenge themes does this application actually belong in?
+              Leave it as it is if the applicant chose well. Your answer is recorded next to theirs and never
+              replaces it, so the team can see where applicants and reviewers disagree.</div>
             <select id="themeVote" style="margin-top:9px">
               <option value="">Same as the applicant selected</option>
               ${THEMES.map(t=>`<option${DRAFT.themeVote===t.name?" selected":""}>${esc(t.name)}</option>`).join("")}
@@ -1254,9 +1301,12 @@ function renderReview(){
           </div>
 
           <div class="crit" style="border-bottom:0;padding-bottom:0;margin-bottom:0">
-            <div class="crit-h"><span class="crit-n">What would you want to see at the pitch?</span></div>
-            <textarea id="comment" placeholder="Optional — visible to the Challenge team"
+            <div class="crit-h"><span class="crit-n">Why this recommendation?</span><span class="req">required</span></div>
+            <div class="crit-hint">Whichever you chose, tell us what decided it. A few words is enough —
+              this is what the selection meeting reads.</div>
+            <textarea id="comment" placeholder="A line is enough — visible to the Challenge team"
               style="margin-top:9px">${esc(DRAFT.comment)}</textarea>
+            <div class="needed" id="whyNeeded"${(DRAFT.comment||"").trim()?" hidden":""}>Please write a reason before saving.</div>
           </div>
 
           <label class="coi"><input type="checkbox" id="coi"${DRAFT.coi?" checked":""}>
@@ -1276,35 +1326,87 @@ function renderReview(){
         </div>
       </aside>
     </div>`;
+
+  const newBody=document.querySelector(".score-body");
+  if(newBody) newBody.scrollTop=keepY;
+  window.scrollTo(0,keepW);
+}
+
+/* A score is saveable once every criterion is rated, a recommendation is
+   chosen, the reviewer is known and a reason has been written. */
+function isReady(){
+  if(!DRAFT) return false;
+  return CRITERIA.every(c=>DRAFT.scores[c.id]) && !!DRAFT.reco && !!me()
+      && (DRAFT.comment||"").trim().length>0;
+}
+/* Called while typing, so the buttons react without redrawing the panel
+   (which would take the cursor out of the box). */
+function refreshSaveState(){
+  const ok=isReady();
+  ["saveBtn","saveOnly"].forEach(id=>{ const b=$(id); if(b) b.disabled=!ok; });
+  const n=$("whyNeeded");
+  if(n) n.hidden=(DRAFT&&(DRAFT.comment||"").trim().length>0);
 }
 
 /* ── ranking ── */
 function renderRank(){
   $("secTitle").textContent="Your ranking";
-  const mine=ALL.map(d=>({d,r:myReview(d.name)})).filter(x=>x.r);
+  const scored=ALL.map(d=>({d,r:myReview(d.name)})).filter(x=>x.r);
   $("secNote").textContent=me()
-    ? `${mine.length} of ${ALL.length} applications scored by you.`
+    ? `${scored.length} of ${ALL.length} applications scored by you.`
     : "Choose your name above to see your ranking.";
-  if(!mine.length){ $("view").innerHTML=
+  if(!scored.length){ $("view").innerHTML=
     `<div class="empty">No scores yet. Review a few applications and the ranking builds itself.</div>`; return; }
-  mine.sort((a,b)=>weighted(b.r.scores)-weighted(a.r.scores));
-  $("view").innerHTML=`<div style="overflow-x:auto"><table>
-    <thead><tr><th>#</th><th>Company</th><th>Theme</th><th>Your score</th>
+
+  /* rank once, over everything scored, so a filter narrows the table
+     without renumbering what is left */
+  scored.sort((a,b)=>weighted(b.r.scores)-weighted(a.r.scores));
+  scored.forEach((x,i)=>x.pos=i+1);
+
+  const themes=[...new Set(scored.flatMap(x=>x.d.themes))].sort();
+  const q=RF.q.trim().toLowerCase();
+  const rows=scored.filter(x=>
+      (!RF.theme || x.d.themes.includes(RF.theme) || x.r.themeVote===RF.theme)
+   && (!RF.reco  || (RF.reco==="__none" ? !x.r.reco : (x.r.reco||"")===RF.reco))
+   && (!q || (x.d.name+" "+(x.d.city||"")+" "+(x.d.country||"")).toLowerCase().includes(q)));
+  const filtered=RF.theme||RF.reco||q;
+
+  const themeTag=(t,cls)=>{const c=THEME_COLOR[t]||"#7086A0";
+    return `<span class="tag ${cls}" data-rkf="theme:${esc(t)}" title="Filter by this theme"
+      style="background:${pastel(c)};color:${c}">${esc(SHORT_THEME[t]||t)}</span>`;};
+
+  $("view").innerHTML=`
+    <div class="rkbar">
+      <input id="rkQ" type="search" placeholder="Search company, city or country" value="${esc(RF.q)}">
+      <select id="rkTheme"><option value="">All themes</option>${
+        themes.map(t=>`<option${RF.theme===t?" selected":""}>${esc(t)}</option>`).join("")}</select>
+      <select id="rkReco"><option value="">Any recommendation</option>${
+        RECO.map(k=>`<option${RF.reco===k?" selected":""}>${esc(k)}</option>`).join("")}
+        <option value="__none"${RF.reco==="__none"?" selected":""}>Not decided</option></select>
+      ${filtered?`<button type="button" class="clr" id="rkClear">Clear filters &times;</button>
+        <span class="tdim">${rows.length} of ${scored.length}</span>`:""}
+    </div>
+    ${rows.length?`<div style="overflow-x:auto"><table>
+    <thead><tr><th>#</th><th>Company</th><th>Applied theme</th><th>Suggested theme</th><th>Your score</th>
       ${CRITERIA.map(c=>`<th>${esc(c.short||c.name)}</th>`).join("")}
-      <th>Recommendation</th></tr></thead>
-    <tbody>${mine.map((x,i)=>{
-      const w=weighted(x.r.scores);
-      return `<tr>
-        <td class="rank${i<8?" top":""}">${i+1}</td>
-        <td style="font-weight:600">${esc(x.d.name)}</td>
-        <td>${x.d.themes.map(t=>{const c=THEME_COLOR[t]||"#7086A0";
-          return `<span class="tag" style="background:${pastel(c)};color:${c}">${esc(SHORT_THEME[t]||t)}</span>`;}).join("")}</td>
+      <th>Recommendation</th><th></th></tr></thead>
+    <tbody>${rows.map(x=>{
+      const w=weighted(x.r.scores), rc=RECO_COLOR[x.r.reco]||"#B6C2CE";
+      return `<tr class="rowlink" data-open="${esc(x.d.name)}" title="Open this evaluation">
+        <td class="rank${x.pos<=8?" top":""}">${x.pos}</td>
+        <td style="font-weight:600">${esc(x.d.name)}
+          <div class="tdim">${esc([x.d.city,x.d.country].filter(Boolean).join(" · "))}</div></td>
+        <td>${x.d.themes.map(t=>themeTag(t,"click")).join("")}</td>
+        <td>${x.r.themeVote?themeTag(x.r.themeVote,"click"):'<span class="tdim">Same as applied</span>'}</td>
         <td class="mean">${w.toFixed(2)}</td>
         ${CRITERIA.map(c=>`<td class="mono" style="font-size:12px;color:var(--slate)">${x.r.scores[c.id]||"–"}</td>`).join("")}
-        <td><span class="pill" style="background:${pastel(RECO_COLOR[x.r.reco]||"#B6C2CE")};
-          color:${RECO_COLOR[x.r.reco]||"#5C7186"}">${esc(x.r.reco||"–")}${x.r.coi?" · conflict":""}</span></td>
-      </tr>`;}).join("")}</tbody></table></div>
+        <td><span class="pill click" data-rkf="reco:${esc(x.r.reco||"__none")}" title="Filter by this recommendation"
+          style="background:${pastel(rc)};color:${rc}">${esc(x.r.reco||"Not decided")}${x.r.coi?" · conflict":""}</span></td>
+        <td><button type="button" class="editbtn" data-open="${esc(x.d.name)}">Edit evaluation</button></td>
+      </tr>`;}).join("")}</tbody></table></div>`
+    :`<div class="empty">Nothing matches these filters.</div>`}
     <div style="font-size:11.5px;color:var(--slate);margin-top:12px;line-height:1.6">
+      Click any row to reopen and edit your evaluation; click a theme or a recommendation to filter by it.
       This is your own ranking. Reviewers do not see each other's scores, so nobody is anchored by
       what someone else gave. The Challenge team combines every reviewer's scores from the Scores tab
       of the application sheet.
@@ -1312,7 +1414,6 @@ function renderRank(){
       Anything marked as a conflict of interest is recorded but left out of the combined ranking.
     </div>`;
 }
-
 function render(){
   document.querySelectorAll(".tabs button").forEach(b=>
     b.classList.toggle("on", b.dataset.view===(VIEW==="review"?"queue":VIEW)));
@@ -1328,11 +1429,21 @@ function render(){
 
 /* ── events ── */
 document.addEventListener("click",async e=>{
-  const t=e.target.closest("[data-view],[data-open],[data-crit],[data-reco],#saveBtn,#saveOnly,#backBtn");
+  const t=e.target.closest("[data-rkf],[data-view],[data-open],[data-crit],[data-reco],#rkClear,#saveBtn,#saveOnly,#backBtn");
   if(!t) return;
+  if(t.dataset.rkf){                               /* a tag or pill in the ranking */
+    const i=t.dataset.rkf.indexOf(":"), k=t.dataset.rkf.slice(0,i), v=t.dataset.rkf.slice(i+1);
+    if(k==="theme") RF.theme=RF.theme===v?"":v;
+    if(k==="reco")  RF.reco =RF.reco ===v?"":v;
+    renderRank(); return;
+  }
+  if(t.id==="rkClear"){ RF={theme:"",reco:"",q:""}; renderRank(); return; }
   if(t.dataset.view){ VIEW=t.dataset.view; render(); return; }
-  if(t.dataset.open){ if(!me()){ renderWhoList(); $("whoPop").hidden=false; return; } openReview(t.dataset.open); return; }
-  if(t.id==="backBtn"){ VIEW="queue"; render(); return; }
+  if(t.dataset.open){
+    if(!me()){ renderWhoList(); $("whoPop").hidden=false; return; }
+    BACKTO=(VIEW==="rank")?"rank":"queue";
+    openReview(t.dataset.open); return; }
+  if(t.id==="backBtn"){ VIEW=BACKTO; render(); return; }
   if(t.dataset.crit){ DRAFT.scores[t.dataset.crit]=+t.dataset.n; renderReview(); return; }
   if(t.dataset.reco){ DRAFT.reco=DRAFT.reco===t.dataset.reco?"":t.dataset.reco; renderReview(); return; }
   if(t.id==="saveBtn"||t.id==="saveOnly"){
@@ -1342,7 +1453,8 @@ document.addEventListener("click",async e=>{
     DRAFT.coi=$("coi").checked;
     DRAFT.at=new Date().toISOString();
     await saveReview(JSON.parse(JSON.stringify(DRAFT)));
-    if(t.id==="saveOnly"){ renderReview(); renderQueue; return; }
+    if(t.id==="saveOnly"){ renderReview(); return; }
+    if(BACKTO==="rank"){ VIEW="rank"; render(); return; }
     const rest=ALL.filter(d=>!myReview(d.name));
     if(rest.length) openReview(rest[0].name); else { VIEW="queue"; render(); }
   }
@@ -1350,20 +1462,36 @@ document.addEventListener("click",async e=>{
 document.addEventListener("change",e=>{
   if(e.target.id==="qTheme"){ QF.theme=e.target.value; renderQueue(); }
   if(e.target.id==="qOnly"){ QF.only=e.target.checked; renderQueue(); }
+  if(e.target.id==="rkTheme"){ RF.theme=e.target.value; renderRank(); }
+  if(e.target.id==="rkReco"){ RF.reco=e.target.value; renderRank(); }
+  if(e.target.id==="themeVote" && DRAFT){ DRAFT.themeVote=e.target.value; }
 });
-document.addEventListener("input",e=>{ if(e.target.id==="who") render(); });
+document.addEventListener("input",e=>{
+  if(e.target.id==="who") render();
+  if(e.target.id==="comment" && DRAFT){ DRAFT.comment=e.target.value; refreshSaveState(); }
+  if(e.target.id==="rkQ"){
+    RF.q=e.target.value;
+    const at=e.target.selectionStart;
+    renderRank();
+    const box=$("rkQ"); if(box){ box.focus(); try{ box.setSelectionRange(at,at); }catch(err){} }
+  }
+});
+/* the "what do these mean" panel stays as the reviewer left it */
+document.addEventListener("toggle",e=>{
+  if(e.target.classList&&e.target.classList.contains("rhelp")) HELP.reco=e.target.open;
+},true);
 document.addEventListener("keydown",e=>{
   if(VIEW!=="review"||/input|textarea|select/i.test(e.target.tagName)) return;
   if(e.key>="1"&&e.key<="5"){
     const next=CRITERIA.find(c=>!DRAFT.scores[c.id]);
     if(next){ DRAFT.scores[next.id]=+e.key; renderReview(); }
   }
-  if(e.key==="Escape"){ VIEW="queue"; render(); }
+  if(e.key==="Escape"){ VIEW=BACKTO; render(); }
 });
 $("exportBtn").addEventListener("click",()=>{
   const q=s=>`"${String(s??"").replace(/"/g,'""')}"`;
   const head=["Company","Reviewer",...CRITERIA.map(c=>c.name),"Score (mean of 6)","Recommendation",
-              "Best-fitting theme","Conflict of interest","Comment","Saved at"];
+              "Best-fitting theme","Conflict of interest","Reason for the recommendation","Saved at"];
   const body=REVIEWS.map(r=>[r.app,r.reviewer,...CRITERIA.map(c=>r.scores[c.id]||""),
     weighted(r.scores).toFixed(2),r.reco,r.themeVote,r.coi?"Yes":"No",r.comment,r.at].map(q).join(","));
   const blob=new Blob(["\uFEFF"+head.map(q).join(",")+"\n"+body.join("\n")],{type:"text/csv;charset=utf-8"});
