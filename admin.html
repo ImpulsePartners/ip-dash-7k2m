@@ -467,8 +467,9 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
       <input id="suKey" type="text" placeholder="the shared key from the script">
       <button type="button" onclick="buildVault()">Generate</button>
       <textarea id="suOut" hidden readonly></textarea>
-      <div id="suHint" hidden>Replace the <b>const VAULT = …</b> line at the top of the
-        script in both HTML files with the block above, then commit.</div>
+      <div id="suHint" hidden>Copy the block above, and in <b>admin.html</b> replace the line that
+        starts <b>const VAULT =</b> with it. Commit, then reload this page and sign in with the new
+        password. This page only &mdash; the other pages keep their own password.</div>
     </div>
 
     <div class="gate-note">
@@ -539,7 +540,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
    To change the password or the sheet, open this page with #setup
    appended to the URL and paste the new block over VAULT.
    ══════════════════════════════════════════════════════════════════ */
-const VAULT = {v:1,it:250000,salt:"",iv:"",ct:""};   /* set by opening admin.html#setup */
+const VAULT = {"v":1,"it":250000,"salt":"/rgh2aZ6P7Nx/Fkb+Iz4yA==","iv":"uDzJJ4N4jNjNCqWh","ct":"cDN8l2Ymtq54FzXD3v6zLccm1q4vB6pVmO5dEg8TrpTOixK1OchTynUtl9g7Eyl0//sRKdaKh519Hx5zlJ7OSLatGzb1Hw6kiPmfbqqxDngDH/O2Vq/pSPf6L7TxBJbp8JK+VTmSvXQQyWHzznoa1I4UmHEu0Qr7kDbailQBePmSDStoHrp8TlLDgHSGKpyu"};
 
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 let CFG=null;
@@ -616,7 +617,9 @@ const SHOW_CONTACT=false;
 /* the sheet address only exists after the password has been accepted */
 function sources(){
   if(!CFG) return [];
-  const id=CFG.sheetId, tab=encodeURIComponent(CFG.sheetName||"");
+  /* tolerate a whole sheet URL pasted where only the id was wanted */
+  const raw=String(CFG.sheetId||""), m=raw.match(/\/d\/([A-Za-z0-9_-]{20,})/);
+  const id=m?m[1]:raw.trim(), tab=encodeURIComponent(CFG.sheetName||"");
   return [CFG.publishedCsvUrl,
     id&&`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1&sheet=${tab}`,
     id&&`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1`,
