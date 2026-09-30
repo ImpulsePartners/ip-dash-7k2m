@@ -1190,6 +1190,41 @@ const me=()=>($("who").value||"").trim().toLowerCase();
    records. The reviewer name is stored as it reads. */
 const rkey=()=>me();
 
+/* ── #resync ────────────────────────────────────────
+   Sends every score this browser holds back to the sheet. It is here
+   because a score can reach the browser in full and still be stored
+   short — if the sheet was expecting different criteria, the ones it
+   did not recognise were dropped on the way in. The browser's copy is
+   the complete one, so pushing it up again repairs the sheet.
+   Harmless to run twice: each row is matched on reviewer and company
+   and overwritten, never duplicated.
+   ────────────────────────────────────────────────── */
+let RESYNCING=false;
+async function resyncAll(){
+  if(RESYNCING) return;
+  if(!CFG||!CFG.scriptUrl){ alert("This page has no score endpoint configured, so there is nothing to send to."); return; }
+  if(!me()){ renderWhoList(); $("whoPop").hidden=false;
+    alert("Choose your name first. The upload starts as soon as you do."); return; }
+  const list=REVIEWS.slice();
+  if(!list.length){ alert("This browser holds no scores for "+$("who").value+", so there is nothing to send."); return; }
+  if(!confirm("Send all "+list.length+" of "+$("who").value+"'s scores from this browser back to the sheet?\n\nExisting rows are updated, not duplicated.")) return;
+
+  RESYNCING=true;
+  let ok=0, fail=0, firstError="";
+  for(let i=0;i<list.length;i++){
+    syncBadge("saving", "sending "+(i+1)+" of "+list.length);
+    try{ await postReview(list[i]); ok++; }
+    catch(e){ fail++; if(!firstError) firstError=e.message||String(e); }
+  }
+  RESYNCING=false;
+  syncBadge(fail?"local":"ok", fail?firstError:"");
+  alert(fail
+    ? ok+" of "+list.length+" scores were sent. "+fail+" failed \u2014 "+firstError+
+      "\n\nTry again in a moment; nothing was lost."
+    : "All "+ok+" scores were sent back to the sheet.");
+  location.hash="";
+}
+
 async function setReviewer(name){
   $("who").value=name||"";
   const btn=$("whoBtn");
@@ -1199,6 +1234,7 @@ async function setReviewer(name){
   try{ localStorage.setItem("hcm26.lastReviewer", name||""); }catch(e){}
   await loadReviews();
   render();
+  if(location.hash==="#resync" && name) resyncAll();
 }
 function renderWhoList(){
   const cur=me();
@@ -1759,6 +1795,7 @@ async function start(){
   }
   await loadReviews();
   finishLoad();
+  if(location.hash==="#resync") resyncAll();
 }
 
 function finishLoad(){
