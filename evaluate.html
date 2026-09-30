@@ -308,13 +308,19 @@ body.locked{overflow:hidden}
 .topbox-h .dim{font-weight:400}
 .dim{color:var(--slate);font-size:11.5px}
 .tchips{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
-.tchip{display:flex;flex-direction:column;align-items:flex-start;gap:1px;cursor:pointer;
+.tchip{display:flex;flex-direction:column;align-items:flex-start;gap:7px;cursor:pointer;
   border:1px solid var(--line);border-left:3px solid var(--tc);background:#fff;border-radius:8px;
-  padding:9px 14px 10px;font-family:inherit;text-align:left;transition:background .13s,border-color .13s}
+  padding:10px 16px 11px;font-family:inherit;text-align:left;transition:background .13s,border-color .13s}
 .tchip:hover{background:var(--tp)}
 .tchip.on{background:var(--tp);border-color:var(--tc)}
+.tchip-l{font-size:12.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.tchip-row{display:flex;gap:16px}
+.tchip-cell{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
+.tchip-cell b{font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600;color:var(--tc)}
+.tchip-cell b.q{color:var(--slate)}
+.tchip-cell i{font-style:normal;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--slate);font-weight:600;margin-top:1px}
 .tchip-n{font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600;color:var(--tc);line-height:1.1}
-.tchip-l{font-size:12px;font-weight:600;color:var(--ink)}
 .tchip-s{font-size:10.5px;color:var(--slate)}
 .kpis{margin-top:12px;display:flex;gap:18px;flex-wrap:wrap}
 .kpi{font-size:12.5px;color:var(--slate)}
@@ -1510,16 +1516,21 @@ function renderRank(){
     </div>`;
 
   /* ---- the top 45, by theme ---- */
-  const themeAll={}, themeCut={};
-  scored.forEach(x=>{ const t=appliedOf(x)||"Unclassified"; themeAll[t]=(themeAll[t]||0)+1; });
+  const themeAll={}, themeCut={}, themePro={};
+  scored.forEach(x=>{ const t=appliedOf(x)||"Unclassified";
+    themeAll[t]=(themeAll[t]||0)+1;
+    if(x.r.reco==="Proceed") themePro[t]=(themePro[t]||0)+1; });
   cut.forEach(x=>{ const t=appliedOf(x)||"Unclassified"; themeCut[t]=(themeCut[t]||0)+1; });
   const chips=Object.keys(themeAll).sort().map(t=>{
     const c=THEME_COLOR[t]||"#7086A0", on=RF.applied===t;
     return `<button type="button" class="tchip${on?" on":""}" data-rkf="applied:${esc(t)}"
       style="--tc:${c};--tp:${pastel(c)}">
-      <span class="tchip-n">${themeCut[t]||0}</span>
       <span class="tchip-l">${esc(SHORT_THEME[t]||t)}</span>
-      <span class="tchip-s">of ${themeAll[t]} scored</span></button>`;}).join("");
+      <span class="tchip-row">
+        <span class="tchip-cell"><b>${themePro[t]||0}</b><i>Proceed</i></span>
+        ${TARGET?`<span class="tchip-cell"><b>${themeCut[t]||0}</b><i>in top ${TARGET}</i></span>`:""}
+        <span class="tchip-cell"><b class="q">${themeAll[t]}</b><i>scored</i></span>
+      </span></button>`;}).join("");
 
   const proceed=scored.filter(x=>x.r.reco==="Proceed").length;
   const diff=proceed-TARGET;
@@ -1540,7 +1551,7 @@ function renderRank(){
 
   const head=!TARGET?"":`
     <div class="topbox">
-      <div class="topbox-h">Your top ${TARGET}
+      <div class="topbox-h">Your top ${TARGET} · Proceed by theme
         <span class="dim">&mdash; ${Math.min(cut.length,TARGET)} of ${TARGET} filled &middot;
         your own scores, not the partners' combined ranking</span></div>
       <div class="tchips">${chips}</div>
