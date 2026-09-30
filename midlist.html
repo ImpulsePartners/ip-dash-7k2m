@@ -290,6 +290,7 @@ body.locked{overflow:hidden}
 .rhelp dd{margin:1px 0 0}
 .crit-hint{font-size:11.5px;color:var(--slate);margin-top:5px;line-height:1.5}
 .req{color:#B3261E;font-weight:700;margin-left:3px}
+.opt{color:var(--slate);font-weight:600;margin-left:3px}
 .needed{font-size:11.5px;color:#B3261E;margin-top:7px}
 /* progress towards a full set of scores */
 .rkprog{background:#fff;border:1px solid var(--line);border-radius:10px;padding:15px 18px;margin-bottom:12px}
@@ -333,6 +334,8 @@ th.sortable{cursor:pointer;user-select:none}
 th.sortable:hover{color:var(--navy)}
 th.sorted{color:var(--navy)}
 .sarr{font-size:8px;margin-left:4px;vertical-align:1px}
+.sarr.off{font-size:10px;color:#C3CFDB}
+th.sortable:hover .sarr.off{color:var(--navy)}
 tr.frow td{padding:7px 8px;background:var(--paper);border-bottom:1px solid var(--line)}
 tr.frow select,tr.frow input{width:100%;min-width:64px;border:1px solid var(--line);background:#fff;
   border-radius:5px;padding:5px 6px;font-size:11.5px;font-family:inherit;color:var(--ink)}
@@ -603,7 +606,9 @@ const SHOW_CONTACT=false;
 /* the sheet address only exists after the password has been accepted */
 function sources(){
   if(!CFG) return [];
-  const id=CFG.sheetId, tab=encodeURIComponent(CFG.sheetName||"");
+  /* tolerate a whole sheet URL pasted where only the id was wanted */
+  const raw=String(CFG.sheetId||""), m=raw.match(/\/d\/([A-Za-z0-9_-]{20,})/);
+  const id=m?m[1]:raw.trim(), tab=encodeURIComponent(CFG.sheetName||"");
   return [CFG.publishedCsvUrl,
     id&&`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1&sheet=${tab}`,
     id&&`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1`,
@@ -1040,7 +1045,7 @@ async function postReview(rec){
   const res=await fetch(CFG.scriptUrl,{
     method:"POST",
     headers:{"Content-Type":"text/plain;charset=utf-8"},   // keeps it a simple request
-    body:JSON.stringify({key:CFG.scriptKey||"", action:"save", review:rec})
+    body:JSON.stringify({key:CFG.scriptKey||"", action:"save", stage:STAGE, review:rec})
   });
   if(!res.ok) throw new Error("HTTP "+res.status);
   const out=await res.json().catch(()=>({ok:true}));
@@ -1091,6 +1096,7 @@ async function loadReviews(){
   if(CFG&&CFG.scriptUrl){                            // then whatever the sheet holds
     try{
       const u=CFG.scriptUrl+"?action=load&reviewer="+encodeURIComponent(who)
+             +"&stage="+encodeURIComponent(STAGE)
              +"&key="+encodeURIComponent(CFG.scriptKey||"");
       const res=await fetch(u);
       if(res.ok){
@@ -1121,7 +1127,7 @@ let QF={theme:"", only:false};
    filter as "at least n"; the rest are exact matches. */
 let RF={q:"", applied:"", suggested:"", reco:"", score:0, crit:{}};
 let SORT={key:"score", dir:-1};        /* -1 descending, 1 ascending */
-const TARGET=0;                         /* no fixed target yet for the Short list */
+const TARGET=9;                         /* how many go through to the Short list */
 let BACKTO="queue";                     /* where the Back button returns to */
 /* Jury roster for the whole Challenge. "stages" says which evaluation a
    member votes in, so the Long list and the Mid list pages can share one
@@ -1129,37 +1135,60 @@ let BACKTO="queue";                     /* where the Back button returns to */
    and Loxam join at the Mid list. Anyone missing can still type their own
    name under "Not on the list". */
 const REVIEWERS_ALL=[
-  {name:"Nobuhiro Murase",  org:"HCM Europe",        stages:["long","mid"]},
-  {name:"Stephen Daff",     org:"HCM Japan",         stages:["long","mid"]},
-  {name:"Kaoru Kobayashi",  org:"HCM Japan",         stages:["long","mid"]},
-  {name:"Yoshiaki Kanayama",org:"HCM Japan",         stages:["long","mid"]},
-  {name:"Kenichi Moriwaki", org:"HCM Japan",         stages:["long","mid"]},
-  {name:"Jeeyoun Ho",       org:"Impulse Partners",  stages:["long","mid"]},
-  {name:"Thomas Le Diouron",org:"Impulse Partners",  stages:["long","mid"]},
-  {name:"Brick & Mortar",   org:"Partner",           stages:["long"]},
-  {name:"Zacua",            org:"Partner",           stages:["long"]},
-  {name:"Ferrovial",        org:"Partner",           stages:["long","mid"]},
-  {name:"Leonard",          org:"Partner",           stages:["long","mid"]},
-  {name:"CRH Ventures",     org:"Partner",           stages:["mid"]},
-  {name:"Loxam",            org:"Partner",           stages:["mid"]}
+  {name:"Nobuhiro Murase",   org:"HCM Europe",              stages:["long","mid"]},
+  {name:"Stephen Daff",      org:"HCM Japan",               stages:["long","mid"]},
+  {name:"Kaoru Kobayashi",   org:"HCM Japan",               stages:["long","mid"]},
+  {name:"Yoshiaki Kanayama", org:"HCM Japan",               stages:["long","mid"]},
+  {name:"Kenichi Moriwaki",  org:"HCM Japan",               stages:["long","mid"]},
+  {name:"Yusuke Seki",       org:"Hitachi High-Tech",       stages:["long","mid"]},
+  {name:"Jeeyoun Ho",        org:"Impulse Partners",        stages:["long","mid"]},
+  {name:"Thomas Le Diouron", org:"Impulse Partners",        stages:["long","mid"]},
+  {name:"Carmen Rouanet",    org:"Leonard",                 stages:["long","mid"]},
+  {name:"Corentin Caniego",  org:"Leonard",                 stages:["long","mid"]},
+  {name:"Luis Amorim",       org:"Ferrovial",               stages:["long","mid"]},
+  {name:"Juan Nieto",        org:"Zacua Ventures",          stages:["long"]},
+  {name:"Abhishek Bansal",   org:"Zacua Ventures",          stages:["long"]},
+  {name:"Caecilia Kemper",   org:"Zacua Ventures",          stages:["long"]},
+  {name:"Guillaume Bazouin", org:"Brick & Mortar Ventures", stages:["long"]},
+  {name:"Benjamin Kavanagh", org:"CRH Ventures",            stages:["mid"]},
+  {name:"David Rudnianski",  org:"Loxam",                   stages:["mid"]}
 ];
 const STAGE="mid";                      /* this page scores the Mid list */
 /* The Long list is every application. The Mid list is only the rows the
    selection meeting flagged in the sheet: add a "Mid list" column and put
    TRUE (or yes / 1 / x) against the ones that go through. */
 const MIDLIST_COL="Mid list";
+/* The Challenge team picks the Mid list on the Admin page, which saves it
+   to the Scores tab as one record. That list wins; a "Mid list" column in
+   the application sheet still works as a fallback. */
+const SEL_APP="__mid list", SEL_REVIEWER="__selection";
+let MID_SELECTION=null;
+async function loadSelection(){
+  if(STAGE!=="mid"||!CFG||!CFG.scriptUrl) return;
+  try{
+    const u=CFG.scriptUrl+"?action=load&reviewer="+encodeURIComponent(SEL_REVIEWER)
+           +"&stage=all&key="+encodeURIComponent(CFG.scriptKey||"");
+    const res=await fetch(u); if(!res.ok) return;
+    const out=await res.json();
+    const rows=(out&&Array.isArray(out.reviews))?out.reviews.filter(r=>r.app===SEL_APP):[];
+    const rec=rows.sort((a,b)=>new Date(b.at||0)-new Date(a.at||0))[0];
+    if(!rec) return;
+    const names=JSON.parse(rec.comment||"[]");
+    if(Array.isArray(names)&&names.length) MID_SELECTION=new Set(names);
+  }catch(e){ /* fall back to the sheet column */ }
+}
 function stageRows(rows){
   if(STAGE!=="mid") return rows;
+  if(MID_SELECTION) return rows.filter(r=>MID_SELECTION.has((r["Company name"]||"").trim()));
   return rows.filter(r=>["true","yes","1","x","oui","vrai"]
     .includes(String(r[MIDLIST_COL]??"").trim().toLowerCase()));
 }
 const REVIEWERS=REVIEWERS_ALL.filter(r=>r.stages.includes(STAGE));
 const me=()=>($("who").value||"").trim().toLowerCase();
-/* Scores are stored under the reviewer's name. The Mid list appends a
-   suffix, so a company scored in both stages keeps two separate records
-   instead of the second one overwriting the first. */
-const STAGE_SUFFIX = STAGE==="mid" ? " \u00b7 mid" : "";
-const rkey=()=>{ const n=me(); return n?n+STAGE_SUFFIX:""; };
+/* Every record carries its stage, and the Apps Script files it in that
+   stage's own tab, so a company scored on both lists keeps two separate
+   records. The reviewer name is stored as it reads. */
+const rkey=()=>me();
 
 async function setReviewer(name){
   $("who").value=name||"";
@@ -1221,9 +1250,9 @@ function renderQueue(){
   $("secTitle").textContent="Mid list";
   if(!ALL.length && DATA.mode!=="loading"){
     $("secNote").textContent="";
-    $("view").innerHTML=`<div class="empty">No application is marked for the Mid list yet.<br><br>
-      Add a <b>${esc(MIDLIST_COL)}</b> column to the application sheet and put <b>TRUE</b> against every
-      company the selection meeting put through. This page picks them up on the next reload.</div>`;
+    $("view").innerHTML=`<div class="empty">No application has been put through to the Mid list yet.
+      <br><br>Open the <b>Admin</b> page, go to <b>Mid list selection</b>, tick the companies the
+      selection meeting chose and save. This page picks them up on the next reload.</div>`;
     return;
   }
   const done=ALL.filter(d=>myReview(d.name)).length;
@@ -1349,7 +1378,9 @@ function renderReview(){
             </div>`;}).join("")}
 
           <div class="crit">
-            <div class="crit-h"><span class="crit-n">Recommendation</span><span class="req">required</span></div>
+            <div class="crit-h"><span class="crit-n">Recommendation</span><span class="opt">optional</span></div>
+            <div class="crit-what">Only for the applications you feel strongly about, either way.
+              Leave it blank and the scores speak for themselves.</div>
             ${RECO.map(k=>`<div class="crit-look"><b>${esc(k)}</b> ${esc(RECO_MEANING[k]||"")}</div>`).join("")}
             <div class="reco">${RECO.map(k=>
               `<button data-reco="${k}" data-v="${k}" class="${DRAFT.reco===k?"on":""}">${esc(k)}</button>`).join("")}</div>
@@ -1367,12 +1398,15 @@ function renderReview(){
           </div>
 
           <div class="crit" style="border-bottom:0;padding-bottom:0;margin-bottom:0">
-            <div class="crit-h"><span class="crit-n">Why this recommendation?</span><span class="req">required</span></div>
-            <div class="crit-hint">Whichever you chose, tell us what decided it. A few words is enough —
-              this is what the selection meeting reads.</div>
+            <div class="crit-h"><span class="crit-n">Why this recommendation?</span>${
+              DRAFT.reco?'<span class="req">required</span>':'<span class="opt">optional</span>'}</div>
+            <div class="crit-hint">${DRAFT.reco
+              ? "You chose <b>"+esc(DRAFT.reco)+"</b> — tell us what decided it. A few words is enough; this is what the selection meeting reads."
+              : "Optional while no recommendation is set. Add a note here if something is worth flagging anyway."}</div>
             <textarea id="comment" placeholder="A line is enough — visible to the Challenge team"
               style="margin-top:9px">${esc(DRAFT.comment)}</textarea>
-            <div class="needed" id="whyNeeded"${(DRAFT.comment||"").trim()?" hidden":""}>Please write a reason before saving.</div>
+            <div class="needed" id="whyNeeded"${
+              DRAFT.reco&&!(DRAFT.comment||"").trim()?"":" hidden"}>A recommendation needs a reason before it can be saved.</div>
           </div>
 
           <label class="coi"><input type="checkbox" id="coi"${DRAFT.coi?" checked":""}>
@@ -1400,10 +1434,14 @@ function renderReview(){
 
 /* A score is saveable once every criterion is rated, a recommendation is
    chosen, the reviewer is known and a reason has been written. */
+/* A score is saveable once every criterion is rated and the reviewer is
+   known. The verdict is for the applications a reviewer feels strongly
+   about, so it is optional — but whoever gives one has to say why. */
 function isReady(){
   if(!DRAFT) return false;
-  return CRITERIA.every(c=>DRAFT.scores[c.id]) && !!DRAFT.reco && !!me()
-      && (DRAFT.comment||"").trim().length>0;
+  if(!CRITERIA.every(c=>DRAFT.scores[c.id]) || !me()) return false;
+  if(DRAFT.reco && !(DRAFT.comment||"").trim()) return false;
+  return true;
 }
 /* Called while typing, so the buttons react without redrawing the panel
    (which would take the cursor out of the box). */
@@ -1411,7 +1449,7 @@ function refreshSaveState(){
   const ok=isReady();
   ["saveBtn","saveOnly"].forEach(id=>{ const b=$(id); if(b) b.disabled=!ok; });
   const n=$("whyNeeded");
-  if(n) n.hidden=(DRAFT&&(DRAFT.comment||"").trim().length>0);
+  if(n) n.hidden=!(DRAFT && DRAFT.reco && !(DRAFT.comment||"").trim());
 }
 
 /* ── ranking ── */
@@ -1508,7 +1546,9 @@ function renderRank(){
     return a.pos-b.pos;                                     /* stable: back to rank order */
   });
 
-  const arrow=k=>SORT.key===k?`<span class="sarr">${SORT.dir<0?"▼":"▲"}</span>`:"";
+  const arrow=k=>SORT.key===k
+    ?`<span class="sarr">${SORT.dir<0?"▼":"▲"}</span>`
+    :`<span class="sarr off">⇅</span>`;
   const th=(k,label)=>`<th class="sortable${SORT.key===k?" sorted":""}" data-sort="${k}"
     title="Sort by ${esc(label)}">${esc(label)}${arrow(k)}</th>`;
   const atLeast=(id,cur)=>`<select data-num="${id}"><option value="0">Any</option>${
@@ -1524,7 +1564,7 @@ function renderRank(){
       <span>${rows.length===byScore.length?`${byScore.length} scored`
         :`<b>${rows.length}</b> of ${byScore.length} scored`}</span>
       ${filtered?`<button type="button" class="clr" id="rkClear">Clear filters &times;</button>`:""}
-      <span class="dim">Click a column heading to sort. Click a row to edit your evaluation.</span>
+      <span class="dim">Click any column heading to sort — Company sorts A to Z, scores high to low. Click again to reverse. Click a row to edit your evaluation.</span>
     </div>
     ${rows.length?`<div style="overflow-x:auto"><table class="rk">
       <thead>
@@ -1698,9 +1738,19 @@ async function start(){
   }
   if(raw===null){ ALL=[]; DATA={mode:"offline",detail:(attempts[0]||{}).msg||"no source configured",attempts}; }
   else{
+    await loadSelection();
     const live=stageRows(raw.filter(r=>(r["Company name"]||"").trim()!==""));
     ALL=normalise(live);
     DATA = live.length ? {mode:"live",detail:"",attempts} : {mode:"empty",detail:"",attempts};
+  }
+  /* evaluate.html#reset (or midlist.html#reset) throws away this
+     browser's cached scores and reloads them from the sheet — the way
+     to clear test entries that were deleted in the sheet itself. */
+  if(location.hash==="#reset"){
+    try{ Object.keys(localStorage).filter(k=>k.indexOf("hcm26.")===0)
+           .forEach(k=>localStorage.removeItem(k)); }catch(e){}
+    alert("This browser's saved copy has been cleared. Scores are reloaded from the sheet.");
+    location.hash="";
   }
   let last=""; try{ last=localStorage.getItem("hcm26.lastReviewer")||""; }catch(e){}
   if(last){

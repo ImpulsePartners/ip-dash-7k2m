@@ -290,6 +290,7 @@ body.locked{overflow:hidden}
 .rhelp dd{margin:1px 0 0}
 .crit-hint{font-size:11.5px;color:var(--slate);margin-top:5px;line-height:1.5}
 .req{color:#B3261E;font-weight:700;margin-left:3px}
+.opt{color:var(--slate);font-weight:600;margin-left:3px}
 .needed{font-size:11.5px;color:#B3261E;margin-top:7px}
 /* progress towards a full set of scores */
 .rkprog{background:#fff;border:1px solid var(--line);border-radius:10px;padding:15px 18px;margin-bottom:12px}
@@ -333,6 +334,8 @@ th.sortable{cursor:pointer;user-select:none}
 th.sortable:hover{color:var(--navy)}
 th.sorted{color:var(--navy)}
 .sarr{font-size:8px;margin-left:4px;vertical-align:1px}
+.sarr.off{font-size:10px;color:#C3CFDB}
+th.sortable:hover .sarr.off{color:var(--navy)}
 tr.frow td{padding:7px 8px;background:var(--paper);border-bottom:1px solid var(--line)}
 tr.frow select,tr.frow input{width:100%;min-width:64px;border:1px solid var(--line);background:#fff;
   border-radius:5px;padding:5px 6px;font-size:11.5px;font-family:inherit;color:var(--ink)}
@@ -467,9 +470,8 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
       <input id="suKey" type="text" placeholder="the shared key from the script">
       <button type="button" onclick="buildVault()">Generate</button>
       <textarea id="suOut" hidden readonly></textarea>
-      <div id="suHint" hidden>Copy the block above, and in <b>admin.html</b> replace the line that
-        starts <b>const VAULT =</b> with it. Commit, then reload this page and sign in with the new
-        password. This page only &mdash; the other pages keep their own password.</div>
+      <div id="suHint" hidden>Replace the <b>const VAULT = …</b> line at the top of the
+        script in both HTML files with the block above, then commit.</div>
     </div>
 
     <div class="gate-note">
@@ -522,6 +524,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
       <button data-view="spread">Disagreement</button>
       <button data-view="themes">Themes</button>
       <button data-view="calib">Calibration</button>
+      <button data-view="select">Mid list selection</button>
     </div>
   </div>
   <div id="view"></div>
@@ -540,7 +543,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
    To change the password or the sheet, open this page with #setup
    appended to the URL and paste the new block over VAULT.
    ══════════════════════════════════════════════════════════════════ */
-const VAULT = {"v":1,"it":250000,"salt":"QcHB5PWG7a2vnVmBZPvMVQ==","iv":"VTgZz3Pr1EXYaNWV","ct":"PYG5yzEm8XfseGCwPbeY5sQON3bwCgBV5qvDZnuWzZmsFTN6ivid86fm3jPhQz8TEP3KPWaqg3Xai0Yq0a4A85rYIc4ebU1wdOKJFMJKnug4Ca2V7U216Dzrv2nEefuJSckOpd1kFSMpx6SNu/CCjE1ajJR8OcyXiW10tmFUJXBzxLDJ00gG5AQcjQoIIfrbuEvC942eLzEPcdhsXCQol6Yi5y0UNDegD6lInkfD1JaKno1kYh4egK0xuA3g5ZN5G39GIjIVVKSA8KHswl97d4I3EY7vZpQ/qRV28WDpKu81uu0N+pw3JlI6n3ht0Lup8E6vUrl6Vz640d0lXtr9iiUV3L6M9Q/G27yAJA=="};
+const VAULT = {"v":1,"it":250000,"salt":"QcHB5PWG7a2vnVmBZPvMVQ==","iv":"VTgZz3Pr1EXYaNWV","ct":"PYG5yzEm8XfseGCwPbeY5sQON3bwCgBV5qvDZnuWzZmsFTN6ivid86fm3jPhQz8TEP3KPWaqg3Xai0Yq0a4A85rYIc4ebU1wdOKJFMJKnug4Ca2V7U216Dzrv2nEefuJSckOpd1kFSMpx6SNu/CCjE1ajJR8OcyXiW10tmFUJXBzxLDJ00gG5AQcjQoIIfrbuEvC942eLzEPcdhsXCQol6Yi5y0UNDegD6lInkfD1JaKno1kYh4egK0xuA3g5ZN5G39GIjIVVKSA8KHswl97d4I3EY7vZpQ/qRV28WDpKu81uu0N+pw3JlI6n3ht0Lup8E6vUrl6Vz640d0lXtr9iiUV3L6M9Q/G27yAJA=="};   /* set by opening admin.html#setup */
 
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 let CFG=null;
@@ -1024,19 +1027,23 @@ const RECO_COLOR={"Proceed":"#1B6B3A","Do not proceed":"#7086A0"};
    and Loxam join at the Mid list. Anyone missing can still type their own
    name under "Not on the list". */
 const REVIEWERS_ALL=[
-  {name:"Nobuhiro Murase",  org:"HCM Europe",        stages:["long","mid"]},
-  {name:"Stephen Daff",     org:"HCM Japan",         stages:["long","mid"]},
-  {name:"Kaoru Kobayashi",  org:"HCM Japan",         stages:["long","mid"]},
-  {name:"Yoshiaki Kanayama",org:"HCM Japan",         stages:["long","mid"]},
-  {name:"Kenichi Moriwaki", org:"HCM Japan",         stages:["long","mid"]},
-  {name:"Jeeyoun Ho",       org:"Impulse Partners",  stages:["long","mid"]},
-  {name:"Thomas Le Diouron",org:"Impulse Partners",  stages:["long","mid"]},
-  {name:"Brick & Mortar",   org:"Partner",           stages:["long"]},
-  {name:"Zacua",            org:"Partner",           stages:["long"]},
-  {name:"Ferrovial",        org:"Partner",           stages:["long","mid"]},
-  {name:"Leonard",          org:"Partner",           stages:["long","mid"]},
-  {name:"CRH Ventures",     org:"Partner",           stages:["mid"]},
-  {name:"Loxam",            org:"Partner",           stages:["mid"]}
+  {name:"Nobuhiro Murase",   org:"HCM Europe",              stages:["long","mid"]},
+  {name:"Stephen Daff",      org:"HCM Japan",               stages:["long","mid"]},
+  {name:"Kaoru Kobayashi",   org:"HCM Japan",               stages:["long","mid"]},
+  {name:"Yoshiaki Kanayama", org:"HCM Japan",               stages:["long","mid"]},
+  {name:"Kenichi Moriwaki",  org:"HCM Japan",               stages:["long","mid"]},
+  {name:"Yusuke Seki",       org:"Hitachi High-Tech",       stages:["long","mid"]},
+  {name:"Jeeyoun Ho",        org:"Impulse Partners",        stages:["long","mid"]},
+  {name:"Thomas Le Diouron", org:"Impulse Partners",        stages:["long","mid"]},
+  {name:"Carmen Rouanet",    org:"Leonard",                 stages:["long","mid"]},
+  {name:"Corentin Caniego",  org:"Leonard",                 stages:["long","mid"]},
+  {name:"Luis Amorim",       org:"Ferrovial",               stages:["long","mid"]},
+  {name:"Juan Nieto",        org:"Zacua Ventures",          stages:["long"]},
+  {name:"Abhishek Bansal",   org:"Zacua Ventures",          stages:["long"]},
+  {name:"Caecilia Kemper",   org:"Zacua Ventures",          stages:["long"]},
+  {name:"Guillaume Bazouin", org:"Brick & Mortar Ventures", stages:["long"]},
+  {name:"Benjamin Kavanagh", org:"CRH Ventures",            stages:["mid"]},
+  {name:"David Rudnianski",  org:"Loxam",                   stages:["mid"]}
 ];
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1047,13 +1054,49 @@ const REVIEWERS_ALL=[
 let APPS=[], REV=[], STAGE="long", VIEW="combined", LOADERR="";
 const TARGET=45;
 
+/* ── the Mid list selection ───────────────────────────────
+   Which applications go through to the Mid list is decided here and
+   written back to the Scores tab as one record, so every page reads the
+   same list and nobody edits the sheet by hand. It is stored in the
+   shape a score has, under a reserved name, with the chosen company
+   names as JSON in the comment field.
+   ──────────────────────────────────────────── */
+const SEL_APP="__mid list", SEL_REVIEWER="__selection";
+let SEL=new Set(), SEL_SAVED=new Set(), SEL_AT="", SEL_BUSY=false;
+
+function readSelection(rows){
+  const rec=rows.filter(r=>r.app===SEL_APP)
+    .sort((a,b)=>new Date(b.at||0)-new Date(a.at||0))[0];
+  if(!rec) return {names:[], at:""};
+  try{ const n=JSON.parse(rec.comment||"[]");
+    return {names:Array.isArray(n)?n:[], at:rec.at||""}; }
+  catch(e){ return {names:[], at:rec.at||""}; }
+}
+async function saveSelection(){
+  if(!CFG||!CFG.scriptUrl) throw new Error("no Apps Script endpoint is configured");
+  const rec={app:SEL_APP, reviewer:SEL_REVIEWER, scores:{}, reco:"", themeVote:"", coi:false,
+             comment:JSON.stringify([...SEL].sort()), at:new Date().toISOString()};
+  const res=await fetch(CFG.scriptUrl,{method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({key:CFG.scriptKey||"", action:"save", review:rec})});
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  const out=await res.json().catch(()=>({ok:true}));
+  if(out && out.ok===false) throw new Error(out.error||"the script refused the write");
+  SEL_SAVED=new Set(SEL); SEL_AT=rec.at;
+  return true;
+}
+const selDirty=()=>SEL.size!==SEL_SAVED.size||[...SEL].some(n=>!SEL_SAVED.has(n));
+
 /* A record's reviewer field is "name" on the Long list and "name · mid"
    on the Mid list, so one string carries both the person and the stage. */
-function splitKey(k){
+function splitKey(k, rec){
   const s=String(k||"");
   const i=s.indexOf(" · ");
-  return i<0 ? {person:s, stage:"long"} : {person:s.slice(0,i), stage:s.slice(i+3)};
+  const person=i<0?s:s.slice(0,i);
+  const stage=(rec&&rec.stage) || (i<0?"long":s.slice(i+3));
+  return {person, stage};
 }
+const stageOf=r=>(r&&r.stage) || splitKey(r&&r.reviewer).stage;
 const titleCase=s=>String(s||"").replace(/\b[a-z]/g,c=>c.toUpperCase());
 function displayName(k){
   const p=splitKey(k).person;
@@ -1075,8 +1118,9 @@ const fmt=(n,d=2)=>Number(n).toFixed(d);
    One call for everything if the Apps Script supports it; otherwise
    one call per reviewer per stage, six at a time.
    ────────────────────────────────────────────────────────────────── */
-async function loadOne(key){
+async function loadOne(key, stage){
   const u=CFG.scriptUrl+"?action=load&reviewer="+encodeURIComponent(key)
+         +(stage?"&stage="+encodeURIComponent(stage):"")
          +"&key="+encodeURIComponent(CFG.scriptKey||"");
   const res=await fetch(u);
   if(!res.ok) throw new Error("HTTP "+res.status);
@@ -1085,19 +1129,27 @@ async function loadOne(key){
 }
 async function loadEverything(){
   if(!CFG||!CFG.scriptUrl){ LOADERR="No Apps Script endpoint is configured for this page."; return []; }
-  try{                                   /* the cheap path, if the script allows it */
-    const all=await loadOne("");
+  try{                          /* both tabs in one call, if the script allows it */
+    const all=await loadOne("", "all");
     const who=new Set(all.map(r=>r.reviewer));
     if(who.size>1) return all;
   }catch(e){ /* fall through */ }
 
+  /* otherwise ask per reviewer, per stage; the legacy suffixed key is tried
+     too, so scores saved before the tabs existed are still found */
   const keys=[];
-  REVIEWERS_ALL.forEach(r=>{ const n=r.name.toLowerCase(); keys.push(n, n+" · mid"); });
-  const out=[];
+  REVIEWERS_ALL.forEach(r=>{ const n=r.name.toLowerCase();
+    keys.push({k:n, s:"long"}, {k:n, s:"mid"}, {k:n+" · mid", s:"mid"}); });
+  const out=[], seen=new Set();
   for(let i=0;i<keys.length;i+=6){
-    const batch=await Promise.all(keys.slice(i,i+6).map(k=>
-      loadOne(k).then(rs=>rs.map(r=>({...r, reviewer:r.reviewer||k}))).catch(()=>[])));
-    batch.forEach(rs=>out.push(...rs));
+    const batch=await Promise.all(keys.slice(i,i+6).map(q=>
+      loadOne(q.k, q.s).then(rs=>rs.map(r=>({...r, reviewer:r.reviewer||q.k,
+        stage:r.stage||q.s}))).catch(()=>[])));
+    batch.forEach(rs=>rs.forEach(r=>{
+      const id=stageOf(r)+"|"+splitKey(r.reviewer,r).person+"|"+r.app;
+      if(seen.has(id)) return;
+      seen.add(id); out.push(r);
+    }));
     $("loadNote").textContent=`Loading scores… ${Math.min(i+6,keys.length)} of ${keys.length}`;
   }
   if(!out.length) LOADERR="The endpoint answered, but returned no scores.";
@@ -1105,10 +1157,12 @@ async function loadEverything(){
 }
 
 /* ── shared helpers over the loaded data ── */
-function rowsForStage(){ return REV.filter(r=>splitKey(r.reviewer).stage===STAGE && !r.coi); }
+function rowsForStage(){ return REV.filter(r=>r.app!==SEL_APP
+  && splitKey(r.reviewer,r).person!==SEL_REVIEWER
+  && stageOf(r)===STAGE && !r.coi); }
 function appsForStage(){
   if(STAGE!=="mid") return APPS;
-  return APPS.filter(d=>d.midlist);
+  return APPS.filter(d=>SEL.has(d.name)||d.midlist);
 }
 function byApp(){
   const m=new Map();
@@ -1364,12 +1418,101 @@ function viewCalib(){
       same score to everyone, which carries little information either way.</div>`;
 }
 
+/* ── 6. mid list selection ── */
+function viewSelect(){
+  $("secTitle").textContent="Mid list selection";
+  if(!APPS.length) return empty("The application sheet has not loaded, so there is nothing to pick from.");
+  const ranked=combinedForLong();
+  const rank=new Map(ranked.map(x=>[x.app,x]));
+  const rows=APPS.map(d=>({d, r:rank.get(d.name)}))
+    .sort((a,b)=>(b.r?b.r.score:-1)-(a.r?a.r.score:-1)||a.d.name.localeCompare(b.d.name));
+
+  const byTheme={};
+  [...SEL].forEach(n=>{ const d=APPS.find(x=>x.name===n); if(!d) return;
+    const t=themeOf(d); byTheme[t]=(byTheme[t]||0)+1; });
+  const over=SEL.size-TARGET;
+  const ghosts=[...SEL].filter(n=>!APPS.some(d=>d.name===n));
+  const themeCards=Object.keys(byTheme).sort().map(t=>
+    `<div class="acard" style="border-left:3px solid ${tcol(t)}">
+       <div class="acard-k">${esc(tshort(t))}</div>
+       <div class="acard-v" style="color:${tcol(t)}">${byTheme[t]}</div>
+       <div class="acard-s">selected</div></div>`).join("");
+
+  $("secNote").textContent=SEL_AT
+    ? "Last saved "+new Date(SEL_AT).toLocaleString("en-GB",
+        {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})+"."
+    : "Nothing saved yet.";
+
+  $("view").innerHTML=`
+    <div class="acards">
+      ${card("Selected",SEL.size,over===0?"exactly "+TARGET
+        :over>0?over+" over "+TARGET:(-over)+" still to pick")}
+      ${themeCards||card("By theme","–","nothing selected yet")}
+    </div>
+    <div class="rkmeta">
+      <button type="button" class="clr" id="selTop">Take the top ${TARGET} by combined score</button>
+      <button type="button" class="clr" id="selNone">Clear all</button>
+      <button type="button" class="clr" id="selCsv">Download as CSV</button>
+      <button type="button" class="go" id="selSave"
+        style="width:auto;margin:0;padding:8px 18px;border-radius:20px;font-size:12.5px"
+        ${selDirty()&&!SEL_BUSY?"":"disabled"}>${
+        SEL_BUSY?"Saving…":selDirty()?"Save selection":"Saved"}</button>
+      <span class="dim" id="selMsg">${selDirty()?"Unsaved changes.":""}</span>
+    </div>
+    ${ghosts.length?`<div class="tie">${ghosts.length} saved name${ghosts.length>1?"s are":" is"} no longer
+      in the application sheet: ${esc(ghosts.join(", "))}. Saving again drops ${
+      ghosts.length>1?"them":"it"}.</div>`:""}
+    <div style="overflow-x:auto"><table class="rk">
+      <thead><tr><th style="width:62px">Mid list</th><th>#</th><th>Company</th><th>Theme</th>
+        <th>Combined</th><th>Reviewers</th><th>Proceed</th></tr></thead>
+      <tbody>${rows.map(x=>{
+        const on=SEL.has(x.d.name);
+        return `<tr class="${on?"rk-in":""}">
+          <td style="text-align:center"><input type="checkbox" data-pick="${esc(x.d.name)}"
+            ${on?"checked":""} style="width:17px;height:17px;accent-color:#123A63"></td>
+          <td class="rank${x.r&&x.r.pos<=TARGET?" top":""}">${x.r?x.r.pos:"–"}</td>
+          <td style="font-weight:600">${esc(x.d.name)}
+            <div class="tdim">${esc([x.d.city,x.d.country].filter(Boolean).join(" · "))}</div></td>
+          <td>${tagOf(themeOf(x.d))}</td>
+          <td class="mean">${x.r?fmt(x.r.score):"–"}</td>
+          <td class="rev-n">${x.r?x.r.n:0}</td>
+          <td class="mono">${x.r&&x.r.pro?x.r.pro:"–"}</td>
+        </tr>`;}).join("")}</tbody></table></div>
+    <div class="rknote">Tick the applications that go through, then save. The Mid list page reads this
+      list directly, so there is nothing to change in the sheet. The rank column is the combined Long
+      list score, which makes "take the top ${TARGET}" a starting point rather than the decision.
+      If you would rather keep the list in the sheet as well, the CSV has one row per selected company
+      with a Mid list column already set to TRUE.</div>`;
+}
+
+/* The selection is always made against Long list scores, whichever stage
+   happens to be showing. */
+function combinedForLong(){
+  const keep=STAGE; STAGE="long";
+  try{ return combined(); } finally{ STAGE=keep; }
+}
+
+function selectionCsv(){
+  const q=s=>`"${String(s??"").replace(/"/g,'""')}"`;
+  const rank=new Map(combinedForLong().map(x=>[x.app,x]));
+  const head=["Company name","Mid list","Combined score","Reviewers","Theme"];
+  const body=[...SEL].sort().map(n=>{
+    const d=APPS.find(x=>x.name===n)||{}, r=rank.get(n);
+    return [n,"TRUE",r?fmt(r.score):"",r?r.n:"",d.themes?themeOf(d):""].map(q).join(",");
+  });
+  const blob=new Blob(["﻿"+head.map(q).join(",")+"\n"+body.join("\n")],
+    {type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="LANDCROS_EC2026_mid_list_"+new Date().toISOString().slice(0,10)+".csv";
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
 /* ── export ── */
 function exportAll(){
   const q=s=>`"${String(s??"").replace(/"/g,'""')}"`;
   const head=["Stage","Reviewer","Company",...CRITERIA.map(c=>c.name),"Mean","Recommendation",
               "Best-fitting theme","Conflict of interest","Reason for the recommendation","Saved at"];
-  const body=REV.map(r=>{ const k=splitKey(r.reviewer);
+  const body=REV.filter(r=>r.app!==SEL_APP).map(r=>{ const k=splitKey(r.reviewer,r);
     return [k.stage,displayName(r.reviewer),r.app,...CRITERIA.map(c=>r.scores[c.id]||""),
       fmt(weighted(r.scores)),r.reco,r.themeVote,r.coi?"Yes":"No",r.comment,r.at].map(q).join(","); });
   const blob=new Blob(["﻿"+head.map(q).join(",")+"\n"+body.join("\n")],
@@ -1386,12 +1529,30 @@ function render(){
   if(LOADERR && !REV.length) return empty(esc(LOADERR)+
     `<br><br>Open this page with <code>#setup</code> to check the sheet and endpoint it points at.`);
   ({combined:viewCombined, coverage:viewCoverage, spread:viewSpread,
-    themes:viewThemes, calib:viewCalib}[VIEW]||viewCombined)();
+    themes:viewThemes, calib:viewCalib, select:viewSelect}[VIEW]||viewCombined)();
 }
-document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-view],[data-stage],#exportBtn");
+document.addEventListener("change",e=>{
+  const c=e.target.closest("[data-pick]");
+  if(!c) return;
+  if(c.checked) SEL.add(c.dataset.pick); else SEL.delete(c.dataset.pick);
+  render();
+});
+document.addEventListener("click",async e=>{
+  const t=e.target.closest("[data-view],[data-stage],#exportBtn,#selTop,#selNone,#selCsv,#selSave");
   if(!t) return;
   if(t.id==="exportBtn"){ exportAll(); return; }
+  if(t.id==="selTop"){ SEL=new Set(combinedForLong().slice(0,TARGET).map(x=>x.app)); render(); return; }
+  if(t.id==="selNone"){ SEL=new Set(); render(); return; }
+  if(t.id==="selCsv"){ selectionCsv(); return; }
+  if(t.id==="selSave"){
+    SEL_BUSY=true; render();
+    try{ await saveSelection(); SEL_BUSY=false; render();
+      $("selMsg").textContent="Saved. The Mid list page picks this up on its next load."; }
+    catch(err){ SEL_BUSY=false; render();
+      $("selMsg").innerHTML='<span class="warn">Could not save \u2014 '+esc(err.message)+
+        '. Use <b>Download as CSV</b> and add a <b>Mid list</b> column to the sheet instead.</span>'; }
+    return;
+  }
   if(t.dataset.view){ VIEW=t.dataset.view; render(); return; }
   if(t.dataset.stage){ STAGE=t.dataset.stage; render(); }
 });
@@ -1414,6 +1575,9 @@ async function start(){
     .includes(String(raw.filter(r=>(r["Company name"]||"").trim()!=="")[i]["Mid list"]??"")
       .trim().toLowerCase()); });
   REV = await loadEverything();
+  try{ (await loadOne(SEL_REVIEWER,"all")).forEach(r=>REV.push(r)); }catch(e){}
+  const sel=readSelection(REV);
+  SEL=new Set(sel.names); SEL_SAVED=new Set(sel.names); SEL_AT=sel.at;
   REV.forEach(r=>{ if(r && RECO_LEGACY.hasOwnProperty(r.reco)) r.reco=RECO_LEGACY[r.reco]; });
   $("loadNote").textContent=`${REV.length} scores · ${APPS.length} applications`;
   render();
@@ -1429,8 +1593,10 @@ function demo(){
     const sc={}; CRITERIA.forEach((c,k)=>sc[c.id]=1+((i*3+j*2+k)%5));
     REV.push({app:d.name, reviewer:w, scores:sc, reco:(i+j)%2?"Proceed":"Do not proceed",
       themeVote:(i+j)%5===0?THEMES[1].name:"", coi:false,
-      comment:"Sample reason "+(i+1)+"."+(j+1), at:new Date(Date.now()-j*86400000).toISOString()});
+      comment:"Sample reason "+(i+1)+"."+(j+1), stage:"long",
+      at:new Date(Date.now()-j*86400000).toISOString()});
   }));
+  SEL=new Set(APPS.slice(0,3).map(d=>d.name)); SEL_SAVED=new Set(SEL);
   $("loadNote").textContent=`Sample data · ${REV.length} scores`;
   render();
 }
