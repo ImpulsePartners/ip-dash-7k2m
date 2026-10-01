@@ -1247,7 +1247,8 @@ let BACKTO="queue";                     /* where the Back button returns to */
 /* Reviewer roster for the whole Challenge. "stages" says which evaluation
    a member votes in, so the Long list and the Mid list pages can share one
    list. Long list: HCM, Impulse, Ferrovial, Zacua and Brick & Mortar.
-   Mid list: HCM, Impulse, Ferrovial, Leonard, CRH Ventures and Loxam.
+   Mid list: HCM, Ferrovial, Leonard, CRH Ventures and Loxam — Impulse
+   do not score the Mid list.
    Partners who review as a team appear once, under the firm's name, rather
    than per person. Anyone missing can still type their own name under
    "Not on the list". */
@@ -1258,11 +1259,11 @@ const REVIEWERS_ALL=[
   {name:"Yoshiaki Kanayama", org:"HCM Japan",               stages:["long","mid"]},
   {name:"Kenichi Moriwaki",  org:"HCM Japan",               stages:["long","mid"]},
   {name:"Yusuke Seki",       org:"Hitachi High-Tech",       stages:["long","mid"]},
-  {name:"Jeeyoun Ho",        org:"Impulse Partners",        stages:["long","mid"]},
-  {name:"Thomas Le Diouron", org:"Impulse Partners",        stages:["long","mid"]},
   {name:"Luis Amorim",       org:"Ferrovial",               stages:["long","mid"]},
-  /* Zacua score the Long list as a team, under one name, and step out
-     after it. Brick & Mortar score the Long list only. */
+  /* Impulse score the Long list as a team, under one name, and take no
+     part in the Mid list. Zacua likewise score the Long list only, as a
+     team; Brick & Mortar score the Long list only. */
+  {name:"Impulse Partners",  org:"one entry for the team",  stages:["long"]},
   {name:"Zacua Ventures",    org:"one entry for the team",  stages:["long"]},
   {name:"Guillaume Bazouin", org:"Brick & Mortar Ventures", stages:["long"]},
   /* Leonard are not taking part in the Long list. They join at the Mid
