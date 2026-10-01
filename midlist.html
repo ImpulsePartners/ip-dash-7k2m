@@ -1244,11 +1244,13 @@ let RF={q:"", applied:"", suggested:"", reco:"", score:0, crit:{}};
 let SORT={key:"score", dir:-1};        /* -1 descending, 1 ascending */
 const TARGET=9;                         /* how many go through to the Short list */
 let BACKTO="queue";                     /* where the Back button returns to */
-/* Jury roster for the whole Challenge. "stages" says which evaluation a
-   member votes in, so the Long list and the Mid list pages can share one
-   list: Zacua and Brick & Mortar score the Long list only, CRH Ventures
-   and Loxam join at the Mid list. Anyone missing can still type their own
-   name under "Not on the list". */
+/* Reviewer roster for the whole Challenge. "stages" says which evaluation
+   a member votes in, so the Long list and the Mid list pages can share one
+   list. Long list: HCM, Impulse, Ferrovial, Zacua and Brick & Mortar.
+   Mid list: HCM, Impulse, Ferrovial, Leonard, CRH Ventures and Loxam.
+   Partners who review as a team appear once, under the firm's name, rather
+   than per person. Anyone missing can still type their own name under
+   "Not on the list". */
 const REVIEWERS_ALL=[
   {name:"Nobuhiro Murase",   org:"HCM Europe",              stages:["long","mid"]},
   {name:"Stephen Daff",      org:"HCM Japan",               stages:["long","mid"]},
@@ -1258,13 +1260,14 @@ const REVIEWERS_ALL=[
   {name:"Yusuke Seki",       org:"Hitachi High-Tech",       stages:["long","mid"]},
   {name:"Jeeyoun Ho",        org:"Impulse Partners",        stages:["long","mid"]},
   {name:"Thomas Le Diouron", org:"Impulse Partners",        stages:["long","mid"]},
-  {name:"Carmen Rouanet",    org:"Leonard",                 stages:["long","mid"]},
-  {name:"Corentin Caniego",  org:"Leonard",                 stages:["long","mid"]},
   {name:"Luis Amorim",       org:"Ferrovial",               stages:["long","mid"]},
-  {name:"Juan Nieto",        org:"Zacua Ventures",          stages:["long"]},
-  {name:"Abhishek Bansal",   org:"Zacua Ventures",          stages:["long"]},
-  {name:"Caecilia Kemper",   org:"Zacua Ventures",          stages:["long"]},
+  /* Zacua score the Long list as a team, under one name, and step out
+     after it. Brick & Mortar score the Long list only. */
+  {name:"Zacua Ventures",    org:"one entry for the team",  stages:["long"]},
   {name:"Guillaume Bazouin", org:"Brick & Mortar Ventures", stages:["long"]},
+  /* Leonard are not taking part in the Long list. They join at the Mid
+     list and score as a team, under one name, as CRH and Loxam do. */
+  {name:"Leonard",           org:"one entry for the team",  stages:["mid"]},
   {name:"Benjamin Kavanagh", org:"CRH Ventures",            stages:["mid"]},
   {name:"David Rudnianski",  org:"Loxam",                   stages:["mid"]}
 ];
@@ -1531,9 +1534,9 @@ function renderReview(){
             </div>`;}).join("")}
 
           <div class="crit">
-            <div class="crit-h"><span class="crit-n">Recommendation</span><span class="opt">optional</span></div>
-            <div class="crit-what">Only for the applications you feel strongly about, either way.
-              Leave it blank and the scores speak for themselves.</div>
+            <div class="crit-h"><span class="crit-n">Recommendation</span><span class="req">required</span></div>
+            <div class="crit-what">On the Mid list every application needs a verdict, not only scores:
+              three per theme go through to Demo Day, so say where this one stands.</div>
             ${RECO.map(k=>`<div class="crit-look"><b>${esc(k)}</b> ${esc(RECO_MEANING[k]||"")}</div>`).join("")}
             <div class="reco">${RECO.map(k=>
               `<button data-reco="${k}" data-v="${k}" class="${DRAFT.reco===k?"on":""}">${esc(k)}</button>`).join("")}</div>
@@ -1555,7 +1558,7 @@ function renderReview(){
               DRAFT.reco?'<span class="req">required</span>':'<span class="opt">optional</span>'}</div>
             <div class="crit-hint">${DRAFT.reco
               ? "You chose <b>"+esc(DRAFT.reco)+"</b> — tell us what decided it. A few words is enough; this is what the selection meeting reads."
-              : "Optional while no recommendation is set. Add a note here if something is worth flagging anyway."}</div>
+              : "Choose a recommendation above, then say in one line what decided it."}</div>
             <textarea id="comment" placeholder="A line is enough — visible to the Challenge team"
               style="margin-top:9px">${esc(DRAFT.comment)}</textarea>
             <div class="needed" id="whyNeeded"${
@@ -1585,15 +1588,15 @@ function renderReview(){
   window.scrollTo(0,keepW);
 }
 
-/* A score is saveable once every criterion is rated, a recommendation is
-   chosen, the reviewer is known and a reason has been written. */
-/* A score is saveable once every criterion is rated and the reviewer is
-   known. The verdict is for the applications a reviewer feels strongly
-   about, so it is optional — but whoever gives one has to say why. */
+/* On the Mid list a score is saveable once every criterion is rated, the
+   reviewer is known, a verdict is chosen and a reason has been written.
+   The verdict is required here, unlike on the Long list: this round picks
+   the nine, so every application needs a yes or a no on the record. */
 function isReady(){
   if(!DRAFT) return false;
   if(!CRITERIA.every(c=>DRAFT.scores[c.id]) || !me()) return false;
-  if(DRAFT.reco && !(DRAFT.comment||"").trim()) return false;
+  if(!DRAFT.reco) return false;
+  if(!(DRAFT.comment||"").trim()) return false;
   return true;
 }
 /* Called while typing, so the buttons react without redrawing the panel

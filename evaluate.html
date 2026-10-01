@@ -1244,11 +1244,13 @@ let RF={q:"", applied:"", suggested:"", reco:"", score:0, crit:{}};
 let SORT={key:"score", dir:-1};        /* -1 descending, 1 ascending */
 const TARGET=45;                        /* how many go through to the Mid list */
 let BACKTO="queue";                     /* where the Back button returns to */
-/* Jury roster for the whole Challenge. "stages" says which evaluation a
-   member votes in, so the Long list and the Mid list pages can share one
-   list: Zacua and Brick & Mortar score the Long list only, CRH Ventures
-   and Loxam join at the Mid list. Anyone missing can still type their own
-   name under "Not on the list". */
+/* Reviewer roster for the whole Challenge. "stages" says which evaluation
+   a member votes in, so the Long list and the Mid list pages can share one
+   list. Long list: HCM, Impulse, Ferrovial, Zacua and Brick & Mortar.
+   Mid list: HCM, Impulse, Ferrovial, Leonard, CRH Ventures and Loxam.
+   Partners who review as a team appear once, under the firm's name, rather
+   than per person. Anyone missing can still type their own name under
+   "Not on the list". */
 const REVIEWERS_ALL=[
   {name:"Nobuhiro Murase",   org:"HCM Europe",              stages:["long","mid"]},
   {name:"Stephen Daff",      org:"HCM Japan",               stages:["long","mid"]},
@@ -1258,13 +1260,14 @@ const REVIEWERS_ALL=[
   {name:"Yusuke Seki",       org:"Hitachi High-Tech",       stages:["long","mid"]},
   {name:"Jeeyoun Ho",        org:"Impulse Partners",        stages:["long","mid"]},
   {name:"Thomas Le Diouron", org:"Impulse Partners",        stages:["long","mid"]},
-  {name:"Carmen Rouanet",    org:"Leonard",                 stages:["long","mid"]},
-  {name:"Corentin Caniego",  org:"Leonard",                 stages:["long","mid"]},
   {name:"Luis Amorim",       org:"Ferrovial",               stages:["long","mid"]},
-  {name:"Juan Nieto",        org:"Zacua Ventures",          stages:["long"]},
-  {name:"Abhishek Bansal",   org:"Zacua Ventures",          stages:["long"]},
-  {name:"Caecilia Kemper",   org:"Zacua Ventures",          stages:["long"]},
+  /* Zacua score the Long list as a team, under one name, and step out
+     after it. Brick & Mortar score the Long list only. */
+  {name:"Zacua Ventures",    org:"one entry for the team",  stages:["long"]},
   {name:"Guillaume Bazouin", org:"Brick & Mortar Ventures", stages:["long"]},
+  /* Leonard are not taking part in the Long list. They join at the Mid
+     list and score as a team, under one name, as CRH and Loxam do. */
+  {name:"Leonard",           org:"one entry for the team",  stages:["mid"]},
   {name:"Benjamin Kavanagh", org:"CRH Ventures",            stages:["mid"]},
   {name:"David Rudnianski",  org:"Loxam",                   stages:["mid"]}
 ];
