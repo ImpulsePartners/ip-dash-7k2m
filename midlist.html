@@ -61,7 +61,10 @@ body.locked{overflow:hidden}
 #setup input,#setup textarea{text-align:left;letter-spacing:0;font-size:12.5px;
   border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.07);color:#fff;
   border-radius:var(--r);padding:9px 11px;font-family:"IBM Plex Mono",monospace}
-#suOut{height:120px;resize:vertical}
+#suOut{height:150px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace}
+#rkTitle{font-size:13px;font-weight:700;color:#E8F0F8;margin-bottom:2px}
+#rkMsg{font-size:11.5px;color:#FFB36B;line-height:1.5}
+#rkCopy{margin-top:-2px}
 #suHint{font-size:11.5px;color:#9FB6CF;line-height:1.5}
 
 
@@ -427,22 +430,19 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
     </form>
 
     <div id="setup" hidden>
-      <label for="suPw">New password</label>
-      <input id="suPw" type="text" placeholder="choose a strong passphrase">
-      <label for="suId">Google Sheet ID</label>
-      <input id="suId" type="text" placeholder="the long id from the sheet URL">
-      <label for="suTab">Tab name</label>
-      <input id="suTab" type="text" placeholder="2026">
-      <label for="suUrl">Published CSV URL (optional)</label>
-      <input id="suUrl" type="text" placeholder="https://docs.google.com/…output=csv">
-      <label for="suScript">Apps Script URL (scores, optional)</label>
-      <input id="suScript" type="text" placeholder="https://script.google.com/macros/s/…/exec">
-      <label for="suKey">Apps Script key (optional)</label>
-      <input id="suKey" type="text" placeholder="the shared key from the script">
-      <button type="button" onclick="buildVault()">Generate</button>
+      <div id="rkTitle">Generate the Loxam password</div>
+      <label for="rkCur">Current dashboard password</label>
+      <input id="rkCur" type="password" placeholder="the password partners use today"
+             autocomplete="off">
+      <label for="rkNew">New Loxam password</label>
+      <input id="rkNew" type="text" placeholder="at least 20 characters" autocomplete="off">
+      <button type="button" onclick="rekey()">Generate</button>
+      <div id="rkMsg" hidden></div>
       <textarea id="suOut" hidden readonly></textarea>
-      <div id="suHint" hidden>Replace the <b>const VAULT = …</b> line at the top of the
-        script in both HTML files with the block above, then commit.</div>
+      <button type="button" id="rkCopy" hidden onclick="rkCopy()">Copy</button>
+      <div id="suHint" hidden>Replace the whole <b>const VAULTS = [ &hellip; ];</b>
+        block near the top of the script with the text above. The same block goes
+        into all four files, unchanged.</div>
     </div>
 
     <div class="gate-note">
@@ -533,26 +533,68 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 <script>
 /* ══════════════════════════════════════════════════════════════════
    ACCESS GATE
-   The sheet configuration below is AES-256-GCM encrypted with the
-   sponsor password. Nothing readable is stored here: without the
-   password the sheet address cannot be recovered from this file.
-   To change the password or the sheet, open this page with #setup
-   appended to the URL and paste the new block over VAULT.
+   The sheet configuration below is AES-256-GCM encrypted, once per
+   access tier. Nothing readable is stored here: without a password the
+   sheet address cannot be recovered from this file, and no password is
+   stored either — a tier is identified by which block it decrypts.
    ══════════════════════════════════════════════════════════════════ */
-const VAULT = {"v":1,"it":250000,"salt":"+ZZ7BeM6wJDhk31s+zebdQ==","iv":"6WbxFP25iEhCT4fh","ct":"SLdP2NyaCB8unlVHock8yrMazy7jx3pYd2GC76oyCJazLzOtb6Wv1Fxd2cIL0CfywUSAtgVdUYh3i09A1RVecfsR9MqmoxkG/9K2b+h1f/8uv5F/fqh+dzZyzfVdmUthu4ZAEcEmPHmBvCQytg6IHLyQ/QZrasf6xEGgNCyOFNvUscxS5465yCZkQWxKaczAqAFE5q+VbeiP9IMGJB41VOg0Ijk+LrtPtLcp/akGGVlIwxWwFMQfFVK04WhfwWC+DA45qB/HuhERRfSCGTTpw6LxWLMUHVq1DgnjxZ6sXozmXLfTuYlhGbnc7CqN9LTdtqOgFwK8KlspvmInggQSChQtoMJxTSGSqbNLKQ=="};
+/* ── access tiers ──────────────────────────────────────────────────
+   One encrypted copy of the configuration per tier. A password is
+   never stored, not even hashed: a tier is identified by which block
+   its password manages to decrypt.
+     partner  the four Challenge partners taking part in the review
+     admin    HCM and Impulse — opens every page
+     loxam    Mid list only
+   Regenerate the loxam block by opening any page with #rekey. The
+   partner and admin blocks below are the originals, untouched, so
+   the passwords already circulated keep working.
+   ────────────────────────────────────────────────────────────────── */
+const VAULTS = [
+  {role:"partner",  v:1, it:250000,
+   salt:"+ZZ7BeM6wJDhk31s+zebdQ==",
+   iv:"6WbxFP25iEhCT4fh",
+   ct:"SLdP2NyaCB8unlVHock8yrMazy7jx3pYd2GC76oyCJazLzOtb6Wv1Fxd2cIL0CfywUSAtgVdUYh3i09A1RVecfsR9MqmoxkG/9K2b+h1f/8uv5F/fqh+dzZyzfVdmUthu4ZAEcEmPHmBvCQytg6IHLyQ/QZrasf6xEGgNCyOFNvUscxS5465yCZkQWxKaczAqAFE5q+VbeiP9IMGJB41VOg0Ijk+LrtPtLcp/akGGVlIwxWwFMQfFVK04WhfwWC+DA45qB/HuhERRfSCGTTpw6LxWLMUHVq1DgnjxZ6sXozmXLfTuYlhGbnc7CqN9LTdtqOgFwK8KlspvmInggQSChQtoMJxTSGSqbNLKQ=="},
+  {role:"admin",    v:1, it:250000,
+   salt:"QcHB5PWG7a2vnVmBZPvMVQ==",
+   iv:"VTgZz3Pr1EXYaNWV",
+   ct:"PYG5yzEm8XfseGCwPbeY5sQON3bwCgBV5qvDZnuWzZmsFTN6ivid86fm3jPhQz8TEP3KPWaqg3Xai0Yq0a4A85rYIc4ebU1wdOKJFMJKnug4Ca2V7U216Dzrv2nEefuJSckOpd1kFSMpx6SNu/CCjE1ajJR8OcyXiW10tmFUJXBzxLDJ00gG5AQcjQoIIfrbuEvC942eLzEPcdhsXCQol6Yi5y0UNDegD6lInkfD1JaKno1kYh4egK0xuA3g5ZN5G39GIjIVVKSA8KHswl97d4I3EY7vZpQ/qRV28WDpKu81uu0N+pw3JlI6n3ht0Lup8E6vUrl6Vz640d0lXtr9iiUV3L6M9Q/G27yAJA=="},
+  {role:"loxam",    v:1, it:250000,
+   salt:"",
+   iv:"",
+   ct:""}
+];
+/* Which tiers may open this page. */
+const ACCEPT = ["admin","partner","loxam"];
+
 
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-let CFG=null;
+let CFG=null, ROLE="";
 
 async function deriveKey(pw,salt,it,usage){
   const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
   return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:it,hash:"SHA-256"},
     km,{name:"AES-GCM",length:256},false,usage);
 }
-async function unlock(pw){
-  const key=await deriveKey(pw,b64(VAULT.salt),VAULT.it,["decrypt"]);
-  const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(VAULT.iv)},key,b64(VAULT.ct));
+async function openVault(pw,V){
+  const key=await deriveKey(pw,b64(V.salt),V.it,["decrypt"]);
+  const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(V.iv)},key,b64(V.ct));
   return JSON.parse(new TextDecoder().decode(pt));
+}
+/* Try every tier this page accepts, then the ones it does not, so that a
+   valid password for another tier gets a useful message rather than
+   "wrong password". A tier with an empty block is simply skipped. */
+async function unlock(pw){
+  let other=null;
+  for(const V of VAULTS){
+    if(!V.ct) continue;
+    let cfg;
+    try{ cfg=await openVault(pw,V); }catch(e){ continue; }
+    if(ACCEPT.includes(V.role)) return {role:V.role, cfg:cfg};
+    other=V.role;
+  }
+  const err=new Error(other?"wrong-tier":"no-match");
+  err.tier=other;
+  throw err;
 }
 
 function gateError(msg){
@@ -572,37 +614,75 @@ async function submitGate(ev){
   }
   btn.disabled=true; btn.textContent="Checking…";
   try{
-    CFG=await unlock(pw);
+    const got=await unlock(pw);
+    CFG=got.cfg; ROLE=got.role;
+    applyRole();
     document.getElementById("gate").classList.add("gone");
     setTimeout(()=>document.getElementById("gate").remove(),320);
     document.body.classList.remove("locked");
     start();
   }catch(e){
-    gateError("That password does not match. Check with the Challenge team.");
+    gateError(e&&e.message==="wrong-tier"
+      ? "That password is correct, but it does not open the Mid list page. Use the address for your own page, or ask the Challenge team."
+      : "That password does not match. Check with the Challenge team.");
     document.getElementById("gatePw").select();
   }finally{ btn.disabled=false; btn.textContent="Enter"; }
 }
 
-/* ---- #setup : regenerate the encrypted block, entirely in the browser ---- */
-async function buildVault(){
-  const pw=document.getElementById("suPw").value.trim();
-  const cfg={sheetId:document.getElementById("suId").value.trim(),
-             sheetName:document.getElementById("suTab").value.trim()||"2026",
-             publishedCsvUrl:document.getElementById("suUrl").value.trim(),
-             scriptUrl:(document.getElementById("suScript")||{value:""}).value.trim(),
-             scriptKey:(document.getElementById("suKey")||{value:""}).value.trim()};
-  if(!pw||(!cfg.sheetId&&!cfg.publishedCsvUrl)){ alert("Enter a password and a sheet ID."); return; }
+/* Loxam sees the Mid list and nothing else, so the links to the pages
+   their password does not open are taken out rather than left to fail. */
+function applyRole(){
+  if(ROLE!=="loxam") return;
+  document.querySelectorAll(".nav a").forEach(a=>{
+    if(!/midlist\.html$/.test(a.getAttribute("href")||"")) a.remove();
+  });
+}
+
+/* ---- #rekey : build the Loxam block, entirely in the browser ----
+   The current dashboard password is used once, in this tab, to recover the
+   configuration from the partner block; that configuration is then written
+   out again under the new Loxam password. Neither password leaves the page
+   and neither is stored anywhere. */
+async function rekey(){
+  const cur=document.getElementById("rkCur").value;
+  const neu=document.getElementById("rkNew").value.trim();
+  const msg=document.getElementById("rkMsg");
+  msg.hidden=false; msg.textContent="";
+  if(!cur||!neu){ msg.textContent="Fill in both fields."; return; }
+  if(neu.length<20){ msg.textContent="The new password is "+neu.length+
+    " characters. Use at least 20 \u2014 four or five words joined together is easiest to pass on."; return; }
+  if(neu===cur){ msg.textContent="The new password has to be different from the current one."; return; }
+  const base=VAULTS.find(v=>v.role==="partner");
+  let cfg;
+  try{ cfg=await openVault(cur,base); }
+  catch(e){ msg.textContent="That is not the current dashboard password."; return; }
+  msg.textContent="Working\u2026";
   const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
-  const key=await deriveKey(pw,salt,250000,["encrypt"]);
+  const key=await deriveKey(neu,salt,250000,["encrypt"]);
   const ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,
     new TextEncoder().encode(JSON.stringify(cfg))));
   const a=u=>btoa(String.fromCharCode(...u));
-  document.getElementById("suOut").value=
-    "const VAULT = "+JSON.stringify({v:1,it:250000,salt:a(salt),iv:a(iv),ct:a(ct)})+";";
+  const out=VAULTS.map(v=>{
+    const w=(v.role==="loxam")?{role:"loxam",v:1,it:250000,salt:a(salt),iv:a(iv),ct:a(ct)}:v;
+    return '  {role:'+JSON.stringify(w.role)+', v:'+w.v+', it:'+w.it+',\n'+
+           '   salt:'+JSON.stringify(w.salt)+',\n'+
+           '   iv:'+JSON.stringify(w.iv)+',\n'+
+           '   ct:'+JSON.stringify(w.ct)+'}';
+  }).join(",\n");
+  document.getElementById("suOut").value="const VAULTS = [\n"+out+"\n];";
   document.getElementById("suOut").hidden=false;
+  document.getElementById("rkCopy").hidden=false;
   document.getElementById("suHint").hidden=false;
+  msg.textContent="Done. The current dashboard and admin passwords are unchanged.";
 }
-if(location.hash==="#setup"){
+function rkCopy(){
+  const t=document.getElementById("suOut");
+  t.select(); t.setSelectionRange(0,99999);
+  navigator.clipboard.writeText(t.value).then(
+    ()=>{ document.getElementById("rkCopy").textContent="Copied"; },
+    ()=>{ document.getElementById("rkCopy").textContent="Press Ctrl+C"; });
+}
+if(location.hash==="#rekey"){
   document.getElementById("setup").hidden=false;
   document.getElementById("gateForm").hidden=true;
 }
@@ -1244,7 +1324,9 @@ async function setReviewer(name){
 }
 function renderWhoList(){
   const cur=me();
-  $("whoList").innerHTML=REVIEWERS.map(r=>{
+  /* on the Loxam tier only Loxam names are offered, so nobody picks a
+     colleague's name by accident and overwrites their scores */
+  $("whoList").innerHTML=REVIEWERS.filter(r=>ROLE!=="loxam"||r.org==="Loxam").map(r=>{
     const on=r.name.toLowerCase()===cur;
     return `<button type="button" class="whoitem${on?" on":""}" data-who="${esc(r.name)}">
       <span class="box">${on?"&#10003;":""}</span>${esc(r.name)}
