@@ -64,6 +64,7 @@ body.locked{overflow:hidden}
 #suOut{height:150px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace}
 #rkTitle{font-size:13px;font-weight:700;color:#E8F0F8;margin-bottom:2px}
 #rkMsg{font-size:11.5px;color:#FFB36B;line-height:1.5}
+#setup label i{font-style:normal;text-transform:none;letter-spacing:0;color:#7D93AB}
 #rkCopy{margin-top:-2px}
 #suHint{font-size:11.5px;color:#9FB6CF;line-height:1.5}
 
@@ -434,7 +435,9 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
       <label for="rkCur">Current dashboard password</label>
       <input id="rkCur" type="password" placeholder="the password partners use today"
              autocomplete="off">
-      <label for="rkNew">New Loxam password</label>
+      <label for="rkAdm">New admin password <i>(leave empty to keep the current one)</i></label>
+      <input id="rkAdm" type="text" placeholder="at least 20 characters" autocomplete="off">
+      <label for="rkNew">New Loxam password <i>(leave empty to keep the current one)</i></label>
       <input id="rkNew" type="text" placeholder="at least 20 characters" autocomplete="off">
       <button type="button" onclick="rekey()">Generate</button>
       <div id="rkMsg" hidden></div>
@@ -638,32 +641,57 @@ function applyRole(){
   });
 }
 
-/* ---- #rekey : build the Loxam block, entirely in the browser ----
-   The current dashboard password is used once, in this tab, to recover the
-   configuration from the partner block; that configuration is then written
-   out again under the new Loxam password. Neither password leaves the page
-   and neither is stored anywhere. */
+/* ---- #rekey : build the admin and Loxam blocks, entirely in the browser ----
+   The current password is used once, in this tab, to recover the configuration
+   from the blocks it can already open; that configuration is then written out
+   again under whichever new passwords are given. A field left empty keeps the
+   block that is already in the file. No password leaves the page and none is
+   stored anywhere. */
 async function rekey(){
   const cur=document.getElementById("rkCur").value;
-  const neu=document.getElementById("rkNew").value.trim();
+  const adm=document.getElementById("rkAdm").value.trim();
+  const lox=document.getElementById("rkNew").value.trim();
   const msg=document.getElementById("rkMsg");
   msg.hidden=false; msg.textContent="";
-  if(!cur||!neu){ msg.textContent="Fill in both fields."; return; }
-  if(neu.length<20){ msg.textContent="The new password is "+neu.length+
-    " characters. Use at least 20 \u2014 four or five words joined together is easiest to pass on."; return; }
-  if(neu===cur){ msg.textContent="The new password has to be different from the current one."; return; }
+  if(!cur){ msg.textContent="Enter the password in use today."; return; }
+  if(!adm&&!lox){ msg.textContent="Enter at least one new password \u2014 admin, Loxam, or both."; return; }
+  for(const [label,pw] of [["admin",adm],["Loxam",lox]]){
+    if(!pw) continue;
+    if(pw.length<20){ msg.textContent="The new "+label+" password is "+pw.length+
+      " characters. Use at least 20 \u2014 four or five words joined together is easiest to pass on."; return; }
+    if(pw===cur){ msg.textContent="The new "+label+
+      " password has to be different from the one in use today."; return; }
+  }
+  if(adm&&lox&&adm===lox){ msg.textContent="The admin and Loxam passwords have to be different from each other."; return; }
+
+  /* recover the configuration: each block keeps its own, so try that block
+     first and fall back to the partner block if the current password does
+     not open it */
   const base=VAULTS.find(v=>v.role==="partner");
-  let cfg;
-  try{ cfg=await openVault(cur,base); }
-  catch(e){ msg.textContent="That is not the current dashboard password."; return; }
+  let baseCfg;
+  try{ baseCfg=await openVault(cur,base); }
+  catch(e){ msg.textContent="That is not the password in use today."; return; }
+  const cfgFor=async role=>{
+    const V=VAULTS.find(v=>v.role===role);
+    if(V&&V.ct){ try{ return await openVault(cur,V); }catch(e){} }
+    return baseCfg;
+  };
   msg.textContent="Working\u2026";
-  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
-  const key=await deriveKey(neu,salt,250000,["encrypt"]);
-  const ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,
-    new TextEncoder().encode(JSON.stringify(cfg))));
+
   const a=u=>btoa(String.fromCharCode(...u));
+  const seal=async (pw,cfg)=>{
+    const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+    const key=await deriveKey(pw,salt,250000,["encrypt"]);
+    const ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,
+      new TextEncoder().encode(JSON.stringify(cfg))));
+    return {v:1,it:250000,salt:a(salt),iv:a(iv),ct:a(ct)};
+  };
+  const made={};
+  if(adm) made.admin=await seal(adm,await cfgFor("admin"));
+  if(lox) made.loxam=await seal(lox,await cfgFor("loxam"));
+
   const out=VAULTS.map(v=>{
-    const w=(v.role==="loxam")?{role:"loxam",v:1,it:250000,salt:a(salt),iv:a(iv),ct:a(ct)}:v;
+    const w=made[v.role]?Object.assign({role:v.role},made[v.role]):v;
     return '  {role:'+JSON.stringify(w.role)+', v:'+w.v+', it:'+w.it+',\n'+
            '   salt:'+JSON.stringify(w.salt)+',\n'+
            '   iv:'+JSON.stringify(w.iv)+',\n'+
@@ -673,7 +701,8 @@ async function rekey(){
   document.getElementById("suOut").hidden=false;
   document.getElementById("rkCopy").hidden=false;
   document.getElementById("suHint").hidden=false;
-  msg.textContent="Done. The current dashboard and admin passwords are unchanged.";
+  msg.textContent="Done \u2014 rebuilt: "+Object.keys(made).join(" and ")+
+    ". The password partners use today is unchanged.";
 }
 function rkCopy(){
   const t=document.getElementById("suOut");
