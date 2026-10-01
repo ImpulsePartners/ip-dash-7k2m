@@ -443,6 +443,45 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 .nodata{color:var(--slate);font-size:13px;text-align:center;padding:44px 0;background:#fff;
   border:1px dashed var(--line);border-radius:7px;line-height:1.6}
 
+/* ── note band, moved above the table ── */
+.rknote.top{background:var(--paper);border:1px solid var(--line);border-radius:10px;
+  padding:12px 15px;margin:0 0 16px;font-size:12.5px;line-height:1.7;color:var(--slate)}
+.rknote.top b{color:var(--ink);font-weight:600}
+
+/* ── reviewer columns ── */
+.revkey{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 10px;font-size:11.5px;color:var(--slate)}
+.revkey span{white-space:nowrap}
+.revkey b{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--navy);margin-right:5px}
+th.rvh{font-family:"IBM Plex Mono",monospace;font-size:10.5px;text-align:center;
+  letter-spacing:0;padding-left:6px;padding-right:6px;white-space:nowrap}
+td.rv{font-family:"IBM Plex Mono",monospace;font-size:12px;text-align:center;color:var(--ink);
+  padding-left:6px;padding-right:6px;white-space:nowrap}
+td.rv:empty::after{content:"\00b7";color:#C8D3DD}
+td.rv.coi{color:#A94E00;background:#FFF6EF}
+
+/* ── the needs-discussion marker ── */
+.wflag{color:#C2410C;font-size:12px;margin-left:6px;cursor:help}
+
+/* ── the expanded row ── */
+tr.openrow>td{background:#EEF4FC}
+tr.exp>td{background:#F7FAFE;padding:0;border-bottom:1px solid var(--line)}
+.expwrap{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.expr{display:grid;grid-template-columns:200px 1fr;gap:4px 18px;align-items:start;
+  padding:9px 11px;background:#fff;border:1px solid var(--line);border-radius:8px}
+.expr.coi{background:#FFFBF7;border-color:#F3DCC8}
+.expn b{font-size:13px;color:var(--ink)}
+.expn .tdim{display:block}
+.expsc{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.expsc span{display:flex;flex-direction:column;line-height:1.2}
+.expsc i{font-style:normal;font-family:inherit;font-size:9.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--slate);font-family:-apple-system,sans-serif}
+.expsc .tot b,.expsc .tot{color:var(--navy);font-weight:600}
+.expr2{grid-column:2;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline;font-size:12.5px;
+  color:var(--slate);line-height:1.55}
+.expr2 .rs{flex:1;min-width:220px}
+.rkmeta .clr.on{border-color:var(--navy);color:var(--navy);background:#EEF4FC}
+.expwrap{position:sticky;left:0;max-width:1180px}
+
 </style>
 </head>
 <body class="locked">
@@ -1120,6 +1159,185 @@ const sdev=a=>{ if(a.length<2) return 0; const m=mean(a);
   return Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/(a.length-1)); };
 const fmt=(n,d=2)=>Number(n).toFixed(d);
 
+/* ── reviewer initials ──────────────────────────────────────────
+   TLD for Thomas Le Diouron, JH for Jeeyoun Ho. Collisions get an
+   extra letter from the surname rather than a number. */
+const initRaw=n=>String(n||"").trim().split(/\s+/).filter(Boolean)
+  .map(w=>w[0].toUpperCase()).join("");
+let INIT={};
+function buildInitials(names){
+  const m={}, used={};
+  names.forEach(n=>{
+    let k=initRaw(n);
+    if(used[k]){
+      const last=n.trim().split(/\s+/).pop()||"";
+      let i=1, c=k+(last[1]||"").toUpperCase();
+      while(used[c] && i<last.length-1){ i++; c=k+last.slice(1,1+i).toUpperCase(); }
+      k=used[c]?k+(Object.keys(used).length+1):c;
+    }
+    used[k]=1; m[n]=k;
+  });
+  return m;
+}
+function reviewerNames(){
+  const out=REVIEWERS_ALL.filter(r=>r.stages.includes(STAGE)).map(r=>r.name);
+  const seen=new Set(out);
+  rowsForStageAll().forEach(r=>{ const n=displayName(r.reviewer);
+    if(!seen.has(n)){ seen.add(n); out.push(n); } });
+  return out;
+}
+
+/* ── table state, shared by Ranking and Mid list selection ── */
+const SORTS={combined:{key:"score",dir:-1}, select:{key:"score",dir:-1}};
+const BLANKF=()=>({q:"",theme:"",min:"",gap:"",n:"",pro:"",flag:false,sel:""});
+const FILTS={combined:BLANKF(), select:BLANKF()};
+const SHOWREV={combined:false, select:false};
+const OPENROW={combined:"", select:""};
+let FOCUSID="";
+
+const noteBand=h=>`<div class="rknote top">${h}</div>`;
+
+/* An application worth the meeting's time: the reviewers are far apart on
+   the score, or they are split on the verdict. */
+function flagOf(x){
+  if(x.n<2) return "";
+  const wide=x.sd>=1, split=x.pro>0&&x.con>0;
+  if(!wide&&!split) return "";
+  const bits=[];
+  if(wide) bits.push("gap "+fmt(x.sd));
+  if(split) bits.push(x.pro+" proceed vs "+x.con+" do not proceed");
+  return bits.join(" · ");
+}
+
+const revVal=(x,name)=>{ const r=x.rev&&x.rev[name]; return r?weighted(r.scores):null; };
+
+function thS(view,k,label,cls){
+  const s=SORTS[view], on=s.key===k;
+  return `<th class="sortable${on?" sorted":""}${cls?" "+cls:""}" data-sortv="${view}" `+
+    `data-sortk="${esc(k)}">${esc(label)}`+
+    `<span class="sarr${on?"":" off"}">${on?(s.dir>0?"▲":"▼"):"⇅"}</span></th>`;
+}
+const TEXTKEY={name:1, theme:1};
+function setSort(view,k){
+  const s=SORTS[view];
+  if(s.key===k) s.dir=-s.dir; else { s.key=k; s.dir=TEXTKEY[k]?1:-1; }
+}
+function applySort(view,rows){
+  const {key,dir}=SORTS[view];
+  const val=x=>{
+    if(key==="pos") return x.pos;
+    if(key==="name") return String(x.d.name||"").toLowerCase();
+    if(key==="theme") return String(tshort(themeOf(x.d))||"").toLowerCase();
+    if(key==="score") return x.score;
+    if(key==="sd") return x.n>1?x.sd:-1;
+    if(key==="n") return x.n;
+    if(key==="pro") return x.pro;
+    if(key==="con") return x.con;
+    if(key==="sel") return SEL.has(x.app)?1:0;
+    if(key==="flag") return flagOf(x)?1:0;
+    if(key.slice(0,4)==="rev:"){ const v=revVal(x,key.slice(4)); return v==null?-1:v; }
+    return 0;
+  };
+  return rows.slice().sort((a,b)=>{
+    const va=val(a), vb=val(b);
+    if(typeof va==="string") return dir*va.localeCompare(vb)||a.pos-b.pos;
+    return dir*(va-vb)||a.pos-b.pos;
+  });
+}
+function applyFilter(view,rows){
+  const f=FILTS[view], q=f.q.trim().toLowerCase();
+  return rows.filter(x=>{
+    if(q && String(x.d.name||"").toLowerCase().indexOf(q)<0) return false;
+    if(f.theme && themeOf(x.d)!==f.theme) return false;
+    if(f.min && !(x.score>=+f.min)) return false;
+    if(f.gap==="wide" && !(x.n>1&&x.sd>=1)) return false;
+    if(f.gap==="tight" && !(x.n>1&&x.sd<1)) return false;
+    if(f.n && !(x.n>=+f.n)) return false;
+    if(f.pro && !(x.pro>=+f.pro)) return false;
+    if(f.flag && !flagOf(x)) return false;
+    if(f.sel==="in" && !SEL.has(x.app)) return false;
+    if(f.sel==="out" && SEL.has(x.app)) return false;
+    return true;
+  });
+}
+const selOpts=(cur,list)=>list.map(o=>
+  `<option value="${esc(o[0])}"${String(cur)===String(o[0])?" selected":""}>${esc(o[1])}</option>`).join("");
+
+function filterCell(view,field,kind,id){
+  const f=FILTS[view];
+  if(kind==="q") return `<td><input id="${id}" type="search" placeholder="Search"
+    data-fv="${view}" data-fk="q" value="${esc(f.q)}"></td>`;
+  if(kind==="theme"){
+    const pool=view==="select"?APPS:appsForStage();
+    const ts=[...new Set(pool.map(d=>themeOf(d)))].sort();
+    return `<td><select data-fv="${view}" data-fk="theme">${
+      selOpts(f.theme,[["","All"]].concat(ts.map(t=>[t,tshort(t)])))}</select></td>`;
+  }
+  if(kind==="min") return `<td><select data-fv="${view}" data-fk="min">${
+    selOpts(f.min,[["","Any"],["4.5","≥ 4.5"],["4","≥ 4"],["3.5","≥ 3.5"],
+      ["3","≥ 3"],["2.5","≥ 2.5"]])}</select></td>`;
+  if(kind==="gap") return `<td><select data-fv="${view}" data-fk="gap">${
+    selOpts(f.gap,[["","Any"],["wide","≥ 1.00"],["tight","< 1.00"]])}</select></td>`;
+  if(kind==="n") return `<td><select data-fv="${view}" data-fk="n">${
+    selOpts(f.n,[["","Any"],["2","≥ 2"],["3","≥ 3"],["5","≥ 5"],["8","≥ 8"]])
+    }</select></td>`;
+  if(kind==="pro") return `<td><select data-fv="${view}" data-fk="pro">${
+    selOpts(f.pro,[["","Any"],["1","≥ 1"],["2","≥ 2"],["3","≥ 3"]])}</select></td>`;
+  if(kind==="sel") return `<td><select data-fv="${view}" data-fk="sel">${
+    selOpts(f.sel,[["","All"],["in","Ticked"],["out","Not ticked"]])}</select></td>`;
+  return "<td></td>";
+}
+
+function toolbar(view,shown,total,extra){
+  const f=FILTS[view];
+  const dirty=f.q||f.theme||f.min||f.gap||f.n||f.pro||f.flag||f.sel;
+  return `<div class="rkmeta">
+    <span><b>${shown}</b> of ${total} shown</span>
+    <button type="button" class="clr${SHOWREV[view]?" on":""}" data-togrev="${view}">${
+      SHOWREV[view]?"Hide every reviewer":"Show every reviewer"}</button>
+    <button type="button" class="clr${f.flag?" on":""}" data-togflag="${view}">${
+      f.flag?"✓ ":""}Needs discussion only</button>
+    ${extra||""}
+    ${dirty?`<button type="button" class="clr" data-clearf="${view}">Clear filters</button>`:""}
+  </div>`;
+}
+function revLegend(names){
+  return `<div class="revkey">${names.map(n=>
+    `<span><b>${esc(INIT[n]||"")}</b>${esc(n)}</span>`).join("")}</div>`;
+}
+function revHead(view,names){
+  return names.map(n=>`<th class="sortable rvh${SORTS[view].key==="rev:"+n?" sorted":""}"
+    data-sortv="${view}" data-sortk="rev:${esc(n)}" title="${esc(n)} — ${esc(orgOf(n))}">${
+    esc(INIT[n]||"")}</th>`).join("");
+}
+function revCells(x,names){
+  return names.map(n=>{
+    const r=x.rev&&x.rev[n];
+    if(!r) return `<td class="rv"></td>`;
+    const v=weighted(r.scores);
+    const tip=n+" — "+fmt(v,2)+(r.reco?" · "+r.reco:"")+(r.coi?" · conflict of interest":"")+
+      (r.comment?"\n"+r.comment:"");
+    return `<td class="rv${r.coi?" coi":""}" title="${esc(tip)}">${fmt(v,1)}${r.coi?"*":""}</td>`;
+  }).join("");
+}
+function detailRow(x,span){
+  const list=(x.all||x.rs).slice().sort((a,b)=>weighted(b.scores)-weighted(a.scores));
+  return `<tr class="exp"><td colspan="${span}"><div class="expwrap">${list.map(r=>{
+    const n=displayName(r.reviewer), col=RECO_COLOR[r.reco]||"#7086A0";
+    return `<div class="expr${r.coi?" coi":""}">
+      <div class="expn"><b>${esc(n)}</b><span class="tdim">${esc(orgOf(n))}</span></div>
+      <div class="expsc">${CRITERIA.map(c=>`<span><i>${esc(c.short||c.name)}</i>${
+        r.scores[c.id]||"–"}</span>`).join("")}
+        <span class="tot"><i>Overall</i>${fmt(weighted(r.scores),2)}</span></div>
+      <div class="expr2">${r.reco?`<span class="pill" style="background:${pastel(col)};color:${col}">${
+        esc(r.reco)}</span>`:`<span class="dim">no recommendation</span>`}${
+        r.coi?`<span class="pill" style="background:#FFEFE2;color:#A94E00">conflict of interest — not counted</span>`:""}
+        <span class="rs">${r.comment?esc(r.comment):"<i>no reason given</i>"}</span></div>
+    </div>`;}).join("")}</div></td></tr>`;
+}
+const flagBadge=x=>{ const f=flagOf(x);
+  return f?`<span class="wflag" title="${esc(f)}">⚠</span>`:""; };
+
 /* ── loading ──────────────────────────────────────────────────────
    One call for everything if the Apps Script supports it; otherwise
    one call per reviewer per stage, six at a time.
@@ -1163,9 +1381,11 @@ async function loadEverything(){
 }
 
 /* ── shared helpers over the loaded data ── */
-function rowsForStage(){ return REV.filter(r=>r.app!==SEL_APP
+function rowsForStage(){ return rowsForStageAll().filter(r=>!r.coi); }
+/* same set, conflicts of interest kept: they are shown but never counted */
+function rowsForStageAll(){ return REV.filter(r=>r.app!==SEL_APP
   && splitKey(r.reviewer,r).person!==SEL_REVIEWER
-  && stageOf(r)===STAGE && !r.coi); }
+  && stageOf(r)===STAGE); }
 function appsForStage(){
   if(STAGE!=="mid") return APPS;
   return APPS.filter(d=>SEL.has(d.name)||d.midlist);
@@ -1177,10 +1397,14 @@ function byApp(){
 }
 function combined(){
   const m=byApp(), out=[];
+  const allBy=new Map();
+  rowsForStageAll().forEach(r=>{ if(!allBy.has(r.app)) allBy.set(r.app,[]); allBy.get(r.app).push(r); });
   m.forEach((rs,app)=>{
     const d=APPS.find(x=>x.name===app)||{name:app,themes:[],city:"",country:""};
     const vals=rs.map(r=>weighted(r.scores)).filter(Boolean);
-    out.push({d, app, n:rs.length, score:mean(vals), sd:sdev(vals), rs,
+    const all=allBy.get(app)||rs, rev={};
+    all.forEach(r=>{ rev[displayName(r.reviewer)]=r; });
+    out.push({d, app, n:rs.length, score:mean(vals), sd:sdev(vals), rs, all, rev,
       pro:rs.filter(r=>r.reco==="Proceed").length,
       con:rs.filter(r=>r.reco==="Do not proceed").length});
   });
@@ -1197,10 +1421,10 @@ function tagOf(t){ const c=tcol(t);
 /* ── 1. combined ranking ── */
 function viewCombined(){
   $("secTitle").textContent="Combined ranking";
-  const rows=combined();
-  if(!rows.length) return empty("No scores have been saved for this stage yet.");
+  const all=combined();
+  if(!all.length) return empty("No scores have been saved for this stage yet.");
   const apps=appsForStage().length;
-  const cut=rows.slice(0,TARGET);
+  const cut=all.slice(0,TARGET);
   const tc={}, ta={};
   appsForStage().forEach(d=>{ const t=themeOf(d); ta[t]=(ta[t]||0)+1; });
   cut.forEach(x=>{ const t=themeOf(x.d); tc[t]=(tc[t]||0)+1; });
@@ -1208,26 +1432,62 @@ function viewCombined(){
     <div class="tchip" style="--tc:${tcol(t)};--tp:${pastel(tcol(t))}">
       <span class="tchip-n">${tc[t]||0}</span><span class="tchip-l">${esc(tshort(t))}</span>
       <span class="tchip-s">of ${ta[t]} applications</span></div>`).join("");
-  const full=rows.filter(x=>x.n>=2).length;
+  const full=all.filter(x=>x.n>=2).length;
+  const cutoff=all.length>=TARGET?fmt(all[TARGET-1].score):"";
 
-  $("secNote").textContent=`${rows.length} of ${apps} applications have at least one score.`;
+  const names=reviewerNames(); INIT=buildInitials(names);
+  const show=SHOWREV.combined;
+  const rows=applySort("combined", applyFilter("combined", all));
+  const span=8+(show?names.length:0);
+
+  $("secNote").textContent=`${all.length} of ${apps} applications have at least one score.`;
   $("view").innerHTML=`
+    ${noteBand(`<b>Average score</b> is the mean of each reviewer's own average over the
+      ${CRITERIA.length} criteria. <b>Reviewer gap</b> is how far the reviewers are from one another:
+      0.00 means they agreed exactly, and 1.00 or more is flagged — those are the ones worth reading
+      in Disagreement. An application scored by one person has no gap, so treat its position as
+      provisional. Click any column heading to sort, click a row to see every reviewer's scores and
+      reasons. Conflicts of interest are shown with a <b>*</b> and are never counted.`)}
     <div class="acards">
       ${card("Applications",apps,STAGE==="mid"?"flagged for the Mid list":"in the Long list")}
-      ${card("Scored at least once",rows.length,`${apps-rows.length} untouched`)}
-      ${card("Scored by 2 or more",full,"enough for a spread")}
-      ${card("Going through",Math.min(TARGET,rows.length),`target is ${TARGET}`)}
+      ${card("Scored at least once",all.length,`${apps-all.length} untouched`)}
+      ${card("Scored by 2 or more",full,"enough for a gap")}
+      ${card("Cut-off score",cutoff||"–",cutoff?`the ${TARGET}th place average`
+        :`fewer than ${TARGET} scored so far`)}
     </div>
-    <div class="topbox"><div class="topbox-h">Top ${TARGET} by combined mean
+    <div class="topbox"><div class="topbox-h">Top ${TARGET} by average score
       <span class="dim">&mdash; every reviewer's scores averaged, conflicts of interest excluded</span></div>
       <div class="tchips">${chips}</div></div>
+    ${toolbar("combined",rows.length,all.length)}
+    ${show?revLegend(names):""}
     <div style="overflow-x:auto"><table class="rk">
-      <thead><tr><th>#</th><th>Company</th><th>Theme</th><th>Mean</th><th>Spread</th>
-        <th>Reviewers</th><th>Proceed</th><th>Do not</th></tr></thead>
+      <thead><tr>
+        ${thS("combined","pos","#")}
+        ${thS("combined","name","Company")}
+        ${thS("combined","theme","Theme")}
+        ${thS("combined","score","Average score")}
+        ${thS("combined","sd","Reviewer gap")}
+        ${thS("combined","n","Reviewers")}
+        ${thS("combined","pro","Proceed")}
+        ${thS("combined","con","Do not proceed")}
+        ${show?revHead("combined",names):""}
+      </tr>
+      <tr class="frow">
+        <td></td>
+        ${filterCell("combined","q","q","fqCombined")}
+        ${filterCell("combined","theme","theme")}
+        ${filterCell("combined","min","min")}
+        ${filterCell("combined","gap","gap")}
+        ${filterCell("combined","n","n")}
+        ${filterCell("combined","pro","pro")}
+        <td></td>
+        ${show?names.map(()=>"<td></td>").join(""):""}
+      </tr></thead>
       <tbody>${rows.map(x=>`
-        <tr class="${x.pos<=TARGET?"rk-in":""}${x.pos===TARGET?" cutline":""}">
+        <tr class="rowlink${x.pos<=TARGET?" rk-in":""}${x.pos===TARGET?" cutline":""}${
+            OPENROW.combined===x.app?" openrow":""}" data-exp="combined|${esc(x.app)}">
           <td class="rank${x.pos<=TARGET?" top":""}">${x.pos}</td>
-          <td style="font-weight:600">${esc(x.d.name)}
+          <td style="font-weight:600">${esc(x.d.name)}${flagBadge(x)}
             <div class="tdim">${esc([x.d.city,x.d.country].filter(Boolean).join(" · "))}</div></td>
           <td>${tagOf(themeOf(x.d))}</td>
           <td class="mean">${fmt(x.score)}</td>
@@ -1235,11 +1495,10 @@ function viewCombined(){
           <td class="rev-n">${x.n}</td>
           <td class="mono">${x.pro||"–"}</td>
           <td class="mono">${x.con||"–"}</td>
-        </tr>`).join("")}</tbody></table></div>
-    <div class="rknote">The mean is the average of each reviewer's own mean over the
-      ${CRITERIA.length} criteria. Spread is the standard deviation between reviewers — anything at or
-      above 1.00 is flagged, and those are the ones worth reading in Disagreement. A company scored by
-      one person has no spread, so treat its position as provisional.</div>`;
+          ${show?revCells(x,names):""}
+        </tr>${OPENROW.combined===x.app?detailRow(x,span):""}`).join("")}
+      </tbody></table></div>
+    ${rows.length?"":`<div class="nodata">Nothing matches those filters.</div>`}`;
 }
 const card=(k,v,s)=>`<div class="acard"><div class="acard-k">${esc(k)}</div>
   <div class="acard-v">${v}</div><div class="acard-s">${esc(s)}</div></div>`;
@@ -1262,6 +1521,10 @@ function viewCoverage(){
   const possible=total*roster.length;
   $("secNote").textContent=`${roster.length} reviewers · ${total} applications each.`;
   $("view").innerHTML=`
+    ${noteBand(`The bar is how far through the ${total} applications each reviewer is, and the date is
+      their most recent save. This is the list to work from when chasing the last reviews.`+
+      (extra.length?` ${extra.length} name${extra.length>1?"s":""} scored without being on the roster
+      for this stage, typed in under &ldquo;Not on the list&rdquo;: ${esc(extra.join(", "))}.`:""))}
     <div class="acards">
       ${card("Scores in",totalDone,`of ${possible} possible`)}
       ${card("Complete",list.filter(n=>(done[n]||0)>=total).length,`of ${roster.length} reviewers`)}
@@ -1279,9 +1542,7 @@ function viewCoverage(){
         <div class="cvlast">${last[n]?esc(new Date(last[n]).toLocaleDateString("en-GB",
           {day:"numeric",month:"short"})):"—"}</div>
       </div>`;}).join("")}
-    ${extra.length?`<div class="rknote">${extra.length} name${extra.length>1?"s":""} scored without
-      being on the roster for this stage (typed under "Not on the list"): ${esc(extra.join(", "))}.</div>`:""}
-    <div class="rknote">The date is that reviewer's most recent save.</div>`;
+`;
 }
 
 /* ── 3. disagreement ── */
@@ -1294,18 +1555,23 @@ function viewSpread(){
   const split=rows.filter(x=>x.pro>0&&x.con>0);
   $("secNote").textContent=`${rows.length} applications have two or more scores.`;
   $("view").innerHTML=`
+    ${noteBand(`These are the applications the reviewers did not agree on, widest first — either a
+      gap of 1.00 or more between their scores, or Proceed and Do not proceed both given. Each card
+      lists every reviewer's own average and the reason they wrote. This is meant to be the agenda for
+      the selection meeting.${rows.length>40?` Only the 40 widest are shown; the rest agree closely
+      enough not to need the meeting's time.`:""}`)}
     <div class="acards">
       ${card("Split on the verdict",split.length,"both Proceed and Do not proceed")}
-      ${card("Spread ≥ 1.00",rows.filter(x=>x.sd>=1).length,"wide disagreement on score")}
-      ${card("Widest spread",fmt(rows[0].sd),esc(rows[0].d.name))}
+      ${card("Gap \u2265 1.00",rows.filter(x=>x.sd>=1).length,"wide disagreement on score")}
+      ${card("Widest gap",fmt(rows[0].sd),esc(rows[0].d.name))}
     </div>
     ${rows.slice(0,40).map(x=>`
       <div class="dcard">
         <div class="dhead">
           <span class="dname">${esc(x.d.name)}</span>
           ${tagOf(themeOf(x.d))}
-          <span class="dsd">spread ${fmt(x.sd)}</span>
-          <span class="dim">mean ${fmt(x.score)} · ${x.n} reviewers</span>
+          <span class="dsd">gap ${fmt(x.sd)}</span>
+          <span class="dim">average ${fmt(x.score)} \u00b7 ${x.n} reviewers</span>
           <span class="dsplit">
             ${x.pro?`<span class="pill" style="background:${pastel(RECO_COLOR.Proceed)};
               color:${RECO_COLOR.Proceed}">Proceed ${x.pro}</span>`:""}
@@ -1319,8 +1585,7 @@ function viewSpread(){
             <span class="rs">${r.comment?esc(r.comment):"<i>no reason given</i>"}</span>
           </div>`).join("")}</div>
       </div>`).join("")}
-    ${rows.length>40?`<div class="rknote">Showing the 40 widest. The rest agree closely enough
-      not to need the meeting's time.</div>`:""}`;
+`;
 }
 
 /* ── 4. themes ── */
@@ -1344,6 +1609,11 @@ function viewThemes(){
   const grand=mean(rows.map(x=>x.score));
   $("secNote").textContent=`Counted on the theme each startup applied under.`;
   $("view").innerHTML=`
+    ${noteBand(`&ldquo;vs all&rdquo; is the theme's average against the average of everything scored; a
+      gap of 0.30 or more is flagged, and usually means the theme is being judged on a different bar
+      rather than that its applicants are better. &ldquo;Reclassified&rdquo; counts the applications a
+      reviewer thought belonged in a different theme. If the top ${TARGET} has to be balanced across
+      themes, this is the table to argue from.`)}
     <div class="acards">${keys.map(t=>`
       <div class="acard" style="border-left:3px solid ${tcol(t)}">
         <div class="acard-k">${esc(tshort(t))}</div>
@@ -1351,7 +1621,7 @@ function viewThemes(){
         <div class="acard-s">in the top ${TARGET} · ${agg[t].apps} applied</div>
       </div>`).join("")}</div>
     <div style="overflow-x:auto"><table class="rk">
-      <thead><tr><th>Theme</th><th>Applications</th><th>Scored</th><th>Mean</th>
+      <thead><tr><th>Theme</th><th>Applications</th><th>Scored</th><th>Average</th>
         <th>vs all</th><th>In top ${TARGET}</th><th>Share of ${TARGET}</th><th>Reclassified</th></tr></thead>
       <tbody>${keys.map(t=>{
         const a=agg[t], m=mean(a.vals), delta=m-grand;
@@ -1365,11 +1635,7 @@ function viewThemes(){
           <td class="mono">${Math.round(a.top/Math.min(TARGET,rows.length)*100)}%</td>
           <td class="mono">${a.moved||"–"}</td>
         </tr>`;}).join("")}</tbody></table></div>
-    <div class="rknote">"vs all" is the theme's mean against the mean of everything scored; a gap of
-      0.30 or more is flagged, and usually means the theme is being judged on a different bar rather
-      than that its applicants are better. "Reclassified" counts the applications a reviewer thought
-      belonged in a different theme. If the top ${TARGET} has to be balanced across themes, this is the
-      table to argue from.</div>`;
+`;
 }
 
 /* ── 5. calibration ── */
@@ -1384,10 +1650,16 @@ function viewCalib(){
   const grand=mean(grandVals);
   const critMean={};
   CRITERIA.forEach(c=>critMean[c.id]=mean(rs.map(r=>r.scores[c.id]).filter(Boolean)));
-  $("secNote").textContent=`Group mean ${fmt(grand)} over ${rs.length} scores.`;
+  $("secNote").textContent=`Group average ${fmt(grand)} over ${rs.length} scores.`;
   $("view").innerHTML=`
+    ${noteBand(`&ldquo;vs group&rdquo; is how far that reviewer sits from everyone's average, and the
+      criterion columns are the same comparison per criterion. A reviewer half a point below the group
+      is not wrong — but if a company was scored mostly by harsh reviewers and its rival mostly by
+      generous ones, the combined ranking flatters the rival. Use this to decide whether to normalise
+      before the meeting, not to grade the reviewers. A reviewer with a very small own range is giving
+      nearly the same score to everyone, which carries little information either way.`)}
     <div class="acards">
-      ${card("Group mean",fmt(grand),`across ${rs.length} scores`)}
+      ${card("Group average",fmt(grand),`across ${rs.length} scores`)}
       ${card("Harshest",names.length?esc(names.slice().sort((a,b)=>
         mean(by[a].map(r=>weighted(r.scores)))-mean(by[b].map(r=>weighted(r.scores))))[0]):"–",
         "lowest average")}
@@ -1396,7 +1668,7 @@ function viewCalib(){
         "highest average")}
     </div>
     <div style="overflow-x:auto"><table class="rk">
-      <thead><tr><th>Reviewer</th><th>Scores</th><th>Mean</th><th>vs group</th><th>Own spread</th>
+      <thead><tr><th>Reviewer</th><th>Scores</th><th>Average</th><th>vs group</th><th>Own range</th>
         ${CRITERIA.map(c=>`<th>${esc(c.short||c.name)}</th>`).join("")}
         <th>Proceed rate</th></tr></thead>
       <tbody>${names.map(n=>{
@@ -1416,12 +1688,7 @@ function viewCalib(){
               d===null?"–":(d>=0?"+":"")+fmt(d,1)}</td>`;}).join("")}
           <td class="mono">${list.length?Math.round(pro/list.length*100)+"%":"–"}</td>
         </tr>`;}).join("")}</tbody></table></div>
-    <div class="rknote">"vs group" is how far that reviewer sits from everyone's average; the criterion
-      columns are the same comparison per criterion. A reviewer half a point below the group is not
-      wrong — but if a company was scored mostly by harsh reviewers and its rival mostly by generous
-      ones, the combined ranking flatters the rival. Use this to decide whether to normalise before the
-      meeting, not to grade the reviewers. A reviewer with very low own spread is giving nearly the
-      same score to everyone, which carries little information either way.</div>`;
+`;
 }
 
 /* ── 6. mid list selection ── */
@@ -1430,8 +1697,18 @@ function viewSelect(){
   if(!APPS.length) return empty("The application sheet has not loaded, so there is nothing to pick from.");
   const ranked=combinedForLong();
   const rank=new Map(ranked.map(x=>[x.app,x]));
-  const rows=APPS.map(d=>({d, r:rank.get(d.name)}))
-    .sort((a,b)=>(b.r?b.r.score:-1)-(a.r?a.r.score:-1)||a.d.name.localeCompare(b.d.name));
+  const base=APPS.map(d=>{
+    const r=rank.get(d.name);
+    return r ? Object.assign({}, r, {d})
+             : {d, app:d.name, pos:9999, n:0, score:-1, sd:0, rs:[], all:[], rev:{}, pro:0, con:0};
+  });
+
+  const names=(function(){ const k=STAGE; STAGE="long";
+    try{ return reviewerNames(); } finally{ STAGE=k; } })();
+  INIT=buildInitials(names);
+  const show=SHOWREV.select;
+  const rows=applySort("select", applyFilter("select", base));
+  const span=8+(show?names.length:0);
 
   const byTheme={};
   [...SEL].forEach(n=>{ const d=APPS.find(x=>x.name===n); if(!d) return;
@@ -1443,6 +1720,7 @@ function viewSelect(){
        <div class="acard-k">${esc(tshort(t))}</div>
        <div class="acard-v" style="color:${tcol(t)}">${byTheme[t]}</div>
        <div class="acard-s">selected</div></div>`).join("");
+  const flagged=base.filter(x=>flagOf(x)).length;
 
   $("secNote").textContent=SEL_AT
     ? "Last saved "+new Date(SEL_AT).toLocaleString("en-GB",
@@ -1450,13 +1728,21 @@ function viewSelect(){
     : "Nothing saved yet.";
 
   $("view").innerHTML=`
+    ${noteBand(`Tick the applications that go through, then save. The Mid list page reads this list
+      directly, so there is nothing to change in the sheet. The rank column is the combined Long list
+      score, which makes &ldquo;take the top ${TARGET}&rdquo; a starting point rather than the decision.
+      A <span class="wflag">&#9888;</span> marks an application the reviewers did not agree on &mdash;
+      either a gap of 1.00 or more, or Proceed and Do not proceed both given. ${
+      flagged?`${flagged} of them here.`:""} Click any column heading to sort, click a row to read every
+      reviewer's scores and reasons. If you would rather keep the list in the sheet as well, the CSV has
+      one row per selected company with a Mid list column already set to TRUE.`)}
     <div class="acards">
       ${card("Selected",SEL.size,over===0?"exactly "+TARGET
         :over>0?over+" over "+TARGET:(-over)+" still to pick")}
       ${themeCards||card("By theme","–","nothing selected yet")}
     </div>
     <div class="rkmeta">
-      <button type="button" class="clr" id="selTop">Take the top ${TARGET} by combined score</button>
+      <button type="button" class="clr" id="selTop">Take the top ${TARGET} by average score</button>
       <button type="button" class="clr" id="selNone">Clear all</button>
       <button type="button" class="clr" id="selCsv">Download as CSV</button>
       <button type="button" class="go" id="selSave"
@@ -1465,30 +1751,52 @@ function viewSelect(){
         SEL_BUSY?"Saving…":selDirty()?"Save selection":"Saved"}</button>
       <span class="dim" id="selMsg">${selDirty()?"Unsaved changes.":""}</span>
     </div>
+    ${toolbar("select",rows.length,base.length)}
+    ${show?revLegend(names):""}
     ${ghosts.length?`<div class="tie">${ghosts.length} saved name${ghosts.length>1?"s are":" is"} no longer
       in the application sheet: ${esc(ghosts.join(", "))}. Saving again drops ${
       ghosts.length>1?"them":"it"}.</div>`:""}
     <div style="overflow-x:auto"><table class="rk">
-      <thead><tr><th style="width:62px">Mid list</th><th>#</th><th>Company</th><th>Theme</th>
-        <th>Combined</th><th>Reviewers</th><th>Proceed</th></tr></thead>
+      <thead><tr>
+        ${thS("select","sel","Mid list")}
+        ${thS("select","pos","#")}
+        ${thS("select","name","Company")}
+        ${thS("select","theme","Theme")}
+        ${thS("select","score","Average score")}
+        ${thS("select","sd","Reviewer gap")}
+        ${thS("select","n","Reviewers")}
+        ${thS("select","pro","Proceed")}
+        ${show?revHead("select",names):""}
+      </tr>
+      <tr class="frow">
+        ${filterCell("select","sel","sel")}
+        <td></td>
+        ${filterCell("select","q","q","fqSelect")}
+        ${filterCell("select","theme","theme")}
+        ${filterCell("select","min","min")}
+        ${filterCell("select","gap","gap")}
+        ${filterCell("select","n","n")}
+        ${filterCell("select","pro","pro")}
+        ${show?names.map(()=>"<td></td>").join(""):""}
+      </tr></thead>
       <tbody>${rows.map(x=>{
         const on=SEL.has(x.d.name);
-        return `<tr class="${on?"rk-in":""}">
+        return `<tr class="rowlink${on?" rk-in":""}${OPENROW.select===x.app?" openrow":""}"
+            data-exp="select|${esc(x.app)}">
           <td style="text-align:center"><input type="checkbox" data-pick="${esc(x.d.name)}"
             ${on?"checked":""} style="width:17px;height:17px;accent-color:#123A63"></td>
-          <td class="rank${x.r&&x.r.pos<=TARGET?" top":""}">${x.r?x.r.pos:"–"}</td>
-          <td style="font-weight:600">${esc(x.d.name)}
+          <td class="rank${x.pos<=TARGET?" top":""}">${x.pos===9999?"–":x.pos}</td>
+          <td style="font-weight:600">${esc(x.d.name)}${flagBadge(x)}
             <div class="tdim">${esc([x.d.city,x.d.country].filter(Boolean).join(" · "))}</div></td>
           <td>${tagOf(themeOf(x.d))}</td>
-          <td class="mean">${x.r?fmt(x.r.score):"–"}</td>
-          <td class="rev-n">${x.r?x.r.n:0}</td>
-          <td class="mono">${x.r&&x.r.pro?x.r.pro:"–"}</td>
-        </tr>`;}).join("")}</tbody></table></div>
-    <div class="rknote">Tick the applications that go through, then save. The Mid list page reads this
-      list directly, so there is nothing to change in the sheet. The rank column is the combined Long
-      list score, which makes "take the top ${TARGET}" a starting point rather than the decision.
-      If you would rather keep the list in the sheet as well, the CSV has one row per selected company
-      with a Mid list column already set to TRUE.</div>`;
+          <td class="mean">${x.n?fmt(x.score):"–"}</td>
+          <td class="sd${x.sd>=1?" wide":""}">${x.n>1?fmt(x.sd):"–"}</td>
+          <td class="rev-n">${x.n}</td>
+          <td class="mono">${x.pro||"–"}</td>
+          ${show?revCells(x,names):""}
+        </tr>${OPENROW.select===x.app&&x.n?detailRow(x,span):""}`;}).join("")}
+      </tbody></table></div>
+    ${rows.length?"":`<div class="nodata">Nothing matches those filters.</div>`}`;
 }
 
 /* The selection is always made against Long list scores, whichever stage
@@ -1501,7 +1809,7 @@ function combinedForLong(){
 function selectionCsv(){
   const q=s=>`"${String(s??"").replace(/"/g,'""')}"`;
   const rank=new Map(combinedForLong().map(x=>[x.app,x]));
-  const head=["Company name","Mid list","Combined score","Reviewers","Theme"];
+  const head=["Company name","Mid list","Average score","Reviewers","Theme"];
   const body=[...SEL].sort().map(n=>{
     const d=APPS.find(x=>x.name===n)||{}, r=rank.get(n);
     return [n,"TRUE",r?fmt(r.score):"",r?r.n:"",d.themes?themeOf(d):""].map(q).join(",");
@@ -1513,7 +1821,6 @@ function selectionCsv(){
   a.click(); URL.revokeObjectURL(a.href);
 }
 
-/* ── export ── */
 function exportAll(){
   const q=s=>`"${String(s??"").replace(/"/g,'""')}"`;
   const head=["Stage","Reviewer","Company",...CRITERIA.map(c=>c.name),"Mean","Recommendation",
@@ -1536,14 +1843,43 @@ function render(){
     `<br><br>Open this page with <code>#setup</code> to check the sheet and endpoint it points at.`);
   ({combined:viewCombined, coverage:viewCoverage, spread:viewSpread,
     themes:viewThemes, calib:viewCalib, select:viewSelect}[VIEW]||viewCombined)();
+  if(FOCUSID){
+    const el=document.getElementById(FOCUSID);
+    if(el){ el.focus(); try{ el.selectionStart=el.selectionEnd=el.value.length; }catch(err){} }
+    FOCUSID="";
+  }
 }
 document.addEventListener("change",e=>{
+  const f=e.target.closest("[data-fv]");
+  if(f){ FILTS[f.dataset.fv][f.dataset.fk]=f.value; render(); return; }
   const c=e.target.closest("[data-pick]");
   if(!c) return;
   if(c.checked) SEL.add(c.dataset.pick); else SEL.delete(c.dataset.pick);
   render();
 });
+/* the search box re-renders on every keystroke, so put the caret back */
+document.addEventListener("input",e=>{
+  const f=e.target.closest('input[data-fv]');
+  if(!f) return;
+  FOCUSID=f.id||"";
+  FILTS[f.dataset.fv][f.dataset.fk]=f.value;
+  render();
+});
 document.addEventListener("click",async e=>{
+  const so=e.target.closest("[data-sortk]");
+  if(so){ setSort(so.dataset.sortv, so.dataset.sortk); render(); return; }
+  const tr=e.target.closest("[data-togrev]");
+  if(tr){ const v=tr.dataset.togrev; SHOWREV[v]=!SHOWREV[v]; render(); return; }
+  const tf=e.target.closest("[data-togflag]");
+  if(tf){ const v=tf.dataset.togflag; FILTS[v].flag=!FILTS[v].flag; render(); return; }
+  const cf=e.target.closest("[data-clearf]");
+  if(cf){ FILTS[cf.dataset.clearf]=BLANKF(); render(); return; }
+  const ex=e.target.closest("[data-exp]");
+  if(ex && !e.target.closest("[data-pick]") && !e.target.closest("a,button,select,input")){
+    const [v,app]=ex.dataset.exp.split("|");
+    OPENROW[v]=OPENROW[v]===app?"":app;
+    render(); return;
+  }
   const t=e.target.closest("[data-view],[data-stage],#exportBtn,#selTop,#selNone,#selCsv,#selSave");
   if(!t) return;
   if(t.id==="exportBtn"){ exportAll(); return; }
