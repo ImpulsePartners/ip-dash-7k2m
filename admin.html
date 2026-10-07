@@ -1189,13 +1189,16 @@ const REVIEWERS_ALL=[
   {name:"Yoshiaki Kanayama", org:"HCM Japan",               stages:["long","mid"]},
   {name:"Kenichi Moriwaki",  org:"HCM Japan",               stages:["long","mid"]},
   {name:"Yusuke Seki",       org:"HCM Europe",              stages:["long","mid"]},
-  {name:"Luis Amorim",       org:"Ferrovial",               stages:["long","mid"]},
+  /* Ferrovial score as a firm, under one name, on both lists: Luis
+     Amorim signed his scores Ferrovial rather than in his own name. */
+  {name:"Ferrovial",         org:"one entry for the team",  stages:["long","mid"]},
   /* Impulse score the Long list as a team, under one name, and take no
-     part in the Mid list. Zacua likewise score the Long list only, as a
-     team; Brick & Mortar score the Long list only. */
+     part in the Mid list. Zacua and Brick & Mortar likewise score the
+     Long list only, each under the firm's name — Guillaume Bazouin
+     signed his scores Brick & Mortar. */
   {name:"Impulse Partners",  org:"one entry for the team",  stages:["long"]},
   {name:"Zacua Ventures",    org:"one entry for the team",  stages:["long"]},
-  {name:"Guillaume Bazouin", org:"Brick & Mortar Ventures", stages:["long"]},
+  {name:"Brick & Mortar",    org:"one entry for the team",  stages:["long"]},
   /* Leonard are not taking part in the Long list. They join at the Mid
      list and score as a team, under one name, as CRH and Loxam do. */
   {name:"Leonard",           org:"one entry for the team",  stages:["mid"]},
@@ -1203,6 +1206,68 @@ const REVIEWERS_ALL=[
   {name:"David Rudnianski",  org:"Loxam",                   stages:["mid"]}
 ];
 
+/* ── names already in the sheet ───────────────────────────────
+   Ferrovial and Brick & Mortar sign their scores with the firm's name,
+   and the roster above now reads the same way. Anything filed earlier
+   under the individual's name, or under a longer form of the firm's
+   name, is folded onto the roster name here, so scores already saved
+   keep counting whichever way they went in. Add a line rather than
+   renaming a roster entry when someone signs a new way.
+   ──────────────────────────────────────────── */
+const REVIEWER_ALIASES={
+  "ferrovial":      ["luis amorim","ferrovial construction","ferrovial sa"],
+  "brick & mortar": ["guillaume bazouin","brick and mortar",
+                     "brick & mortar ventures","brick and mortar ventures",
+                     "brick&mortar"]
+};
+const canonKey=n=>{
+  const s=String(n||"").trim().toLowerCase().replace(/\s+/g," ");
+  for(const k in REVIEWER_ALIASES)
+    if(k===s||REVIEWER_ALIASES[k].indexOf(s)>=0) return k;
+  return s;
+};
+const aliasKeys=k=>REVIEWER_ALIASES[canonKey(k)]||[];
+
+/* ── duplicate applications ───────────────────────────────────
+   A handful of companies applied twice and the duplicate rows were
+   taken out of the application sheet. Scores filed against the row that
+   went are still in the Scores tab under that spelling, so a company
+   could show a single reviewer while everyone else's scores sat on the
+   row that no longer exists. Names are matched loosely here — case,
+   accents, punctuation and a trailing legal or filler word are ignored
+   — and anything that no longer appears in the sheet is moved onto the
+   application that remains. A reviewer who scored both rows keeps the
+   later of the two scores.
+   ──────────────────────────────────────────── */
+const APP_FILLER=/\b(inc|llc|ltd|limited|gmbh|ug|ag|bv|nv|sa|sas|sarl|srl|spa|oy|ab|aps|plc|corp|corporation|co|company|group|holding|holdings|technologies|technology|tech|labs|lab|systems|solutions|software|robotics|ventures|the|ai|io)\b/g;
+function appKey(n){
+  const s=String(n||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/&/g," and ").replace(/[^a-z0-9]+/g," ").trim()
+    .replace(/\b([a-z])\s+(?=[a-z]\b)/g,"$1");   // B.V. and S.A.S. read as one word
+  const k=s.replace(APP_FILLER," ").replace(/\s+/g,"");
+  return k||s.replace(/\s+/g,"");               // never let the key empty out
+}
+let APP_MERGED=[];                              /* what was moved, for the note */
+function canonApp(name){
+  const s=String(name||"").trim();
+  const apps=APPS;
+  if(!s||!apps.length) return s;
+  if(apps.some(d=>d.name===s)) return s;        // a name still in the sheet is left alone
+  const k=appKey(s);
+  let hit=apps.find(d=>appKey(d.name)===k);
+  if(!hit && k.length>=5){
+    /* the two spellings can differ by a whole word — "Northline" against
+       "Northline Autonomy". One clear candidate is taken; two or more
+       and nothing is moved, since a wrong merge is worse than an
+       orphaned score. */
+    const near=apps.filter(d=>{ const dk=appKey(d.name);
+      return dk.length>=5 && (dk.startsWith(k)||k.startsWith(dk)); });
+    if(near.length===1) hit=near[0];
+  }
+  if(!hit) return s;                            // no surviving match: leave it, do not guess
+  if(!APP_MERGED.some(x=>x.from===s)) APP_MERGED.push({from:s, to:hit.name});
+  return hit.name;
+}
 /* ══════════════════════════════════════════════════════════════════
    ADMIN
    Read-only. Pulls every reviewer's scores out of the Scores tab and
@@ -1249,7 +1314,9 @@ const selDirty=()=>SEL.size!==SEL_SAVED.size||[...SEL].some(n=>!SEL_SAVED.has(n)
 function splitKey(k, rec){
   const s=String(k||"");
   const i=s.indexOf(" · ");
-  const person=i<0?s:s.slice(0,i);
+  /* folded onto the roster name, so a score filed under an older
+     signature lands with the rest of that reviewer's work */
+  const person=canonKey(i<0?s:s.slice(0,i));
   const stage=(rec&&rec.stage) || (i<0?"long":s.slice(i+3));
   return {person, stage};
 }
@@ -1468,29 +1535,38 @@ async function loadEverything(){
   try{                          /* both tabs in one call, if the script allows it */
     const all=await loadOne("", "all");
     const who=new Set(all.map(r=>r.reviewer));
-    if(who.size>1) return all;
+    if(who.size>1) return dedupe(all);
   }catch(e){ /* fall through */ }
 
   /* otherwise ask per reviewer, per stage; the legacy suffixed key is tried
      too, so scores saved before the tabs existed are still found */
   const keys=[];
+  const ask=n=>keys.push({k:n, s:"long"}, {k:n, s:"mid"}, {k:n+" · mid", s:"mid"});
   REVIEWERS_ALL.forEach(r=>{ const n=r.name.toLowerCase();
-    keys.push({k:n, s:"long"}, {k:n, s:"mid"}, {k:n+" · mid", s:"mid"}); });
-  const out=[], seen=new Set();
+    ask(n); aliasKeys(n).forEach(ask); });
+  const held=new Map();
   for(let i=0;i<keys.length;i+=6){
     const batch=await Promise.all(keys.slice(i,i+6).map(q=>
       loadOne(q.k, q.s).then(rs=>rs.map(r=>({...r, reviewer:r.reviewer||q.k,
         stage:r.stage||q.s}))).catch(()=>[])));
-    batch.forEach(rs=>rs.forEach(r=>{
-      const id=stageOf(r)+"|"+splitKey(r.reviewer,r).person+"|"+r.app;
-      if(seen.has(id)) return;
-      seen.add(id); out.push(r);
-    }));
+    batch.forEach(rs=>rs.forEach(r=>keepNewest(held,r)));
     $("loadNote").textContent=`Loading scores… ${Math.min(i+6,keys.length)} of ${keys.length}`;
   }
+  const out=[...held.values()];
   if(!out.length) LOADERR="The endpoint answered, but returned no scores.";
   return out;
 }
+
+/* One row per reviewer, stage and company. A reviewer who scored the
+   same company under two signatures counts once, and the later score is
+   the one kept. */
+function keepNewest(map,r){
+  const id=stageOf(r)+"|"+splitKey(r.reviewer,r).person+"|"+r.app;
+  const prev=map.get(id);
+  if(!prev || new Date(r.at||0)>=new Date(prev.at||0)) map.set(id,r);
+  return map;
+}
+const dedupe=rows=>[...rows.reduce(keepNewest,new Map()).values()];
 
 /* ── shared helpers over the loaded data ── */
 function rowsForStage(){ return rowsForStageAll().filter(r=>!r.coi); }
@@ -2031,9 +2107,18 @@ async function start(){
   REV = await loadEverything();
   try{ (await loadOne(SEL_REVIEWER,"all")).forEach(r=>REV.push(r)); }catch(e){}
   const sel=readSelection(REV);
-  SEL=new Set(sel.names); SEL_SAVED=new Set(sel.names); SEL_AT=sel.at;
+  /* the selection is read before the remap and put through it too, so a
+     company picked under a duplicate name stays picked */
+  const selNames=sel.names.map(n=>canonApp(n));
+  SEL=new Set(selNames); SEL_SAVED=new Set(selNames); SEL_AT=sel.at;
+  /* scores filed against a duplicate row join the application that
+     remains, and a reviewer counts once per company */
+  REV.forEach(r=>{ if(r && r.app!==SEL_APP) r.app=canonApp(r.app); });
+  REV=dedupe(REV.filter(r=>r.app!==SEL_APP)).concat(REV.filter(r=>r.app===SEL_APP));
   REV.forEach(r=>{ if(r && RECO_LEGACY.hasOwnProperty(r.reco)) r.reco=RECO_LEGACY[r.reco]; });
-  $("loadNote").textContent=`${REV.length} scores · ${APPS.length} applications`;
+  $("loadNote").textContent=`${REV.length} scores · ${APPS.length} applications`
+    +(APP_MERGED.length?` · ${APP_MERGED.length} duplicate name${APP_MERGED.length>1?"s":""} merged (`
+      +APP_MERGED.map(x=>x.from+" → "+x.to).join(", ")+")":"");
   render();
 }
 
