@@ -449,7 +449,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
     </div>
 
     <div class="gate-note">
-      Shared with Challenge Partners only. Applications shown here are confidential
+      Shared with Challenge partners only. Applications shown here are confidential
       and remain the property of the applicant companies.
     </div>
   </div>
@@ -654,11 +654,11 @@ async function rekey(){
   const msg=document.getElementById("rkMsg");
   msg.hidden=false; msg.textContent="";
   if(!cur){ msg.textContent="Enter the password in use today."; return; }
-  if(!adm&&!lox){ msg.textContent="Enter at least one new password — admin, Loxam, or both."; return; }
+  if(!adm&&!lox){ msg.textContent="Enter at least one new password \u2014 admin, Loxam, or both."; return; }
   for(const [label,pw] of [["admin",adm],["Loxam",lox]]){
     if(!pw) continue;
     if(pw.length<20){ msg.textContent="The new "+label+" password is "+pw.length+
-      " characters. Use at least 20 — four or five words joined together is easiest to pass on."; return; }
+      " characters. Use at least 20 \u2014 four or five words joined together is easiest to pass on."; return; }
     if(pw===cur){ msg.textContent="The new "+label+
       " password has to be different from the one in use today."; return; }
   }
@@ -701,7 +701,7 @@ async function rekey(){
   document.getElementById("suOut").hidden=false;
   document.getElementById("rkCopy").hidden=false;
   document.getElementById("suHint").hidden=false;
-  msg.textContent="Done — rebuilt: "+Object.keys(made).join(" and ")+
+  msg.textContent="Done \u2014 rebuilt: "+Object.keys(made).join(" and ")+
     ". The password partners use today is unchanged.";
 }
 function rkCopy(){
@@ -761,8 +761,8 @@ const LABELS={
  "Impact of the solution":"Impact of the solution",
  "Nb full-time employees":"Full-time employees",
  "Ideal Pilot":"Ideal pilot",
- "What would you need from HCM":"Needs from Challenge Partners",
- "Is HCM customor / invesor / developper...":"Role Challenge Partners would play",
+ "What would you need from HCM":"Needs from HCM",
+ "Is HCM customor / invesor / developper...":"Role HCM would play",
  "Ambition in 12 months":"12-month ambition",
  "Where did you hear about this Challenge":"Heard about the Challenge via",
  "Background and current contribution at your company":"Contact background",
@@ -1063,51 +1063,51 @@ const CRITERIA=[
  {id:"innovation", name:"Innovation / IP strength", short:"Innovation", w:1/6,
   what:"How different this is from what is already on the market, and whether that difference is protected.",
   look:"Patents or filings, proprietary data or models, a technical approach a competitor could not rebuild quickly.",
-  anchors:{1:"Some differentiation from existing solutions; intellectual property is weak or in development.",
-           2:"Differentiation from existing solutions is real but easily replicated; intellectual property still thin.",
-           3:"Innovative with clear differentiation from existing solutions; solid intellectual property in place.",
-           4:"Clearly innovative with strong differentiation; intellectual property in place and defensible.",
-           5:"Highly innovative with significant differentiation from existing solutions; strong and defensible intellectual property."}},
+  anchors:{1:"Little differentiation; comparable offers already exist.",
+           2:"Some differentiation, but easily replicated.",
+           3:"Genuinely different, with limited protection.",
+           4:"Clear differentiation backed by defensible assets.",
+           5:"Highly innovative, significant differentiation, seems to possess strong and defensible moat / IP."}},
  {id:"business", name:"Business potential", short:"Business", w:1/6,
-  what:"The size of the opportunity — for the Challenge Partners and beyond them. Judge the opportunity, not the pitch.",
+  what:"The size of the opportunity — for the Challenge partners and beyond them. Judge the opportunity, not the pitch.",
   look:"A plausible route to revenue or cost saving, demand beyond a single use case, evidence the solution travels to other contexts.",
-  anchors:{1:"Limited business potential; some adaptability to different contexts or markets but with significant challenges.",
-           2:"Real but modest business potential; adaptable to other contexts or markets only with substantial effort.",
-           3:"Good business potential with the Challenge Partners; adaptable to different contexts or markets with some effort.",
-           4:"Strong business potential with the Challenge Partners and signs it travels beyond them; adaptable with limited effort.",
-           5:"Excellent business potential both with and outside the Challenge Partners; easily adaptable to different contexts or markets."}},
+  anchors:{1:"Narrow use case with no visible route to scale.",
+           2:"Real but limited potential; one context only.",
+           3:"Solid potential, but adaptation needed to travel.",
+           4:"Strong potential across several contexts.",
+           5:"Excellent potential both with and outside the business; easily adaptable to varied contexts."}},
  {id:"traction", name:"Traction", short:"Traction", w:1/6,
   what:"What the company has already done with real customers, not what it plans to do.",
   look:"Paying customers, completed pilots, contract values, repeat business, referenceable names.",
-  anchors:{1:"Some traction with core customers or other stakeholders; moderate level of interest and engagement.",
-           2:"Traction limited to trials or early conversations; interest not yet converted into business.",
-           3:"Good traction with core customers and other stakeholders; interest and engagement.",
-           4:"Solid traction with core customers and other stakeholders, including repeat business.",
-           5:"Strong traction with core customers and other stakeholders; high level of interest and engagement."}},
+  anchors:{1:"No customers or projects yet.",
+           2:"Unpaid trials only.",
+           3:"One or two paid pilots.",
+           4:"Several paying customers, some repeat business.",
+           5:"Strong traction with core customers; high level of interest and engagement."}},
  {id:"team", name:"Team", short:"Team", w:1/6,
   what:"Whether this particular team can both build and sell this particular solution.",
   look:"Domain experience in construction, mining or heavy equipment; technical depth matching the solution; commercial capability to deploy it.",
-  anchors:{1:"Team has some of the necessary expertise but lacks balance. There may be strengths in one or two areas but significant weaknesses in others.",
-           2:"Team has relevant expertise in part, with gaps in more than one function that are not yet being addressed.",
-           3:"Team has a good mix of technical, operational and financial skills, but there might be minor gaps in experience or expertise that could pose challenges.",
-           4:"Team is well balanced across technical, operational and financial profiles, with directly relevant experience.",
-           5:"Team combines the right combination of technical, operational and financial profiles and has strong previous experience."}},
+  anchors:{1:"Key capabilities missing, with no plan to fill them.",
+           2:"Some relevant experience, significant gaps.",
+           3:"Credible team; one function clearly thin.",
+           4:"Well-rounded team with directly relevant background.",
+           5:"Right combination of technical, operational and financial profiles, strong previous experience."}},
  {id:"value", name:"Added value", short:"Added value", w:1/6,
   what:"How closely this maps to what the Challenge is trying to achieve, in the theme it applied under.",
-  look:"A direct answer to the theme statement, and relevance to the Challenge Partners' machines, customers or sites rather than a generic product.",
-  anchors:{1:"Some alignment with the Challenge's strategic goals; adds moderate value to the Challenge Partners.",
-           2:"Partial alignment with the Challenge's strategic goals; the value to the Challenge Partners has to be argued.",
-           3:"Good alignment with the Challenge's strategic goals; adds significant value to the Challenge Partners.",
-           4:"Strong alignment with the Challenge's strategic goals; adds clear value across several Challenge Partners.",
-           5:"Excellent alignment with the Challenge's strategic goals; adds substantial value to the Challenge Partners."}},
+  look:"A direct answer to the theme statement, and relevance to HCM machines, customers or sites rather than a generic product.",
+  anchors:{1:"Little connection to the challenge goals.",
+           2:"Connection has to be argued.",
+           3:"Relevant, but only to part of the theme.",
+           4:"Clearly aligned with the theme and its goals.",
+           5:"Excellent alignment with the challenge's strategic goals."}},
  {id:"pilot", name:"Pilot feasibility", short:"Pilot", w:1/6,
-  what:"How realistically a pilot could run with a Challenge Partner in the coming months.",
+  what:"How realistically a pilot could run with HCM in the coming months.",
   look:"Product maturity in the TRL 6–9 band, clear data or hardware requirements, a scope that can be bounded, no blocking dependency.",
-  anchors:{1:"Feasible, but with strong barriers to implementation.",
-           2:"Feasible only with major effort — integration, certification or hardware barriers.",
-           3:"Pilot feasible with some effort and resources.",
-           4:"Pilot feasible with limited effort; minor prerequisites only.",
-           5:"Pilot feasible with minimal effort and resources; few or no barriers to implementation."}}
+  anchors:{1:"Not deployable in any realistic near-term pilot.",
+           2:"Major barriers — integration, certification or hardware.",
+           3:"Possible, with significant effort and preparation.",
+           4:"Straightforward pilot; minor prerequisites only.",
+           5:"Feasible with reasonable effort and resources; few or no barriers."}}
 ];
 const RECO=["Proceed","Do not proceed"];
 const RECO_MEANING={
@@ -1207,47 +1207,30 @@ async function loadReviews(){
   if(!who){ REVIEWS=[]; return REVIEWS; }
 
   REVIEWS=lsRead(LS_KEY(who),[]);                    // browser copy first
-  /* and anything this browser saved under an older signature */
-  aliasKeys(who).forEach(a=>lsRead(LS_KEY(a),[]).forEach(r=>{
-    const i=REVIEWS.findIndex(x=>x.app===r.app);
-    if(i<0) REVIEWS.push(r);
-    else if(new Date(r.at)>new Date(REVIEWS[i].at)) REVIEWS[i]=r;
-  }));
-  REVIEWS.forEach(r=>{ if(r) r.reviewer=who; });
 
   if(CFG&&CFG.scriptUrl){                            // then whatever the sheet holds
-    /* the older signatures are asked for too, so a reviewer who scored
-       under their own name before the roster read the firm's name still
-       opens their work */
-    const asked=[who, ...aliasKeys(who)];
-    let got=false;
-    for(const name of asked){
-      try{
-        const u=CFG.scriptUrl+"?action=load&reviewer="+encodeURIComponent(name)
-               +"&stage="+encodeURIComponent(STAGE)
-               +"&key="+encodeURIComponent(CFG.scriptKey||"");
-        const res=await fetch(u);
-        if(res.ok){
-          const out=await res.json();
-          if(out&&Array.isArray(out.reviews)){
-            out.reviews.forEach(r=>{
-              r.reviewer=who;                        // filed under the roster name from here on
-              const i=REVIEWS.findIndex(x=>x.app===r.app);
-              if(i<0) REVIEWS.push(r);
-              else if(new Date(r.at)>new Date(REVIEWS[i].at)) REVIEWS[i]=r;   // newest wins
-            });
-            got=true;
-          }
+    try{
+      const u=CFG.scriptUrl+"?action=load&reviewer="+encodeURIComponent(who)
+             +"&stage="+encodeURIComponent(STAGE)
+             +"&key="+encodeURIComponent(CFG.scriptKey||"");
+      const res=await fetch(u);
+      if(res.ok){
+        const out=await res.json();
+        if(out&&Array.isArray(out.reviews)){
+          out.reviews.forEach(r=>{
+            const i=REVIEWS.findIndex(x=>x.app===r.app);
+            if(i<0) REVIEWS.push(r);
+            else if(new Date(r.at)>new Date(REVIEWS[i].at)) REVIEWS[i]=r;   // newest wins
+          });
+          lsWrite(LS_KEY(who),REVIEWS);
+          syncBadge("ok");
         }
-      }catch(e){ syncBadge("local",e.message); }
-    }
-    if(got){ lsWrite(LS_KEY(who),REVIEWS); syncBadge("ok"); }
+      }
+    }catch(e){ syncBadge("local",e.message); }
     await flushQueue();
   }else{
     syncBadge(REVIEWS.length?"off":"idle");
   }
-  REVIEWS=foldDuplicates(REVIEWS);
-  try{ lsWrite(LS_KEY(who),REVIEWS); }catch(err){}
   REVIEWS.forEach(r=>{ if(r && RECO_LEGACY.hasOwnProperty(r.reco)) r.reco=RECO_LEGACY[r.reco]; });
   return REVIEWS;
 }
@@ -1275,95 +1258,22 @@ const REVIEWERS_ALL=[
   {name:"Kaoru Kobayashi",   org:"HCM Japan",               stages:["long","mid"]},
   {name:"Yoshiaki Kanayama", org:"HCM Japan",               stages:["long","mid"]},
   {name:"Kenichi Moriwaki",  org:"HCM Japan",               stages:["long","mid"]},
-  {name:"Yusuke Seki",       org:"HCM Europe",              stages:["long","mid"]},
-  /* Ferrovial score as a firm, under one name, on both lists: Luis
-     Amorim signed his scores Ferrovial rather than in his own name. */
-  {name:"Ferrovial",         org:"one entry for the team",  stages:["long","mid"]},
+  {name:"Yusuke Seki",       org:"Hitachi High-Tech",       stages:["long","mid"]},
+  {name:"Tadasuke Yoshioka", org:"HCM Japan",               stages:["long","mid"]},
+  {name:"Luis Amorim",       org:"Ferrovial",               stages:["long","mid"]},
   /* Impulse score the Long list as a team, under one name, and take no
-     part in the Mid list. Zacua and Brick & Mortar likewise score the
-     Long list only, each under the firm's name — Guillaume Bazouin
-     signed his scores Brick & Mortar. */
+     part in the Mid list. Zacua likewise score the Long list only, as a
+     team; Brick & Mortar score the Long list only. */
   {name:"Impulse Partners",  org:"one entry for the team",  stages:["long"]},
   {name:"Zacua Ventures",    org:"one entry for the team",  stages:["long"]},
-  {name:"Brick & Mortar",    org:"one entry for the team",  stages:["long"]},
+  {name:"Guillaume Bazouin", org:"Brick & Mortar Ventures", stages:["long"]},
   /* Leonard are not taking part in the Long list. They join at the Mid
      list and score as a team, under one name, as CRH and Loxam do. */
   {name:"Leonard",           org:"one entry for the team",  stages:["mid"]},
   {name:"Benjamin Kavanagh", org:"CRH Ventures",            stages:["mid"]},
   {name:"David Rudnianski",  org:"Loxam",                   stages:["mid"]}
 ];
-
-/* ── names already in the sheet ───────────────────────────────
-   Ferrovial and Brick & Mortar sign their scores with the firm's name,
-   and the roster above now reads the same way. Anything filed earlier
-   under the individual's name, or under a longer form of the firm's
-   name, is folded onto the roster name here, so scores already saved
-   keep counting whichever way they went in. Add a line rather than
-   renaming a roster entry when someone signs a new way.
-   ──────────────────────────────────────────── */
-const REVIEWER_ALIASES={
-  "ferrovial":      ["luis amorim","ferrovial construction","ferrovial sa"],
-  "brick & mortar": ["guillaume bazouin","brick and mortar",
-                     "brick & mortar ventures","brick and mortar ventures",
-                     "brick&mortar"]
-};
-const canonKey=n=>{
-  const s=String(n||"").trim().toLowerCase().replace(/\s+/g," ");
-  for(const k in REVIEWER_ALIASES)
-    if(k===s||REVIEWER_ALIASES[k].indexOf(s)>=0) return k;
-  return s;
-};
-const aliasKeys=k=>REVIEWER_ALIASES[canonKey(k)]||[];
-
-/* ── duplicate applications ───────────────────────────────────
-   A handful of companies applied twice and the duplicate rows were
-   taken out of the application sheet. Scores filed against the row that
-   went are still in the Scores tab under that spelling, so a company
-   could show a single reviewer while everyone else's scores sat on the
-   row that no longer exists. Names are matched loosely here — case,
-   accents, punctuation and a trailing legal or filler word are ignored
-   — and anything that no longer appears in the sheet is moved onto the
-   application that remains. A reviewer who scored both rows keeps the
-   later of the two scores.
-   ──────────────────────────────────────────── */
-const APP_FILLER=/\b(inc|llc|ltd|limited|gmbh|ug|ag|bv|nv|sa|sas|sarl|srl|spa|oy|ab|aps|plc|corp|corporation|co|company|group|holding|holdings|technologies|technology|tech|labs|lab|systems|solutions|software|robotics|ventures|the|ai|io)\b/g;
-function appKey(n){
-  const s=String(n||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-    .replace(/&/g," and ").replace(/[^a-z0-9]+/g," ").trim()
-    .replace(/\b([a-z])\s+(?=[a-z]\b)/g,"$1");   // B.V. and S.A.S. read as one word
-  const k=s.replace(APP_FILLER," ").replace(/\s+/g,"");
-  return k||s.replace(/\s+/g,"");               // never let the key empty out
-}
-let APP_MERGED=[];                              /* what was moved, for the note */
-function canonApp(name){
-  const s=String(name||"").trim();
-  const apps=ALL;
-  if(!s||!apps.length) return s;
-  if(apps.some(d=>d.name===s)) return s;        // a name still in the sheet is left alone
-  const k=appKey(s);
-  let hit=apps.find(d=>appKey(d.name)===k);
-  if(!hit && k.length>=5){
-    /* the two spellings can differ by a whole word — "Northline" against
-       "Northline Autonomy". One clear candidate is taken; two or more
-       and nothing is moved, since a wrong merge is worse than an
-       orphaned score. */
-    const near=apps.filter(d=>{ const dk=appKey(d.name);
-      return dk.length>=5 && (dk.startsWith(k)||k.startsWith(dk)); });
-    if(near.length===1) hit=near[0];
-  }
-  if(!hit) return s;                            // no surviving match: leave it, do not guess
-  if(!APP_MERGED.some(x=>x.from===s)) APP_MERGED.push({from:s, to:hit.name});
-  return hit.name;
-}
-/* one row per company for this reviewer, duplicates folded in */
-function foldDuplicates(list){
-  const by=new Map();
-  (list||[]).forEach(r=>{ if(!r) return;
-    const rec={...r, app:canonApp(r.app)}, prev=by.get(rec.app);
-    if(!prev||new Date(rec.at||0)>=new Date(prev.at||0)) by.set(rec.app,rec);
-  });
-  return [...by.values()];
-}const STAGE="mid";                      /* this page scores the Mid list */
+const STAGE="mid";                      /* this page scores the Mid list */
 /* The Long list is every application. The Mid list is only the rows the
    selection meeting flagged in the sheet: add a "Mid list" column and put
    TRUE (or yes / 1 / x) against the ones that go through. */
@@ -1398,7 +1308,7 @@ const me=()=>($("who").value||"").trim().toLowerCase();
 /* Every record carries its stage, and the Apps Script files it in that
    stage's own tab, so a company scored on both lists keeps two separate
    records. The reviewer name is stored as it reads. */
-const rkey=()=>canonKey(me());
+const rkey=()=>me();
 
 /* ── #resync ────────────────────────────────────────
    Sends every score this browser holds back to the sheet. It is here
@@ -1429,7 +1339,7 @@ async function resyncAll(){
   RESYNCING=false;
   syncBadge(fail?"local":"ok", fail?firstError:"");
   alert(fail
-    ? ok+" of "+list.length+" scores were sent. "+fail+" failed — "+firstError+
+    ? ok+" of "+list.length+" scores were sent. "+fail+" failed \u2014 "+firstError+
       "\n\nTry again in a moment; nothing was lost."
     : "All "+ok+" scores were sent back to the sheet.");
   location.hash="";
