@@ -571,7 +571,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
     </div>
 
     <div class="gate-note">
-      Shared with Challenge partners only. Applications shown here are confidential
+      Shared with Challenge Partners only. Applications shown here are confidential
       and remain the property of the applicant companies.
     </div>
   </div>
@@ -586,8 +586,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
     </div>
     <nav class="nav">
       <a href="index.html" class="on">Dashboard</a>
-      <a href="evaluate.html">Long list</a>
-      <a href="midlist.html">Mid list</a>
+      <a href="shortlist.html">Short list</a>
       <a href="admin.html">Admin</a>
     </nav>
     <div class="hdr-right">
@@ -688,7 +687,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 
       <div class="card c6" style="--cc:var(--t2)">
         <h3>How applicants found us</h3>
-        <div class="hint">Share of applications. Partners covers the six Challenge partners.</div>
+        <div class="hint">Share of applications. Partners covers the six Challenge Partners.</div>
         <div class="sbars" id="chSource"></div>
       </div>
 
@@ -866,11 +865,11 @@ async function rekey(){
   const msg=document.getElementById("rkMsg");
   msg.hidden=false; msg.textContent="";
   if(!cur){ msg.textContent="Enter the password in use today."; return; }
-  if(!adm&&!lox){ msg.textContent="Enter at least one new password \u2014 admin, Loxam, or both."; return; }
+  if(!adm&&!lox){ msg.textContent="Enter at least one new password — admin, Loxam, or both."; return; }
   for(const [label,pw] of [["admin",adm],["Loxam",lox]]){
     if(!pw) continue;
     if(pw.length<20){ msg.textContent="The new "+label+" password is "+pw.length+
-      " characters. Use at least 20 \u2014 four or five words joined together is easiest to pass on."; return; }
+      " characters. Use at least 20 — four or five words joined together is easiest to pass on."; return; }
     if(pw===cur){ msg.textContent="The new "+label+
       " password has to be different from the one in use today."; return; }
   }
@@ -913,7 +912,7 @@ async function rekey(){
   document.getElementById("suOut").hidden=false;
   document.getElementById("rkCopy").hidden=false;
   document.getElementById("suHint").hidden=false;
-  msg.textContent="Done \u2014 rebuilt: "+Object.keys(made).join(" and ")+
+  msg.textContent="Done — rebuilt: "+Object.keys(made).join(" and ")+
     ". The password partners use today is unchanged.";
 }
 function rkCopy(){
@@ -972,8 +971,8 @@ const LABELS={
  "Impact of the solution":"Impact of the solution",
  "Nb full-time employees":"Full-time employees",
  "Ideal Pilot":"Ideal pilot",
- "What would you need from HCM":"Needs from HCM",
- "Is HCM customor / invesor / developper...":"Role HCM would play",
+ "What would you need from HCM":"Needs from Challenge Partners",
+ "Is HCM customor / invesor / developper...":"Role Challenge Partners would play",
  "Ambition in 12 months":"12-month ambition",
  "Where did you hear about this Challenge":"Heard about the Challenge via",
  "Background and current contribution at your company":"Contact background",
