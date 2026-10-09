@@ -83,6 +83,12 @@ body.locked{overflow:hidden}
 #setup input,#setup textarea{text-align:left;letter-spacing:0;font-size:12.5px;
   border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.07);color:#fff;
   border-radius:var(--r);padding:9px 11px;font-family:"IBM Plex Mono",monospace}
+.pwwrap{position:relative;display:flex}
+.pwwrap input{flex:1;padding-right:62px}
+.pweye{position:absolute;right:5px;top:5px;bottom:5px;border:0;background:rgba(255,255,255,.12);
+  color:#CBD9E8;border-radius:2px;padding:0 11px;font-size:11px;font-weight:600;
+  font-family:inherit;letter-spacing:.04em}
+.pweye:hover{background:rgba(255,255,255,.2);color:#fff}
 #suOut{height:150px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace}
 #rkTitle{font-size:13px;font-weight:700;color:#E8F0F8;margin-bottom:2px}
 #rkMsg{font-size:11.5px;color:#FFB36B;line-height:1.5}
@@ -546,8 +552,11 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
     <div class="sub">Challenge partner access</div>
 
     <form id="gateForm" onsubmit="submitGate(event)">
-      <input id="gatePw" type="password" placeholder="Enter the access password"
+      <div class="pwwrap">
+        <input id="gatePw" type="password" placeholder="Enter the access password"
              autocomplete="current-password" autofocus>
+        <button type="button" class="pweye" id="pwEye" aria-label="Show password" onclick="togglePw()">Show</button>
+      </div>
       <button id="gateBtn" type="submit">Enter</button>
       <div class="gate-err" id="gateErr" hidden></div>
     </form>
@@ -811,6 +820,14 @@ async function unlock(pw){
   throw err;
 }
 
+function togglePw(){
+  const i=document.getElementById("gatePw"), b=document.getElementById("pwEye");
+  const show=i.type==="password";
+  i.type=show?"text":"password";
+  b.textContent=show?"Hide":"Show";
+  b.setAttribute("aria-label", show?"Hide password":"Show password");
+  i.focus();
+}
 function gateError(msg){
   const e=document.getElementById("gateErr");
   e.textContent=msg; e.hidden=false;

@@ -415,6 +415,49 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 
+/* password field with a Show toggle */
+.pwwrap{position:relative;display:flex}
+.pwwrap input{flex:1;padding-right:62px}
+.pweye{position:absolute;right:5px;top:5px;bottom:5px;border:0;background:rgba(255,255,255,.12);
+  color:#CBD9E8;border-radius:2px;padding:0 11px;font-size:11px;font-weight:600;
+  font-family:inherit;letter-spacing:.04em}
+.pweye:hover{background:rgba(255,255,255,.2);color:#fff}
+
+/* detail cards, carried over from the Long list panel */
+.sl-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:15px 17px;margin:14px 0 0}
+.sl-card.accent{border-left:3px solid var(--navy-mid)}
+.sl-card.themed{border-left:3px solid var(--sc,var(--navy))}
+.sl-card h4{font-family:Archivo,sans-serif;font-size:11px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--slate);margin:0 0 11px;font-weight:700}
+.sl-props{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px 22px;font-size:13px}
+@media(max-width:680px){.sl-props{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sl-prop-k{color:var(--slate);font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.sl-prop-v{margin-top:1px}
+.sl-fld{margin:0 0 12px}
+.sl-fld:last-child{margin-bottom:0}
+.sl-fld-l{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy-mid);
+  font-weight:700;margin-bottom:3px}
+.sl-fld-v{font-size:13px;line-height:1.55;color:#28384A;white-space:pre-wrap}
+.sl-more{border:0;background:none;color:var(--navy);font-size:12.5px;font-weight:600;
+  padding:8px 0 0;font-family:inherit;text-decoration:underline}
+
+/* collapsible company list */
+.sl-lsthead{display:flex;align-items:center;gap:10px;background:var(--navy-deep);color:#fff;
+  padding:8px 13px;font-size:12px;border-radius:var(--r);margin:16px 0 0}
+.sl-lsthead button{border:1px solid rgba(255,255,255,.26);background:rgba(255,255,255,.1);
+  color:#fff;border-radius:2px;padding:4px 11px;font-size:11.5px;font-weight:600;font-family:inherit}
+.sl-lsthead .cur{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.sl-lsthead .pr{color:#9FB6CF;font-family:"IBM Plex Mono",monospace}
+.sl-split.solo{grid-template-columns:1fr}
+.sl-split.solo .sl-lst{display:none}
+
+/* one criterion, then its question */
+.sl-crit{border-top:1px solid var(--line);padding:18px 0 0;margin:18px 0 0}
+.sl-crit:first-child{border-top:0;margin-top:0;padding-top:0}
+.sl-crit-n{font-family:Archivo,sans-serif;font-size:13px;font-weight:700;color:var(--navy)}
+.sl-crit-d{font-size:12.5px;color:var(--slate);margin:3px 0 11px;line-height:1.5}
+
 /* ---------- shortlist ---------- */
 .sl-quota{position:sticky;top:0;z-index:40;background:var(--navy-deep);color:#fff;
   padding:10px 0;box-shadow:0 1px 0 rgba(255,255,255,.08)}
@@ -524,8 +567,12 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
     <h1>Short list selection</h1>
     <div class="sub">LANDCROS Innovation Studios &middot; Europe Challenge 2026</div>
     <form id="gateForm" onsubmit="submitGate(event)" autocomplete="off">
-      <input id="gatePw" type="password" placeholder="prefix-yourname" autocomplete="off"
-             autocapitalize="off" spellcheck="false" aria-label="Your personal password">
+      <div class="pwwrap">
+        <input id="gatePw" type="password" placeholder="prefix-yourname" autocomplete="off"
+               autocapitalize="off" spellcheck="false" aria-label="Your personal password">
+        <button type="button" class="pweye" id="pwEye" aria-label="Show password"
+                onclick="togglePw()">Show</button>
+      </div>
       <button type="submit" id="gateBtn">Open</button>
       <div class="gate-err" id="gateErr" hidden></div>
     </form>
@@ -557,7 +604,6 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
     <div class="hdr-right">
       <nav class="nav">
         <a href="index.html">Dashboard</a>
-        <a href="midlist.html">Mid list</a>
         <a href="shortlist.html" class="on">Short list</a>
         <a href="admin.html">Admin</a>
       </nav>
@@ -570,6 +616,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 <div class="wrap">
   <div class="sl-banner" id="adminBanner" hidden>Admin preview &mdash; you can read every theme,
     but nothing you click here is saved as a vote.</div>
+  <div class="sl-lsthead" id="lstHead" hidden></div>
   <div class="sl-split" id="split" hidden>
     <div class="sl-lst" id="lst"></div>
     <div class="sl-pane" id="pane"></div>
@@ -734,6 +781,130 @@ const APPS = [
   {"n": "[kunstruction1]", "t": 3, "d": "K1 is an offline-capable construction evidence platform that captures field work, requires independent validation, and cryptographically seals photos, voice, delivery, time, and location data into a tamper-evident record for the pre robotic era", "w": "https://k1.construction", "p": "https://api.typeform.com/responses/files/0e51fe78c9be3f8bb272e0f01f2e8c86da43ebdfad114986d49246e78ed51d46/K1_LANDCROS_Finished_Investor_Deck.pdf"}
 ];
 
+
+/* ──────────────────────────────────────────────────────────────────
+   THE APPLICATION BEHIND EACH NAME
+   The middle list above fixes the forty-five and their theme. Everything
+   else — the figures, the long answers, the files — is read from the
+   application sheet once, after unlock, and matched on company name, so
+   the panel always shows what the applicant actually wrote. If the sheet
+   cannot be reached the page still works on the three fields above.
+   ────────────────────────────────────────────────────────────────── */
+let RAW = {};                                   /* company name -> sheet row */
+const LABELS = {
+ "Company description, mission and vision":"Company description",
+ "Problem your company address":"Problem addressed",
+ "Greatest competitive advantages?":"Competitive advantage",
+ "How big is the market?":"Market size",
+ "Who are your target clients?":"Target clients",
+ "Existing Clients":"Existing clients",
+ "Impact of the solution":"Impact of the solution",
+ "Ideal Pilot":"Ideal pilot",
+ "What would you need from HCM":"Needs from Challenge Partners",
+ "Is HCM customor / invesor / developper...":"Role Challenge Partners would play",
+ "Ambition in 12 months":"12-month ambition",
+ "Presentation deck":"Presentation deck",
+ "Share a demo of your solution":"Solution demo",
+ "Upload any other file you consider as relevant":"Additional file"
+};
+const GROUPS = [
+  {title:"The solution", color:"var(--t1)", keys:["Company description, mission and vision",
+    "Problem your company address","Greatest competitive advantages?","Impact of the solution"]},
+  {title:"Market & traction", color:"var(--t3)", keys:["How big is the market?",
+    "Who are your target clients?","Existing Clients"]},
+  {title:"Challenge fit", color:"var(--t2)", keys:["Ideal Pilot","What would you need from HCM",
+    "Is HCM customor / invesor / developper...","Ambition in 12 months"]}
+];
+const FILE_ORDER = ["Presentation deck","Share a demo of your solution",
+                    "Upload any other file you consider as relevant"];
+const COUNTRY = {FR:"France",DE:"Germany",NL:"Netherlands",BE:"Belgium",ES:"Spain",IT:"Italy",
+  GB:"United Kingdom",UK:"United Kingdom",US:"United States",NO:"Norway",SE:"Sweden",
+  DK:"Denmark",FI:"Finland",PL:"Poland",PT:"Portugal",AT:"Austria",CH:"Switzerland",
+  IE:"Ireland",IL:"Israel",CA:"Canada",SG:"Singapore",KR:"Republic of Korea"};
+
+function csvRows(text){
+  const rows=[]; let f="", row=[], q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){ f+='"'; i++; } else q=false; } else f+=c; }
+    else if(c==='"') q=true;
+    else if(c===","){ row.push(f); f=""; }
+    else if(c==="\n"){ row.push(f); rows.push(row); row=[]; f=""; }
+    else if(c!=="\r") f+=c;
+  }
+  if(f.length||row.length){ row.push(f); rows.push(row); }
+  return rows;
+}
+/* loose match, as the sheet and the middle list spell a few names differently */
+const FILLER=/(inc|llc|ltd|limited|gmbh|ug|ag|bv|nv|sa|sas|sarl|srl|spa|oy|ab|aps|plc|corp|corporation|co|company|group|holding|holdings|technologies|technology|tech|labs|lab|systems|solutions|software|robotics|ventures|the|ai|io)/g;
+function key(n){
+  const s=String(n||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+    .replace(/&/g," and ").replace(/[^a-z0-9]+/g," ").trim();
+  return s.replace(FILLER," ").replace(/\s+/g,"") || s.replace(/\s+/g,"");
+}
+async function loadSheet(){
+  if(!CFG || !CFG.sheetId) return;
+  const id=CFG.sheetId, tab=encodeURIComponent(CFG.sheetName||"");
+  const urls=[CFG.publishedCsvUrl,
+    `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1&sheet=${tab}`,
+    `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1`,
+    `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&sheet=${tab}`,
+    `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=0`].filter(Boolean);
+  for(const u of urls){
+    try{
+      const r=await fetch(u); if(!r.ok) continue;
+      const rows=csvRows(await r.text()); if(rows.length<2) continue;
+      const head=rows[0].map(h=>String(h).trim());
+      const ci=head.indexOf("Company name"); if(ci<0) continue;
+      const want=new Map(APPS.map(a=>[key(a.n), a.n]));
+      rows.slice(1).forEach(r2=>{
+        const hit=want.get(key(r2[ci])); if(!hit || RAW[hit]) return;
+        const o={}; head.forEach((h,j)=>{ if(h) o[h]=String(r2[j]==null?"":r2[j]).trim(); });
+        RAW[hit]=o;
+      });
+      if(Object.keys(RAW).length) return;
+    }catch(e){ /* next shape */ }
+  }
+}
+const ext=u=>{const m=(String(u).split("?")[0].match(/\.([a-z0-9]{2,5})$/i)); return m?m[1].toLowerCase():"link";};
+
+function detailHTML(a){
+  const r = RAW[a.n];
+  const g = k => r && r[k] ? r[k] : "";
+  let h = "";
+  if(r){
+    const cc = g("Country"), props = [
+      ["Country", COUNTRY[cc.toUpperCase()] || cc],
+      ["State / region", g("State")], ["City", g("City")],
+      ["Founded", g("Year of creation")],
+      ["TRL", (g("TRL").match(/TRL\s*\d+/i)||[""])[0]],
+      ["Full-time employees", g("Nb full-time employees")],
+      ["Revenue 2025", g("Total revenues in 2025")],
+      ["Raised to date", g("How much have you raised to date ($)")]
+    ].filter(([,v]) => v);
+    if(props.length) h += '<div class="sl-card accent"><h4>At a glance</h4><div class="sl-props">' +
+      props.map(([k,v]) => '<div><div class="sl-prop-k">'+esc(k)+'</div><div class="sl-prop-v">'+esc(v)+'</div></div>').join("") +
+      '</div></div>';
+  }
+  const links = [];
+  if(a.w) links.push(['WWW', a.w, a.w.replace(/^https?:\/\//,"").replace(/\/$/,"").slice(0,40)]);
+  FILE_ORDER.forEach(k => { const u = g(k) || (k==="Presentation deck" ? a.p : "");
+    if(u) links.push([ext(u).slice(0,4).toUpperCase(), u, LABELS[k]||k]); });
+  if(links.length) h += '<div class="sl-card"><h4>Files &amp; links</h4><div class="sl-links">' +
+    links.map(([x,u,t]) => '<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(t)+' &nearr;</a>').join("") +
+    '</div></div>';
+
+  if(!r){ return h || '<div class="sl-card"><h4>The solution</h4><div class="sl-fld"><div class="sl-fld-v">'+esc(a.d)+'</div></div></div>'; }
+
+  GROUPS.forEach(gr => {
+    const rows = gr.keys.filter(k => g(k)); if(!rows.length) return;
+    h += '<div class="sl-card themed" style="--sc:'+gr.color+'"><h4>'+esc(gr.title)+'</h4>' +
+      rows.map(k => '<div class="sl-fld"><div class="sl-fld-l">'+esc(LABELS[k]||k)+
+        '</div><div class="sl-fld-v">'+esc(g(k))+'</div></div>').join("") + '</div>';
+  });
+  return h;
+}
+
 const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 let CFG = null, ROLE = "", ME = null;
 
@@ -775,6 +946,14 @@ async function unlock(raw){
   }
   const err = new Error(other ? "wrong-tier" : "no-match");
   throw err;
+}
+function togglePw(){
+  const i=document.getElementById("gatePw"), b=document.getElementById("pwEye");
+  const show=i.type==="password";
+  i.type=show?"text":"password";
+  b.textContent=show?"Hide":"Show";
+  b.setAttribute("aria-label", show?"Hide password":"Show password");
+  i.focus();
 }
 function gateError(t){ const e=document.getElementById("gateErr");
   e.textContent=t; e.hidden=!t;
@@ -963,17 +1142,9 @@ function renderPane(){
   o.push('<span class="sl-thm c'+a.t+'">'+esc(T.name)+'</span>');
   o.push('<h2>'+esc(a.n)+'</h2>');
   o.push('<p class="sl-blurb">'+esc(a.d)+'</p>');
-  o.push('<div class="sl-links">'+
-    (a.w?'<a href="'+esc(a.w)+'" target="_blank" rel="noopener">Website &nearr;</a>':'')+
-    (a.p?'<a href="'+esc(a.p)+'" target="_blank" rel="noopener">Presentation deck &nearr;</a>':'')+
-    '</div>');
+  o.push(detailHTML(a));
 
-  o.push('<div class="sl-guide"><div class="sl-gh">What to weigh</div>'+
-    '<div class="sl-gr"><b>Theme Relevance</b><span>The startup addresses the challenge theme and a major industry problem.</span></div>'+
-    '<div class="sl-gr"><b>Innovation &amp; Differentiation</b><span>The solution is unique, compelling and differentiated from the alternatives.</span></div>'+
-    '<div class="sl-gr"><b>Collaboration Potential</b><span>There is value to create together through pilots, partnerships, customer engagement or ecosystem collaboration.</span></div>'+
-    '</div>');
-
+  /* the verdict comes first: decide, then say why */
   o.push('<div class="sl-vrd">'+
     '<button type="button" id="vYes" class="'+(v.verdict==="Proceed"?"on yes":"")+'"'+(full?" disabled":"")+'>'+
       'Proceed<small>'+(full?'You already have three for this theme':'One of your three for this theme')+'</small></button>'+
@@ -981,23 +1152,40 @@ function renderPane(){
       'Do not proceed<small>Not among your three</small></button>'+
     '</div>');
 
+  const crit = (n, d, q, id, val) =>
+    '<div class="sl-crit"><div class="sl-crit-n">'+n+'</div><div class="sl-crit-d">'+d+'</div>'+
+    field(id, q, true, "", val)+'</div>';
+
   if(v.verdict === "Proceed"){
     o.push('<div class="sl-qa">'+
-      field("q_solves","What industry challenge or customer pain point does this startup solve particularly well?",true,"",v.q_solves)+
-      field("q_stands_out","What stands out most about this startup&rsquo;s approach?",true,"",v.q_stands_out)+
-      field("q_pilot","If you could work with this startup tomorrow, what pilot or use case would you want to explore together?",true,"",v.q_pilot)+
+      crit("Theme Relevance",
+           "The startup addresses the challenge theme and a major industry problem.",
+           "What industry challenge or customer pain point does this startup solve particularly well?",
+           "q_solves", v.q_solves)+
+      crit("Innovation &amp; Differentiation",
+           "The solution is unique, compelling and differentiated from the alternatives.",
+           "What stands out most about this startup&rsquo;s approach?",
+           "q_stands_out", v.q_stands_out)+
+      crit("Collaboration Potential",
+           "There is value to create together through pilots, partnerships, customer engagement or ecosystem collaboration.",
+           "If you could work with this startup tomorrow, what pilot or use case would you want to explore together?",
+           "q_pilot", v.q_pilot)+
+      '<div class="sl-crit">'+
       field("note","Anything else?",false,"Optional. For example: a specific person or team at your company they should meet, a competitor you&rsquo;ve already looked at, a reason your view might change after the pitch, something you noticed in the deck that doesn&rsquo;t fit the questions above, or a conflict of interest we should know about.",v.note)+
-      '</div>');
+      '</div></div>');
   }else if(v.verdict === "Do not proceed"){
     const pick = x => '<button type="button" data-out="'+x+'" class="'+(v.q_outside===x?"on":"")+'">'+x+'</button>';
     o.push('<div class="sl-qa">'+
+      '<div class="sl-crit">'+
       field("q_reason","What&rsquo;s the main reason this one didn&rsquo;t make your three?",true,
             "A word or two is enough &mdash; &ldquo;too early&rdquo;, &ldquo;not our use case&rdquo;, &ldquo;crowded space&rdquo;.",v.q_reason)+
-      '<div><label>Would you want to work with this startup outside the Challenge, even if they didn&rsquo;t fit this specific theme?<span class="sl-req">required</span></label>'+
+      '</div><div class="sl-crit">'+
+      '<label>Would you want to work with this startup outside the Challenge, even if they didn&rsquo;t fit this specific theme?<span class="sl-req">required</span></label>'+
       '<div class="sl-pick">'+pick("Yes")+pick("No")+pick("Maybe")+'</div>'+
-      '<textarea id="q_outside_why" data-k="q_outside_why" placeholder="A line on why.">'+esc(v.q_outside_why||"")+'</textarea></div>'+
+      '<textarea id="q_outside_why" data-k="q_outside_why" placeholder="A line on why.">'+esc(v.q_outside_why||"")+'</textarea>'+
+      '</div><div class="sl-crit">'+
       field("note","Anything else?",false,"Optional. For example: a specific person or team at your company they should meet, a competitor you&rsquo;ve already looked at, a reason your view might change after the pitch, something you noticed in the deck that doesn&rsquo;t fit the questions above, or a conflict of interest we should know about.",v.note)+
-      '</div>');
+      '</div></div>');
   }
 
   const list = scopeApps(), i = list.findIndex(x => x.n === CUR);
@@ -1005,6 +1193,7 @@ function renderPane(){
     '<div class="sl-st'+(answered(a)?"":" sl-warn")+'" id="st">'+
       (!v.verdict ? "Choose Proceed or Do not proceed."
         : answered(a) ? "Saved." : "Answer the questions above to finish this one.")+'</div>'+
+    (v.verdict?'<button type="button" class="sl-navb" id="saveBtn">Save</button>':'')+
     (i>0?'<button type="button" class="sl-navb" id="prev">&larr; Previous</button>':'')+
     (i<list.length-1?'<button type="button" class="sl-navb" id="next">Next &rarr;</button>':'')+
     '</div>');
@@ -1021,9 +1210,30 @@ function renderPane(){
   $("pane").querySelectorAll("[data-out]").forEach(b => {
     b.onclick = () => { touch(a.n, "q_outside", b.dataset.out); renderPane(); renderList(); renderQuota(); flush(a.n); };
   });
+  if($("saveBtn")) $("saveBtn").onclick = async e => {
+    const btn = e.currentTarget; btn.textContent = "Saving…"; btn.disabled = true;
+    await flush(a.n);
+    btn.textContent = answered(a) ? "Saved ✓" : "Save";
+    btn.disabled = false;
+    setTimeout(() => { if($("saveBtn")) $("saveBtn").textContent = "Save"; }, 2600);
+  };
   if($("prev")) $("prev").onclick = () => { CUR = list[i-1].n; renderAll(); };
   if($("next")) $("next").onclick = () => { CUR = list[i+1].n; renderAll(); };
+  renderListHead();
   if(allAnswered() && quotasMet() && ROLE === "reviewer") showFinish();
+}
+
+/* the list of names folds away so the application has the full width */
+let LISTOPEN = window.innerWidth > 980;
+function renderListHead(){
+  const list = scopeApps(), done = list.filter(answered).length;
+  $("lstHead").innerHTML =
+    '<button type="button" id="lstTog">'+(LISTOPEN?"Hide list":"Show list")+'</button>'+
+    '<span class="cur">'+esc(CUR||"")+'</span>'+
+    '<span class="pr">'+done+'/'+list.length+'</span>';
+  $("lstTog").onclick = () => { LISTOPEN = !LISTOPEN;
+    $("split").classList.toggle("solo", !LISTOPEN); renderListHead(); };
+  $("split").classList.toggle("solo", !LISTOPEN);
 }
 
 function showFinish(){
@@ -1074,7 +1284,7 @@ async function finish(){
   renderDone();
 }
 function renderDone(){
-  $("split").hidden = true; $("quota").hidden = true;
+  $("split").hidden = true; $("quota").hidden = true; $("lstHead").hidden = true;
   const picks = themesInScope().map(t =>
     '<p><b>' + esc(THEMES[t-1].name) + '</b><br>' +
     APPS.filter(a => a.t===t && (VOTES[a.n]||{}).verdict==="Proceed").map(a => esc(a.n)).join(" &middot; ") +
@@ -1086,7 +1296,7 @@ function renderDone(){
     '<div style="margin:26px auto 0;max-width:44ch;text-align:left">' + picks + '</div>' +
     '<p style="margin-top:26px"><button type="button" class="sl-navb" onclick="reopen()">Review my answers again</button></p>';
 }
-function reopen(){ SENT = false; lsSave(); $("doneView").hidden = true; $("split").hidden = false; renderAll(); }
+function reopen(){ SENT = false; lsSave(); $("doneView").hidden = true; $("split").hidden = false; $("lstHead").hidden = false; renderAll(); }
 
 function renderAll(){ renderQuota(); renderList(); renderPane(); }
 
@@ -1096,10 +1306,11 @@ $("lst").addEventListener("click", e => {
   if(window.innerWidth <= 980) $("pane").scrollIntoView({behavior:"smooth", block:"start"});
 });
 
-function start(){
+async function start(){
   lsLoad();
+  try{ await loadSheet(); }catch(e){}
   if(ROLE === "admin") $("adminBanner").hidden = false;
-  $("split").hidden = false;
+  $("split").hidden = false; $("lstHead").hidden = false;
   CUR = (scopeApps().find(a => !answered(a)) || scopeApps()[0]).n;
   if(SENT && ROLE === "reviewer") renderDone(); else renderAll();
 }
