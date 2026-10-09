@@ -416,104 +416,104 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 
 
 /* ---------- shortlist ---------- */
-.quota{position:sticky;top:0;z-index:40;background:var(--navy-deep);color:#fff;
+.sl-quota{position:sticky;top:0;z-index:40;background:var(--navy-deep);color:#fff;
   padding:10px 0;box-shadow:0 1px 0 rgba(255,255,255,.08)}
-.quota-in{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.qbadge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);
+.sl-quota-in{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sl-qbadge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.14);border-radius:var(--r);padding:6px 11px;font-size:12px}
-.qbadge b{font-weight:600;color:#fff}
-.qbadge .n{font-family:"IBM Plex Mono",monospace;font-weight:600;letter-spacing:.03em}
-.qbadge.full{background:rgba(46,180,120,.18);border-color:rgba(46,180,120,.45)}
-.qbadge .dot{width:7px;height:7px;border-radius:50%}
-.qbadge.c1 .dot{background:var(--t1)} .qbadge.c2 .dot{background:var(--t2)}
-.qbadge.c3 .dot{background:var(--t3)}
-.quota .spacer{flex:1}
-.quota .who{font-size:12px;color:#9FB6CF}
-.quota .who b{color:#fff;font-weight:600}
+.sl-qbadge b{font-weight:600;color:#fff}
+.sl-qbadge .n{font-family:"IBM Plex Mono",monospace;font-weight:600;letter-spacing:.03em}
+.sl-qbadge.full{background:rgba(46,180,120,.18);border-color:rgba(46,180,120,.45)}
+.sl-qbadge .dot{width:7px;height:7px;border-radius:50%}
+.sl-qbadge.c1 .dot{background:var(--t1)} .sl-qbadge.c2 .dot{background:var(--t2)}
+.sl-qbadge.c3 .dot{background:var(--t3)}
+.sl-quota .sl-spacer{flex:1}
+.sl-quota .sl-who{font-size:12px;color:#9FB6CF}
+.sl-quota .sl-who b{color:#fff;font-weight:600}
 
-.split{display:grid;grid-template-columns:330px 1fr;gap:20px;align-items:start;padding:20px 0 60px}
-@media(max-width:980px){.split{grid-template-columns:1fr}}
-.lst{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+.sl-split{display:grid;grid-template-columns:330px 1fr;gap:20px;align-items:start;padding:20px 0 60px}
+@media(max-width:980px){.sl-split{grid-template-columns:1fr}}
+.sl-lst{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
   position:sticky;top:60px;max-height:calc(100vh - 80px);overflow-y:auto}
-@media(max-width:980px){.lst{position:static;max-height:none}}
-.lst h3{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--slate);
+@media(max-width:980px){.sl-lst{position:static;max-height:none}}
+.sl-lst h3{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--slate);
   padding:12px 14px 8px;font-weight:700;border-top:1px solid var(--line);background:var(--paper)}
-.lst h3:first-child{border-top:0}
-.row{display:flex;align-items:center;gap:9px;width:100%;border:0;background:none;
+.sl-lst h3:first-child{border-top:0}
+.sl-row{display:flex;align-items:center;gap:9px;width:100%;border:0;background:none;
   padding:9px 14px;text-align:left;font-size:13px;border-top:1px solid #F0F3F7}
-.row:hover{background:var(--paper)}
-.row.on{background:var(--orange-soft);box-shadow:inset 3px 0 0 var(--orange)}
-.row .mk{width:17px;height:17px;border-radius:50%;border:1.5px solid #CBD5E0;flex:none;
+.sl-row:hover{background:var(--paper)}
+.sl-row.on{background:var(--orange-soft);box-shadow:inset 3px 0 0 var(--orange)}
+.sl-row .sl-mk{width:17px;height:17px;border-radius:50%;border:1.5px solid #CBD5E0;flex:none;
   display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
-.row .mk.yes{background:#2EA86F;border-color:#2EA86F}
-.row .mk.no{background:#C0CAD6;border-color:#C0CAD6}
-.row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-row .sl-mk.yes{background:#2EA86F;border-color:#2EA86F}
+.sl-row .sl-mk.no{background:#C0CAD6;border-color:#C0CAD6}
+.sl-row .sl-nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.pane{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:24px 26px 28px}
-.pane .thm{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+.sl-pane{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:24px 26px 28px}
+.sl-pane .sl-thm{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
   letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:2px}
-.pane .thm.c1{background:var(--t1-soft);color:#B4471A}
-.pane .thm.c2{background:var(--t2-soft);color:#17705F}
-.pane .thm.c3{background:var(--t3-soft);color:#4B43A8}
-.pane h2{font-size:23px;font-weight:800;margin:10px 0 0}
-.pane .blurb{color:#33485E;margin:10px 0 0;max-width:72ch}
-.links{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
-.links a{font-size:12.5px;font-weight:600;text-decoration:none;color:var(--navy);
+.sl-pane .sl-thm.c1{background:var(--t1-soft);color:#B4471A}
+.sl-pane .sl-thm.c2{background:var(--t2-soft);color:#17705F}
+.sl-pane .sl-thm.c3{background:var(--t3-soft);color:#4B43A8}
+.sl-pane h2{font-size:23px;font-weight:800;margin:10px 0 0}
+.sl-pane .sl-blurb{color:#33485E;margin:10px 0 0;max-width:72ch}
+.sl-links{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+.sl-links a{font-size:12.5px;font-weight:600;text-decoration:none;color:var(--navy);
   border:1px solid var(--line);border-radius:var(--r);padding:6px 12px;background:var(--paper)}
-.links a:hover{border-color:var(--navy-mid);background:#fff}
+.sl-links a:hover{border-color:var(--navy-mid);background:#fff}
 
-.guide{margin:22px 0 0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.guide .gh{background:var(--paper);padding:8px 13px;font-size:11px;font-weight:700;
+.sl-guide{margin:22px 0 0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.sl-guide .sl-gh{background:var(--paper);padding:8px 13px;font-size:11px;font-weight:700;
   letter-spacing:.08em;text-transform:uppercase;color:var(--slate)}
-.guide .gr{display:grid;grid-template-columns:220px 1fr;gap:14px;padding:9px 13px;
+.sl-guide .sl-gr{display:grid;grid-template-columns:220px 1fr;gap:14px;padding:9px 13px;
   border-top:1px solid var(--line);font-size:12.5px}
-.guide .gr b{font-weight:600}
-.guide .gr span{color:#4A5F74}
-@media(max-width:620px){.guide .gr{grid-template-columns:1fr;gap:2px}}
+.sl-guide .sl-gr b{font-weight:600}
+.sl-guide .sl-gr span{color:#4A5F74}
+@media(max-width:620px){.sl-guide .sl-gr{grid-template-columns:1fr;gap:2px}}
 
-.vrd{display:flex;gap:10px;margin:24px 0 0;flex-wrap:wrap}
-.vrd button{flex:1;min-width:190px;border:1.5px solid var(--line);background:#fff;border-radius:var(--r);
+.sl-vrd{display:flex;gap:10px;margin:24px 0 0;flex-wrap:wrap}
+.sl-vrd button{flex:1;min-width:190px;border:1.5px solid var(--line);background:#fff;border-radius:var(--r);
   padding:14px 16px;font-size:14px;font-weight:700;color:var(--ink);text-align:left;line-height:1.3}
-.vrd button small{display:block;font-weight:400;font-size:11.5px;color:var(--slate);margin-top:3px}
-.vrd button:hover{border-color:var(--navy-mid)}
-.vrd button.on.yes{border-color:#2EA86F;background:#EDF8F2;color:#15603F}
-.vrd button.on.no{border-color:#8795A6;background:var(--paper)}
-.vrd button:disabled{opacity:.45;cursor:not-allowed}
+.sl-vrd button small{display:block;font-weight:400;font-size:11.5px;color:var(--slate);margin-top:3px}
+.sl-vrd button:hover{border-color:var(--navy-mid)}
+.sl-vrd button.on.yes{border-color:#2EA86F;background:#EDF8F2;color:#15603F}
+.sl-vrd button.on.no{border-color:#8795A6;background:var(--paper)}
+.sl-vrd button:disabled{opacity:.45;cursor:not-allowed}
 
-.qa{margin:22px 0 0;display:flex;flex-direction:column;gap:18px}
-.qa label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
-.qa .req{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+.sl-qa{margin:22px 0 0;display:flex;flex-direction:column;gap:18px}
+.sl-qa label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.sl-qa .sl-req{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
   color:var(--orange);margin-left:7px}
-.qa .optl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+.sl-qa .sl-optl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
   color:var(--slate);margin-left:7px}
-.qa .eg{font-size:11.5px;color:var(--slate);font-style:italic;margin:-3px 0 6px;line-height:1.45}
-.qa textarea{width:100%;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;
+.sl-qa .sl-eg{font-size:11.5px;color:var(--slate);font-style:italic;margin:-3px 0 6px;line-height:1.45}
+.sl-qa textarea{width:100%;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;
   font-family:inherit;font-size:13.5px;line-height:1.5;resize:vertical;min-height:62px;color:var(--ink)}
-.qa textarea:focus{border-color:var(--orange);outline:none}
-.pick{display:flex;gap:8px;margin-bottom:8px}
-.pick button{border:1px solid var(--line);background:#fff;border-radius:var(--r);
+.sl-qa textarea:focus{border-color:var(--orange);outline:none}
+.sl-pick{display:flex;gap:8px;margin-bottom:8px}
+.sl-pick button{border:1px solid var(--line);background:#fff;border-radius:var(--r);
   padding:7px 16px;font-size:12.5px;font-weight:600;color:var(--ink)}
-.pick button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.sl-pick button.on{background:var(--navy);border-color:var(--navy);color:#fff}
 
-.foot{display:flex;align-items:center;gap:14px;margin:26px 0 0;padding-top:18px;
+.sl-foot{display:flex;align-items:center;gap:14px;margin:26px 0 0;padding-top:18px;
   border-top:1px solid var(--line);flex-wrap:wrap}
-.foot .st{font-size:12.5px;color:var(--slate);flex:1;min-width:180px}
-.foot .st.warn{color:#C2410C}
-.savebtn{background:var(--orange);border:0;color:#fff;border-radius:var(--r);
+.sl-foot .sl-st{font-size:12.5px;color:var(--slate);flex:1;min-width:180px}
+.sl-foot .sl-st.sl-warn{color:#C2410C}
+.sl-savebtn{background:var(--orange);border:0;color:#fff;border-radius:var(--r);
   padding:11px 24px;font-size:13.5px;font-weight:700}
-.savebtn:disabled{background:#C7D1DC;cursor:not-allowed}
-.navb{background:#fff;border:1px solid var(--line);color:var(--navy);border-radius:var(--r);
+.sl-savebtn:disabled{background:#C7D1DC;cursor:not-allowed}
+.sl-navb{background:#fff;border:1px solid var(--line);color:var(--navy);border-radius:var(--r);
   padding:11px 18px;font-size:13px;font-weight:600}
 
-.banner{background:#FFF4E6;border:1px solid #F7C892;border-radius:var(--r);
+.sl-banner{background:#FFF4E6;border:1px solid #F7C892;border-radius:var(--r);
   padding:11px 15px;font-size:12.5px;color:#8A4B10;margin:18px 0 0}
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:150;
+.sl-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:150;
   background:var(--navy-deep);color:#fff;padding:11px 20px;border-radius:var(--r);
   font-size:13px;box-shadow:0 6px 24px rgba(16,30,46,.3);max-width:88vw}
-.toast[hidden]{display:none !important}
-.done{text-align:center;padding:70px 20px}
-.done h2{font-size:26px;font-weight:800}
-.done p{color:var(--slate);margin:12px auto 0;max-width:46ch}
+.sl-toast[hidden]{display:none !important}
+.sl-done{text-align:center;padding:70px 20px}
+.sl-done h2{font-size:26px;font-weight:800}
+.sl-done p{color:var(--slate);margin:12px auto 0;max-width:46ch}
 
 </style>
 </head>
@@ -556,27 +556,28 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
     </div>
     <div class="hdr-right">
       <nav class="nav">
-      <a href="index.html">Dashboard</a>
-      <a href="shortlist.html" class="on">Short list</a>
-      <a href="admin.html">Admin</a>
-    </nav>
+        <a href="index.html">Dashboard</a>
+        <a href="midlist.html">Mid list</a>
+        <a href="shortlist.html" class="on">Short list</a>
+        <a href="admin.html">Admin</a>
+      </nav>
     </div>
   </div>
 </header>
 
-<div class="quota" id="quota" hidden><div class="wrap quota-in" id="quotaIn"></div></div>
+<div class="sl-quota" id="quota" hidden><div class="wrap sl-quota-in" id="quotaIn"></div></div>
 
 <div class="wrap">
-  <div class="banner" id="adminBanner" hidden>Admin preview &mdash; you can read every theme,
+  <div class="sl-banner" id="adminBanner" hidden>Admin preview &mdash; you can read every theme,
     but nothing you click here is saved as a vote.</div>
-  <div class="split" id="split" hidden>
-    <div class="lst" id="lst"></div>
-    <div class="pane" id="pane"></div>
+  <div class="sl-split" id="split" hidden>
+    <div class="sl-lst" id="lst"></div>
+    <div class="sl-pane" id="pane"></div>
   </div>
-  <div class="done" id="doneView" hidden></div>
+  <div class="sl-done" id="doneView" hidden></div>
 </div>
 
-<div class="toast" id="toast" hidden></div>
+<div class="sl-toast" id="toast" hidden></div>
 
 <script>
 /* ──────────────────────────────────────────────────────────────────
@@ -587,7 +588,7 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
    Regenerate the blocks by opening this page with #rekey.
    ────────────────────────────────────────────────────────────────── */
 const VAULTS = [
-  {role:"partner", v:1, it:250000,
+{role:"partner", v:1, it:250000,
    salt:"+ZZ7BeM6wJDhk31s+zebdQ==",
    iv:"6WbxFP25iEhCT4fh",
    ct:"SLdP2NyaCB8unlVHock8yrMazy7jx3pYd2GC76oyCJazLzOtb6Wv1Fxd2cIL0CfywUSAtgVdUYh3i09A1RVecfsR9MqmoxkG/9K2b+h1f/8uv5F/fqh+dzZyzfVdmUthu4ZAEcEmPHmBvCQytg6IHLyQ/QZrasf6xEGgNCyOFNvUscxS5465yCZkQWxKaczAqAFE5q+VbeiP9IMGJB41VOg0Ijk+LrtPtLcp/akGGVlIwxWwFMQfFVK04WhfwWC+DA45qB/HuhERRfSCGTTpw6LxWLMUHVq1DgnjxZ6sXozmXLfTuYlhGbnc7CqN9LTdtqOgFwK8KlspvmInggQSChQtoMJxTSGSqbNLKQ=="},
@@ -919,12 +920,12 @@ function renderQuota(){
   $("quota").hidden = false;
   const parts = themesInScope().map(t => {
     const T = THEMES[t-1], c = chosen(t);
-    return '<div class="qbadge c'+t+(c===3?" full":"")+'"><span class="dot"></span>'+
+    return '<div class="sl-qbadge c'+t+(c===3?" full":"")+'"><span class="dot"></span>'+
       '<b>'+esc(T.name)+'</b><span class="n">'+c+'/3</span></div>';
   });
   const tot = scopeApps().filter(answered).length;
-  parts.push('<div class="spacer"></div>');
-  parts.push('<div class="who">'+esc(ME.name)+' &middot; <b>'+tot+'/'+scopeApps().length+'</b> reviewed</div>');
+  parts.push('<div class="sl-spacer"></div>');
+  parts.push('<div class="sl-who">'+esc(ME.name)+' &middot; <b>'+tot+'/'+scopeApps().length+'</b> reviewed</div>');
   $("quotaIn").innerHTML = parts.join("");
 }
 
@@ -934,12 +935,12 @@ function renderList(){
     out.push('<h3>'+esc(THEMES[t-1].name)+'</h3>');
     APPS.filter(a => a.t === t).forEach(a => {
       const v = VOTES[a.n], ok = answered(a);
-      const mk = !v || !v.verdict ? '<span class="mk"></span>'
-        : v.verdict === "Proceed" ? '<span class="mk yes">&#10003;</span>'
-        : '<span class="mk no"></span>';
-      out.push('<button type="button" class="row'+(CUR===a.n?" on":"")+'" data-n="'+esc(a.n)+'">'+
-        mk+'<span class="nm">'+esc(a.n)+'</span>'+
-        (v && v.verdict && !ok ? '<span class="req" style="font-size:10px;color:#C2410C">unfinished</span>' : '')+
+      const mk = !v || !v.verdict ? '<span class="sl-mk"></span>'
+        : v.verdict === "Proceed" ? '<span class="sl-mk yes">&#10003;</span>'
+        : '<span class="sl-mk no"></span>';
+      out.push('<button type="button" class="sl-row'+(CUR===a.n?" on":"")+'" data-n="'+esc(a.n)+'">'+
+        mk+'<span class="sl-nm">'+esc(a.n)+'</span>'+
+        (v && v.verdict && !ok ? '<span class="sl-req" style="font-size:10px;color:#C2410C">unfinished</span>' : '')+
         '</button>');
     });
   }
@@ -948,8 +949,8 @@ function renderList(){
 
 function field(id, label, req, eg, val){
   return '<div><label for="'+id+'">'+label+
-    (req?'<span class="req">required</span>':'<span class="optl">optional</span>')+'</label>'+
-    (eg?'<div class="eg">'+eg+'</div>':'')+
+    (req?'<span class="sl-req">required</span>':'<span class="sl-optl">optional</span>')+'</label>'+
+    (eg?'<div class="sl-eg">'+eg+'</div>':'')+
     '<textarea id="'+id+'" data-k="'+id+'">'+esc(val||"")+'</textarea></div>';
 }
 
@@ -959,21 +960,21 @@ function renderPane(){
   const T = THEMES[a.t-1];
   const full = chosen(a.t) >= 3 && v.verdict !== "Proceed";
   const o = [];
-  o.push('<span class="thm c'+a.t+'">'+esc(T.name)+'</span>');
+  o.push('<span class="sl-thm c'+a.t+'">'+esc(T.name)+'</span>');
   o.push('<h2>'+esc(a.n)+'</h2>');
-  o.push('<p class="blurb">'+esc(a.d)+'</p>');
-  o.push('<div class="links">'+
+  o.push('<p class="sl-blurb">'+esc(a.d)+'</p>');
+  o.push('<div class="sl-links">'+
     (a.w?'<a href="'+esc(a.w)+'" target="_blank" rel="noopener">Website &nearr;</a>':'')+
     (a.p?'<a href="'+esc(a.p)+'" target="_blank" rel="noopener">Presentation deck &nearr;</a>':'')+
     '</div>');
 
-  o.push('<div class="guide"><div class="gh">What to weigh</div>'+
-    '<div class="gr"><b>Theme Relevance</b><span>The startup addresses the challenge theme and a major industry problem.</span></div>'+
-    '<div class="gr"><b>Innovation &amp; Differentiation</b><span>The solution is unique, compelling and differentiated from the alternatives.</span></div>'+
-    '<div class="gr"><b>Collaboration Potential</b><span>There is value to create together through pilots, partnerships, customer engagement or ecosystem collaboration.</span></div>'+
+  o.push('<div class="sl-guide"><div class="sl-gh">What to weigh</div>'+
+    '<div class="sl-gr"><b>Theme Relevance</b><span>The startup addresses the challenge theme and a major industry problem.</span></div>'+
+    '<div class="sl-gr"><b>Innovation &amp; Differentiation</b><span>The solution is unique, compelling and differentiated from the alternatives.</span></div>'+
+    '<div class="sl-gr"><b>Collaboration Potential</b><span>There is value to create together through pilots, partnerships, customer engagement or ecosystem collaboration.</span></div>'+
     '</div>');
 
-  o.push('<div class="vrd">'+
+  o.push('<div class="sl-vrd">'+
     '<button type="button" id="vYes" class="'+(v.verdict==="Proceed"?"on yes":"")+'"'+(full?" disabled":"")+'>'+
       'Proceed<small>'+(full?'You already have three for this theme':'One of your three for this theme')+'</small></button>'+
     '<button type="button" id="vNo" class="'+(v.verdict==="Do not proceed"?"on no":"")+'">'+
@@ -981,7 +982,7 @@ function renderPane(){
     '</div>');
 
   if(v.verdict === "Proceed"){
-    o.push('<div class="qa">'+
+    o.push('<div class="sl-qa">'+
       field("q_solves","What industry challenge or customer pain point does this startup solve particularly well?",true,"",v.q_solves)+
       field("q_stands_out","What stands out most about this startup&rsquo;s approach?",true,"",v.q_stands_out)+
       field("q_pilot","If you could work with this startup tomorrow, what pilot or use case would you want to explore together?",true,"",v.q_pilot)+
@@ -989,23 +990,23 @@ function renderPane(){
       '</div>');
   }else if(v.verdict === "Do not proceed"){
     const pick = x => '<button type="button" data-out="'+x+'" class="'+(v.q_outside===x?"on":"")+'">'+x+'</button>';
-    o.push('<div class="qa">'+
+    o.push('<div class="sl-qa">'+
       field("q_reason","What&rsquo;s the main reason this one didn&rsquo;t make your three?",true,
             "A word or two is enough &mdash; &ldquo;too early&rdquo;, &ldquo;not our use case&rdquo;, &ldquo;crowded space&rdquo;.",v.q_reason)+
-      '<div><label>Would you want to work with this startup outside the Challenge, even if they didn&rsquo;t fit this specific theme?<span class="req">required</span></label>'+
-      '<div class="pick">'+pick("Yes")+pick("No")+pick("Maybe")+'</div>'+
+      '<div><label>Would you want to work with this startup outside the Challenge, even if they didn&rsquo;t fit this specific theme?<span class="sl-req">required</span></label>'+
+      '<div class="sl-pick">'+pick("Yes")+pick("No")+pick("Maybe")+'</div>'+
       '<textarea id="q_outside_why" data-k="q_outside_why" placeholder="A line on why.">'+esc(v.q_outside_why||"")+'</textarea></div>'+
       field("note","Anything else?",false,"Optional. For example: a specific person or team at your company they should meet, a competitor you&rsquo;ve already looked at, a reason your view might change after the pitch, something you noticed in the deck that doesn&rsquo;t fit the questions above, or a conflict of interest we should know about.",v.note)+
       '</div>');
   }
 
   const list = scopeApps(), i = list.findIndex(x => x.n === CUR);
-  o.push('<div class="foot">'+
-    '<div class="st'+(answered(a)?"":" warn")+'" id="st">'+
+  o.push('<div class="sl-foot">'+
+    '<div class="sl-st'+(answered(a)?"":" sl-warn")+'" id="st">'+
       (!v.verdict ? "Choose Proceed or Do not proceed."
         : answered(a) ? "Saved." : "Answer the questions above to finish this one.")+'</div>'+
-    (i>0?'<button type="button" class="navb" id="prev">&larr; Previous</button>':'')+
-    (i<list.length-1?'<button type="button" class="navb" id="next">Next &rarr;</button>':'')+
+    (i>0?'<button type="button" class="sl-navb" id="prev">&larr; Previous</button>':'')+
+    (i<list.length-1?'<button type="button" class="sl-navb" id="next">Next &rarr;</button>':'')+
     '</div>');
 
   $("pane").innerHTML = o.join("");
@@ -1026,10 +1027,10 @@ function renderPane(){
 }
 
 function showFinish(){
-  const f = $("pane").querySelector(".foot");
-  if(!f || f.querySelector(".savebtn")) return;
+  const f = $("pane").querySelector(".sl-foot");
+  if(!f || f.querySelector(".sl-savebtn")) return;
   const b = document.createElement("button");
-  b.className = "savebtn"; b.textContent = SENT ? "Submitted" : "Submit my selection";
+  b.className = "sl-savebtn"; b.textContent = SENT ? "Submitted" : "Submit my selection";
   b.disabled = SENT; b.onclick = finish;
   f.appendChild(b);
 }
@@ -1048,7 +1049,7 @@ function setVerdict(x){
 function touch(n, k, val){ const v = VOTES[n] || (VOTES[n] = {}); v[k] = val; lsSave();
   const a = APPS.find(x => x.n === n); const st = $("st");
   if(st){ const ok = answered(a); st.textContent = ok ? "Saved." : "Answer the questions above to finish this one.";
-    st.className = "st" + (ok ? "" : " warn"); }
+    st.className = "sl-st" + (ok ? "" : " sl-warn"); }
   if(answered(a) && allAnswered() && quotasMet() && ROLE === "reviewer") showFinish();
 }
 async function flush(n){
@@ -1083,14 +1084,14 @@ function renderDone(){
     '<p>These are the ones you put through. The nine finalists are decided together at the ' +
     'selection meeting; you can come back and change anything here until then.</p>' +
     '<div style="margin:26px auto 0;max-width:44ch;text-align:left">' + picks + '</div>' +
-    '<p style="margin-top:26px"><button type="button" class="navb" onclick="reopen()">Review my answers again</button></p>';
+    '<p style="margin-top:26px"><button type="button" class="sl-navb" onclick="reopen()">Review my answers again</button></p>';
 }
 function reopen(){ SENT = false; lsSave(); $("doneView").hidden = true; $("split").hidden = false; renderAll(); }
 
 function renderAll(){ renderQuota(); renderList(); renderPane(); }
 
 $("lst").addEventListener("click", e => {
-  const b = e.target.closest(".row"); if(!b) return;
+  const b = e.target.closest(".sl-row"); if(!b) return;
   CUR = b.dataset.n; renderAll();
   if(window.innerWidth <= 980) $("pane").scrollIntoView({behavior:"smooth", block:"start"});
 });
