@@ -424,6 +424,42 @@ footer{padding:34px 0 44px;color:var(--slate);font-size:11.5px;text-align:center
 .stagesw button{border:0;background:transparent;color:#C6D6E8;border-radius:20px;padding:6px 15px;
   font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer}
 .stagesw button.on{background:#fff;color:var(--navy)}
+
+/* ---------- short list vote ---------- */
+.svh{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-size:14px;
+  font-weight:700;color:var(--navy);margin:26px 0 10px}
+.svh .svh-n{font-family:Inter,sans-serif;font-size:11.5px;font-weight:500;color:var(--slate)}
+.sdot{width:9px;height:9px;border-radius:50%}
+.sdot.c1{background:var(--t1)} .sdot.c2{background:var(--t2)} .sdot.c3{background:var(--t3)}
+.srow{display:flex;gap:14px;background:#fff;border:1px solid var(--line);border-radius:8px;
+  padding:11px 14px;margin-bottom:6px;cursor:pointer;align-items:flex-start}
+.srow:hover{border-color:var(--navy-mid)}
+.srow.cut{border-left:3px solid #2EA86F}
+.srow .sv{font-family:"IBM Plex Mono",monospace;font-size:21px;font-weight:600;color:var(--navy);
+  min-width:30px;text-align:center;line-height:1.2}
+.srow .sb{flex:1;min-width:0}
+.srow .sn{font-weight:600;font-size:14px}
+.stie{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:#C2410C;background:#FFF1E6;border-radius:2px;padding:2px 7px;margin-left:8px}
+.sthin{font-size:10px;font-weight:600;color:var(--slate);margin-left:8px}
+.swho{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.swho span{font-size:11px;border-radius:2px;padding:2px 7px}
+.swho .wp{background:#E7F6EE;color:#15603F}
+.swho .wc{background:var(--paper-deep);color:var(--slate)}
+.kws{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.kw{font-size:11.5px;background:var(--orange-soft);color:#A8440F;border-radius:2px;padding:2px 8px}
+.kw.no{background:var(--paper-deep);color:var(--slate)}
+.kw i{font-style:normal;font-weight:700;margin-left:4px;opacity:.65}
+.sopen{background:#fff;border:1px solid var(--line);border-top:0;border-radius:0 0 8px 8px;
+  margin:-7px 0 10px;padding:4px 16px 12px}
+.sopen .sq{margin-top:12px}
+.sopen h5{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy-mid);
+  margin:0 0 5px;font-weight:700}
+.sopen p{margin:0 0 5px;font-size:12.5px;line-height:1.55}
+.sopen p b{color:var(--navy);font-weight:600;margin-right:6px}
+.sopen p.dim{color:#4A5F74}
+.sdone{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:#15603F;background:#E7F6EE;border-radius:2px;padding:2px 7px;margin-left:6px}
 .acards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:16px}
 .acard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:15px 17px}
 .acard-k{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);font-weight:600}
@@ -561,7 +597,7 @@ tr.exp>td{background:#F7FAFE;padding:0;border-bottom:1px solid var(--line)}
     <label>Stage</label>
     <div class="stagesw">
       <button type="button" data-stage="long" class="on">Long list</button>
-      <button type="button" data-stage="mid">Mid list</button>
+      <button type="button" data-stage="short">Short list</button>
     </div>
     <span class="synctag" id="syncTag" hidden></span>
     <div class="rprog"><span id="loadNote">Loading scores…</span></div>
@@ -1561,6 +1597,8 @@ async function loadEverything(){
   const ask=n=>keys.push({k:n, s:"long"}, {k:n, s:"mid"}, {k:n+" · mid", s:"mid"});
   REVIEWERS_ALL.forEach(r=>{ const n=r.name.toLowerCase();
     ask(n); aliasKeys(n).forEach(ask); });
+  /* the short list has its own roster and its own tab */
+  SHORT_REVIEWERS.forEach(r=>keys.push({k:r.name.toLowerCase(), s:"short"}));
   const held=new Map();
   for(let i=0;i<keys.length;i+=6){
     const batch=await Promise.all(keys.slice(i,i+6).map(q=>
@@ -1710,6 +1748,221 @@ const card=(k,v,s)=>`<div class="acard"><div class="acard-k">${esc(k)}</div>
 const empty=msg=>{ $("view").innerHTML=`<div class="nodata">${msg}</div>`; $("secNote").textContent=""; };
 
 /* ── 2. coverage ── */
+
+/* ══════════════════════════════════════════════════════════════════
+   SHORT LIST
+   A different exercise from the Long list: no scores, one verdict per
+   application, and a fixed quota of three per theme. The roster, the
+   forty-five and the split by theme are the same ones shortlist.html
+   works from, repeated here so the two cannot drift apart.
+   ══════════════════════════════════════════════════════════════════ */
+const SHORT_THEMES = [
+  {name:"Autonomous Operations", group:"Group 1", cls:"t1"},
+  {name:"Site Intelligence & Planning", group:"Group 2", cls:"t2"},
+  {name:"Lifecycle Decision Intelligence", group:"Group 3", cls:"t3"}
+];
+const SHORT_REVIEWERS = [
+  {slug:"ferrovial",  name:"Ferrovial",                org:"Partner",       theme:null, alt:["luis", "amorim"]},
+  {slug:"loxam",      name:"Loxam",                    org:"Partner",       theme:null, alt:["rudnianski"]},
+  {slug:"leonard",    name:"Leonard",                  org:"Partner",       theme:null, alt:["vinci"]},
+  {slug:"crh",        name:"CRH Ventures",             org:"Partner",       theme:null, alt:["crhventures", "kavanagh"]},
+  {slug:"dumaij",     name:"Alvin Dumaij",             org:"HCME Group 1",  theme:1,    alt:["alvin"]},
+  {slug:"yadav",      name:"Monika Yadav",             org:"HCME Group 1",  theme:1,    alt:["monika"]},
+  {slug:"ottenhof",   name:"Dennis Ottenhof",          org:"HCME Group 1",  theme:1,    alt:["dennis"]},
+  {slug:"kinugawa",   name:"Norihiko Kinugawa",        org:"HCME Group 1",  theme:1,    alt:["norihiko"]},
+  {slug:"geremia",    name:"Arthur da Rocha Geremia",  org:"HCME Group 2",  theme:2,    alt:["darochageremia", "arthur", "rocha"]},
+  {slug:"besler",     name:"Burak Besler",             org:"HCME Group 2",  theme:2,    alt:["burak"]},
+  {slug:"mochizuki",  name:"Shou Mochizuki",           org:"HCME Group 2",  theme:2,    alt:["shou"]},
+  {slug:"drougkas",   name:"Bill Drougkas",            org:"HCME Group 3",  theme:3,    alt:["bill"]},
+  {slug:"gupta",      name:"Pooja Gupta",              org:"HCME Group 3",  theme:3,    alt:["pooja"]},
+  {slug:"vanvugt",    name:"Sjors van Vugt",           org:"HCME Group 3",  theme:3,    alt:["vugt", "sjors"]}
+];
+const SHORT_APPS = [
+  {"n": "Hive Autonomy", "t": 1, "d": "Hive delivers unmanned heavy machinery and intralogistics as a service. We retrofit the wheel loaders and forklifts the customer already owns and run them as supervised physical AI from our operations centers, guaranteeing 20% lower operating cost.", "w": "https://hiveautonomy.no/", "p": "https://api.typeform.com/responses/files/16520f9aa02ccb8c9cc6bc2c64751dbca64e6380ce5b6833713fedb3cb3e092f/2026_09_09_hive_introduction_deck.pdf"},
+  {"n": "Dig Robotics", "t": 1, "d": "Computer vision and AI-powered operator guidance system, ensuring earthmoving machines work along the optimal path for every excavation cycle and truck load, moving more material in less time and at a lower cost.", "w": "https://www.digrobotics.com/", "p": "https://api.typeform.com/responses/files/4adcbed744834fdcb551329d3a5a3e537d3a6a5248c54593eb27023fadcacb36/Dig_Robotics___07.2026.pdf"},
+  {"n": "IRIDESENSE", "t": 1, "d": "We empower autonomous construction machinery with material aware 3D perception. Our 3D multispectral LiDAR & Edge AI allows not only to navigate the machine autonomously but also to provide it with the face composition in a quarry or a mine.", "w": "https://iridesense.tech", "p": "https://api.typeform.com/responses/files/6e6e73175830967319976de4809bfc483b917505249c4df7aca9af1f150fd4c1/IRIDESENSE___General_pitchdeck_1_22.pdf"},
+  {"n": "Flywheel AI", "t": 1, "d": "Retrofit kit that makes any excavator, any brand, remotely operated in about two hours, cab and warranty intact. Operator data from every machine trains our physical intelligence models. End goal: orchestrated autonomy across the whole site.", "w": "https://useflywheel.ai", "p": "https://api.typeform.com/responses/files/9696bee96c1732fbd2226339fc6fc3cc4ddb664480176a36372ee9d9b0467dfb/Flywheel_AI___Hitachi_LANDCROS_2026__JTC_content__Slingshot_style_.pdf"},
+  {"n": "Spur robotics", "t": 1, "d": "Spur Robotics makes existing industrial machines autonomous, starting with wheel loaders in quarries and mining.\n\nWe build a retrofit autonomy kit that can be installed on a customer’s existing machine. The system combines perception, localization, p", "w": "https://spurrobotics.ai/", "p": "https://api.typeform.com/responses/files/01b944169c817f95e4d75b726f1c878f00ace794f287d4dfb38b8cbfa34934fa/Spur_deck_aligned_submission.pptx"},
+  {"n": "Sitegeist GmbH", "t": 1, "d": "Sitegeist builds autonomous high-pressure waterjet robots that remove and renovate concrete on live construction sites, delivered as an outcome-based service, replacing manual jackhammering with safer, faster, dust-free hydrodemolition.", "w": "https://www.sitegeist-robotics.com", "p": "https://api.typeform.com/responses/files/314a57e6c1ed90d905403f025ebd2b1639d529a4ace02371a7669c99fbb3700d/Sitegeist_Deck_Techpreneurs.pdf"},
+  {"n": "Teleworker AI", "t": 1, "d": "Teleworker AI is a Physical AI platform that connects autonomous robots, human workers, facility data, and digital twins into a unified operating environment for construction and industrial sites.", "w": "https://www.teleworker.ai", "p": "https://api.typeform.com/responses/files/8a6a04e3fe119a6a0dc73b91d26406e15e1a51e071418c2349ebe99fac8a33ad/Teleworker_Presentation.pdf"},
+  {"n": "Tupaia", "t": 1, "d": "Tupaia provides cloud-native, cm-level GNSS positioning built for mass-market adoption. By pairing standard, low-cost hardware with cloud software, we deliver accessible spatial intelligence across machinery, fleet management, GIS, IoT, and mobile.", "w": "https://www.tupaia-pos.com/", "p": "https://api.typeform.com/responses/files/b2abdbfc94fad00a98aae9911d87f7a58aac2f9a0e532e3bafef9a5bf58884e7/Tupaia___LANDCROS___Sep_2026nan.pdf"},
+  {"n": "Builder assist", "t": 1, "d": "Surface Assist: a multi-task robotic arm mounted on standard aerial work platforms (MEWPs) that automates facade work - drilling, cleaning, painting, sanding, inspection, rendering - via 3D scanning, automatic tool change and teleoperation.", "w": "http://www.builder-assist.com", "p": "https://api.typeform.com/responses/files/95241f3d28e5baf0c758b751bf67d02579d641aff29c9ef19bff2e881a1d773a/Builder_Assist_Intro_Sales_EN.pdf"},
+  {"n": "ScaliRo GmbH", "t": 1, "d": "FleetEngine: vendor-independent platform to plan, simulate and validate automated guided vehicle systems (VDA 5050, LIF). Delivered as SaaS subscription, Simulation-as-a-Service or tailored to your processes via custom plugins and development.", "w": "https://scaliro.de/", "p": "https://api.typeform.com/responses/files/84c711f7c1acadb0933bf20e378c09cd87011ceb50263c27d2fccb0f4071d2c5/ScaliRo_HCM_Challenge_Pitch.pdf"},
+  {"n": "GoodAI Robotics", "t": 1, "d": "Prometheus is a hardware-agnostic autonomy platform that enables robots and heavy machines to perceive, navigate, plan tasks and coordinate with other machines, reducing the need for continuous human supervision.", "w": "https://robotics.goodai.com/", "p": "https://api.typeform.com/responses/files/4a4a8f08a3ac3f431e5aa194d0307c16fac340a7d2977ef54261ef4cd3e69eee/GoodAI_Pitch_deck_v2.pdf"},
+  {"n": "Space 11", "t": 1, "d": "MK-11 is an edge-AI HSEQ intelligence platform: on-site sensing detects human-machine interference, restricted-area breaches and near-miss risk in real time, already proven with a major infrastructure operator.", "w": "https://space11.ai", "p": "https://api.typeform.com/responses/files/51424106d967af62903cc7fe8035e0f8cd923f8edadcb96fe22a889f9923d717/Space11_MK11_0526.pdf"},
+  {"n": "Raven Intelligent Systems", "t": 1, "d": "Raven provides Robotic Site Intelligence for complex construction: relocatable edge cameras, targeted drones and AI capture and reason over physical site evidence to improve safety, reduce manual verification, interruptions and late rework.", "w": "https://ravenisystems.com/", "p": "https://api.typeform.com/responses/files/be2455d9e345edc3a02d5d52aff507ef9617f7abac58d33a89164ddd6b6aca1c/Raven_LANDCROS_Application.pdf"},
+  {"n": "Sector88", "t": 1, "d": "Software that keeps autonomy, vision and planning models running on the computers already on a construction or mining machine and at the site. It recovers itself when the link drops and records what ran.", "w": "https://www.sector88.co/", "p": "https://api.typeform.com/responses/files/379eb59fd2522d3bbc2788e493a7a2e05cdeb21f406afa873a1aac25c1621f04/investor_deck.pdf"},
+  {"n": "Vocadian", "t": 1, "d": "Vocadian turns a 30-second speech into predictive workforce-readiness intelligence for construction, mining, and transportation, helping teams manage human-factor risk across mixed-fleet, remotely supervised, and increasingly autonomous operations", "w": "https://www.vocadian.ai", "p": "https://api.typeform.com/responses/files/5e1047fe66ebf9c14bf2aa1da9bae4f0feb34fee5432be5af7c18c97a4fe6a91/Vocadian_×_LANDCROS_deck_2026.pdf"},
+  {"n": "abaut GmbH", "t": 2, "d": "abaut provides an operating system for the infrastructure construction and raw materials industry based on Physical AI, fusing real time data from mobile machines, sensors and cameras to deliver insights, recommendations and automated process control", "w": "https://www.abaut.de", "p": "https://api.typeform.com/responses/files/8006c630953bfe19ea64313e5e097b511522b5c2396c3668f3a80771c890abb6/20260930_abaut_Pitchdeck.pdf"},
+  {"n": "BII GmbH", "t": 2, "d": "AI-powered 4D simulation software that turns existing plans, data and project descriptions into a construction sequence, generating comparable variants fast. No specialists needed, flags risks, with built-in expertise that learns your processes.", "w": "https://www.bii-gmbh.com", "p": "https://api.typeform.com/responses/files/fc435118184f8d811d83fd05bc92d6ba95aa23fd17965f9db166ec8ca15cdc47/BII_GmbH_x_HITACHI.pdf"},
+  {"n": "DigitalTwin Technology GmbH", "t": 2, "d": "Constructionware: a web-based jobsite digital twin. It fuses machine telematics, IoT and terrain/BIM data into a live 3D site model with self-calibrating simulation turning fleet, progress and safety data into decisions site managers act on daily.", "w": "https://www.digitaltwin.technology", "p": "https://api.typeform.com/responses/files/dac859a00ed543289c9b13b5a7cdf8aeacce9f3e807c2ded644355e38f79bcb9/DTT_Living_Jobsite_Hitachi_Challenge_2026.pdf"},
+  {"n": "TMS Group Europe", "t": 2, "d": "TMS Cortex is an operational-intelligence platform integrating site, mobile machines, stationary production lines and operational data in one context. Its AI Agent spots patterns and turns them into priorities, recommendations and decision support.", "w": "https://tmsgroup.eu", "p": "https://api.typeform.com/responses/files/dd5cdde151e20fe429678b3f624422fcff53ccb1dd5eb75fa9af7e70ae484037/TMS_Cortex___Site_Intelligence_for_Quarry_Operations.pdf"},
+  {"n": "EarthVisio", "t": 2, "d": "EarthVisio turns fragmented underground utility records, surveys and field data into a trusted site model, helping contractors reduce excavation risk, prevent utility strikes and make better construction decisions.", "w": "https://earthvisio.com", "p": "https://api.typeform.com/responses/files/1f3791205bb71f86cfc733ec591322af9f576922fef5b6a43c116dcdbb35758e/Confidential__EarthVisio_Intro_Aug2026.pdf"},
+  {"n": "Mela Works", "t": 2, "d": "Mela turns the jobsite into live data. Crews capture photos, voice and paperwork on mobile; our AI layer, Mela Brain, auto-classifies images, reads delivery notes and invoices, and writes daily logs, BoQs and progress certificates in seconds.", "w": "https://www.mela.work", "p": "https://api.typeform.com/responses/files/b2b28d58ec3f86fd121b79acd94d749172d81de188e5659290ad701ff4f34ecd/Mela_Works___One_Pager___EN.pdf"},
+  {"n": "Terrestra SPA", "t": 2, "d": "Altiplano is a prescriptive fleet orchestration layer for mining and earthmoving. Sitting on top of existing FMS, it uses exact optimization to schedule the whole shift, cutting queues and congestion. We don't replace your FMS: we make it optimal.", "w": "https://www.terrestra.tech", "p": "https://api.typeform.com/responses/files/b1496d37a21cf06451b5b5d082998bcf707ec471dbf34ec8d0da70796811971e/Altiplano_LANDCROS_Europe_2026_BHP_format.pdf"},
+  {"n": "Contextere", "t": 2, "d": "Contextere’s Madison is an industrial AI decision-support platform that transforms equipment, maintenance and enterprise data into trusted, context-aware recommendations that help frontline teams diagnose issues and determine next best steps.", "w": "https://contextere.com", "p": "https://api.typeform.com/responses/files/2ee14fbd90d261b13d05dab1f6b4e9fcd5a7ee2667636b2f943e62d6748a7cdb/Contextere_Corporate_Presentation___LANDCROS_Challenge_2026.pdf"},
+  {"n": "Brickanta", "t": 2, "d": "AI-native operating system for construction, deploying hundreds of AI agents tailored to construction workflows, helping society builders across Europe unify company knowledge, reduce manual paperwork, and finish projects on time and within budget.", "w": "https://brickanta.com/", "p": "https://api.typeform.com/responses/files/cfdace431c2a86e76edbafd5e37a3ed45ca197f94206c40eadef4444e7123059/Brickanta.pdf"},
+  {"n": "Ailytics", "t": 2, "d": "Ailytics empowers heavy industries to enhance safety, productivity, and operational efficiency by transforming any existing camera infrastructure into an intelligent AI-driven system. Our cutting-edge platform delivers real-time, actionable insights.", "w": "https://www.ailytics.ai/", "p": "https://api.typeform.com/responses/files/75a021f5da6de4a722e7d3a52d7c36e8dceb0606ebfa0db415ac7a120a4476e3/Ailytics_HCM_Pitch_Deck.pdf"},
+  {"n": "AVISENSE.AI Technovlastos IKE", "t": 2, "d": "Infrastructure-side cooperative perception for shared work zones: fixed cameras fused into one geo-referenced scene model that alerts operators to hazards they cannot see, explains each alert and builds a per-zone learning record.", "w": "https://avisense.ai/", "p": "https://api.typeform.com/responses/files/657e8703ff28618614e4bf6a55114b385341ed3a7d798868731c5c29d68bed5d/AviSense_pitch_deck.pdf"},
+  {"n": "Antim Labs", "t": 2, "d": "Simulation platform to generate variations of real-world edge cases and run thousands of parallel software-in-the-loop evaluations. Grounded by real-world physics data collected at our lab in San Francisco.", "w": "https://antimlabs.com", "p": "https://api.typeform.com/responses/files/0b3734554ab391efa9f008b208791434ac8b2c679de1c75a0d949454f346634d/AntimLabs_compressed.pdf"},
+  {"n": "Previsico", "t": 2, "d": "Previsico warns of flooding at site level (25m resolution) up to 48 hours ahead, giving construction teams time to protect plant, excavations and programme. Proven with Kier Group and on HS2 with Balfour Beatty VINCI.", "w": "https://www.previsico.com", "p": "https://api.typeform.com/responses/files/8f7da4493dac912c14a16d88f6be1e6163e6fe03a70dacfc484d9a09b6cc0827/Previsico_Overview_230926.pdf"},
+  {"n": "ignitia ab", "t": 2, "d": "An AI-powered site hazard & weather intelligence engine providing hyper-local, high-accuracy risk alerts via multiple channels. We enable heavy asset operators, ports (Port of Açu), and flood defense teams (NOAQ) to automate climate risk response.", "w": "https://www.ignitia.info/", "p": "https://api.typeform.com/responses/files/1fd3c3dd8d03d5a6df676aaf5ac8cf924761fc7c1616bc26c01a97b097c515cc/Ignitia_weather_and_climate_intelligence_infra_utilities.pptx.pdf"},
+  {"n": "G2Q Computing", "t": 2, "d": "G2Q develops an intelligent site planning platform that combines simulation, optimization and machine learning to test earthmoving plans before execution and dynamically re-plan fleet operations using live machine data.", "w": "https://www.g2qcomputing.com", "p": "https://api.typeform.com/responses/files/bddaeebb65c0e1c65f15252c5ce0edd3fad79534431948941bf8cfaeb3318e0f/G2Q_Hitachi_Intelligent_Site_Planning.pdf"},
+  {"n": "Synode", "t": 2, "d": "Synode turns CAD files into browser- and XR-ready 3D models that preserve component-level configuration and BOM data, giving manufacturers and dealers an accurate digital reference of equipment throughout its lifecycle.", "w": "https://synode.ai", "p": "https://api.typeform.com/responses/files/c05c8bce936b3e854a95fcb3e2a8716203aa7af954936252c412c7926f4c7a83/Synode_Deck.pdf"},
+  {"n": "Leasi", "t": 3, "d": "Leasi turns fleet data into fleet decisions. Our platform unifies telematics, maintenance and cost per machine across brands, so contractors and rental companies see live TCO and get AI recommendations on when to service, move or replace equipment.", "w": "https://www.leasi.io/en/", "p": "https://api.typeform.com/responses/files/39e1e96bff4898670b57600146d7ae16fcb65386d0392ecded488dd85821c8c3/Leasi___HCM_Landcross.pdf"},
+  {"n": "Gearflow Inc.", "t": 3, "d": "Gearflow is the AI-powered procurement platform for the fleets that build, power, and move America. The platform leverages AI to intake equipment needs from the job, instantly make the optimal decision, and have end-end visibility.", "w": "https://gearflow.com", "p": "https://api.typeform.com/responses/files/7fbed2db87d5ef4582f1514d9770f83fe2e23ffa4c7b120ef7ce9a387b050d58/Gearflow_Overview__August_2026___LP_Contact_info.pdf"},
+  {"n": "IMBU b.v.", "t": 3, "d": "RoadGuard turns every loaded truck into a road sensor: self-contained units, fitted in an hour on any brand, score every road segment for condition and slope on every pass — so graders and water trucks go where the damage is, today.", "w": "https://roadguardsolutions.com/", "p": "https://api.typeform.com/responses/files/cd156b83e6774438b5ed189da9aa91df8b7e82377cf12bc55bcc22c4ca1b3d58/RoadGuard_V2_Mining_Haul_Roads_25_02_2026.pdf"},
+  {"n": "Syswell Technology", "t": 3, "d": "Syswell builds hybrid fiber-optic and electronic sensors that continuously monitor structural fatigue and condition, giving infrastructure and heavy machinery real-time asset health data across their entire operational lifetime.", "w": "https://www.syswelltech.com/", "p": "https://api.typeform.com/responses/files/03cb27f9ce2e20c57e3528999c20ac61e6fbaa16760a93438b632458f2ab6c86/Syswell_Pitch_Deck_HeavyMachinery_v1.pdf"},
+  {"n": "M2M Tech Inc.", "t": 3, "d": "MEA runs sensing and inference on the machine itself - vibration, temperature, RPM and vision - without modifying it. Arc Vision turns those signals into cases with a named next action, work orders and verified outcomes.", "w": "https://www.m2mtechconnect.com", "p": "https://api.typeform.com/responses/files/7073f62234d4e198b51b8004c5ad09380848af84af4db905538e19908997e5aa/M2M_Tech_LANDCROS_Europe_2026_Hitachi_.pptx"},
+  {"n": "Hoppa Technologies", "t": 3, "d": "Hoppa structures the paperwork behind every machine and site – service records, inspections, warranties, contracts – in bulk and as it arrives, so fleet decisions rest on complete data. Clients include AtkinsRéalis, HS1 and Mott MacDonald.", "w": "https://hoppa.ai/", "p": "https://api.typeform.com/responses/files/70d52c287fd9e30626e5ed089c76bf1e0ea6e26b925cc947072181d30cb53150/Hoppa___Capability_Overview.pdf"},
+  {"n": "DATFID", "t": 3, "d": "DATFID is an interpretable AI decision engine that forecasts outcomes, explains their drivers and recommends actions. For heavy equipment, it supports TCO, utilization, residual value and operate/maintain/replace/resell decisions", "w": "https://datfid.com", "p": "https://api.typeform.com/responses/files/b2a1dd31740e4fa399ac5781d7b0dc0f5aa767f63d592ad51b6cf06558bb867a/DATFID_Short_Pitch_Hitachi_HCM_2026.pdf"},
+  {"n": "Konstruq", "t": 3, "d": "Konstruq connects site, equipment, schedule and cost data through a governed construction semantic layer, turning fragmented systems into trusted planning intelligence, cross fleet insights and recommendations that improve every project", "w": "https://www.konstruq.com", "p": "https://api.typeform.com/responses/files/920acf893e292345626f791ccf2d3559da75688d9029fcd9887403dc88b4ab00/3min_Deck___Konstruq.pdf"},
+  {"n": "Hypertype AB", "t": 3, "d": "Hypertype builds data systems for machinery OEMs, enabling them to centralize their data and make it accessible to all relevant stakeholders. By providing more efficient and reliable support for aftermarket services globally.", "w": "https://hypertype.ai", "p": "https://api.typeform.com/responses/files/c4e159b386ae0fc37bf261505041a04dbb51244ceff654ecb7fcbd7440fd8e7a/Hypertype_Pitch..pdf"},
+  {"n": "Whilx Technologies Ltd.", "t": 3, "d": "Whilx’s rim-mounted system turns any construction-vehicle tire into an autonomous, self-inflating tire, optimizing pressure in real time to reduce fuel use, tire wear, maintenance and downtime—without requiring vehicle integration.", "w": "https://www.whilx.tech", "p": "https://api.typeform.com/responses/files/74be2d02a482eb565942f8ec72f19cbed62597192b31f19eb3e4cb9c8ccb94da/Whilx___Deck.pdf"},
+  {"n": "SYMX.AI", "t": 3, "d": "An integrated IoT and software platform transforming earthmoving equipment into intelligent fleets, combining data access, connectivity and predictive AI to optimize production, efficiency and maintenance schedules.", "w": "https://symx.ai", "p": "https://api.typeform.com/responses/files/500edbf3843837894288575869a9dfa8e017cf39745c151627951c62c28c2368/X_Tires_Deck.pdf"},
+  {"n": "Sonatus", "t": 3, "d": "Software Defined Mobility/Vehicle Solutions that also enable Construction Vehicles AI Enablement with our Fastlane products AI Technician; Diagnostics; Collector; and Time-Based Database", "w": "https://www.sonatus.com/", "p": "https://api.typeform.com/responses/files/898db2782e0f16be5ebac02dd824cc9e54d2a75d6190acf9020a71b3c77ed9f1/Sonatus_Robotics_Edge_AI_Pitch_v1.pptx"},
+  {"n": "EarthTrack", "t": 3, "d": "EarthTrack solves warehouse management for heavy industries. Our platform provides real-time inventory visibility, integrated two-way with the ERP. Field teams capture data with barcode/QR, RFID, computer vision, GPS trackers and gantries.", "w": "https://earthtrack.io", "p": "https://api.typeform.com/responses/files/906a6ab2bbbf1c7aae3a52120c4abe6f2babdd6466947ff3e436dea658974e9e/EarthTrack___Pitch_Deck___2026.pdf"},
+  {"n": "[kunstruction1]", "t": 3, "d": "K1 is an offline-capable construction evidence platform that captures field work, requires independent validation, and cryptographically seals photos, voice, delivery, time, and location data into a tamper-evident record for the pre robotic era", "w": "https://k1.construction", "p": "https://api.typeform.com/responses/files/0e51fe78c9be3f8bb272e0f01f2e8c86da43ebdfad114986d49246e78ed51d46/K1_LANDCROS_Finished_Investor_Deck.pdf"}
+];
+const SHORT_BY_NAME = new Map(SHORT_APPS.map(a => [a.n, a]));
+
+/* words worth showing in a one-line summary of what reviewers wrote */
+const STOP = new Set(("a an the and or but if of to in on for with without into from by at as is are was "+
+ "be been being it its this that these those they them their there here we our us you your i me my "+
+ "very really quite more most much many some any no not nor so too also just only even still yet "+
+ "can could would should will shall may might must do does did done have has had having get got "+
+ "make makes made take takes took use uses used using need needs needed want wants wanted like "+
+ "good great nice well better best bad case cases thing things lot lots bit way ways able about "+
+ "which who whom whose what when where why how all both each few other such own same than then "+
+ "because while during before after above below up down out off over under again further once "+
+ "startup startups company companies solution solutions product products team teams").split(" "));
+function keywords(texts, n){
+  const freq = new Map(), first = new Map();
+  texts.forEach(t => {
+    const seen = new Set();
+    String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+      .split(/[^a-z0-9+#.-]+/).forEach(w => {
+        w = w.replace(/^[.+-]+|[.+-]+$/g, "");
+        if(w.length < 3 || STOP.has(w) || /^\d+$/.test(w)) return;
+        if(seen.has(w)) return; seen.add(w);
+        freq.set(w, (freq.get(w)||0) + 1);
+        if(!first.has(w)) first.set(w, w);
+      });
+  });
+  return [...freq.entries()].sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0]))
+    .slice(0, n || 6).map(([w,c]) => ({w, c}));
+}
+
+/* one row per application: who put it through, who did not, and what they wrote */
+function shortTally(){
+  const rows = SHORT_APPS.map(a => ({a, pro:[], con:[], pros:[], cons:[], outside:[], notes:[]}));
+  const by = new Map(rows.map(r => [r.a.n, r]));
+  REV.filter(r => stageOf(r) === "short" && r.app && r.app !== "__submitted").forEach(r => {
+    const row = by.get(r.app); if(!row) return;
+    const who = r.reviewer || "";
+    if(String(r.verdict||"").toLowerCase().startsWith("proceed")){
+      if(!row.pro.includes(who)) row.pro.push(who);
+      [r.q_solves, r.q_stands_out, r.q_pilot].forEach(t => t && row.pros.push({who, t}));
+    }else{
+      if(!row.con.includes(who)) row.con.push(who);
+      if(r.q_reason) row.cons.push({who, t:r.q_reason});
+      if(r.q_outside) row.outside.push({who, t:r.q_outside + (r.q_outside_why ? " — " + r.q_outside_why : "")});
+    }
+    if(r.note) row.notes.push({who, t:r.note});
+  });
+  rows.forEach(r => { r.votes = r.pro.length; r.seen = r.pro.length + r.con.length; });
+  return rows;
+}
+function shortRoster(){
+  return SHORT_REVIEWERS.map(r => ({...r,
+    scope: SHORT_APPS.filter(a => !r.theme || a.t === r.theme).length}));
+}
+function shortDone(){
+  const done = new Map();
+  REV.filter(r => stageOf(r) === "short" && r.app && r.app !== "__submitted")
+     .forEach(r => done.set((r.reviewer||"") + "|" + r.app, 1));
+  const sent = new Set(REV.filter(r => stageOf(r) === "short" && r.app === "__submitted")
+                          .map(r => r.reviewer||""));
+  return {done, sent};
+}
+
+function viewShortVotes(){
+  $("secTitle").textContent = "Short list — the vote";
+  const rows = shortTally();
+  const rv = rows.reduce((n,r) => n + r.seen, 0);
+  $("secNote").textContent = SHORT_APPS.length + " applications · " + rv + " verdicts in";
+  if(!rv) return empty("No short-list verdicts have reached the sheet yet.");
+
+  let h = noteBand("Each reviewer puts three through per theme, so most applications land on " +
+    "one or two votes and ties are normal. The summary under each name is the words that came " +
+    "up most in what reviewers wrote; open a row to read it in full.");
+
+  SHORT_THEMES.forEach((T, ti) => {
+    const list = rows.filter(r => r.a.t === ti+1).sort((x,y) => y.votes - x.votes ||
+      x.a.n.localeCompare(y.a.n));
+    const counts = {};
+    list.forEach(r => counts[r.votes] = (counts[r.votes]||0) + 1);
+    h += `<div class="svh"><span class="sdot c${ti+1}"></span>${esc(T.name)}
+      <span class="svh-n">${list.length} applications · three go through</span></div>`;
+    list.forEach((r, i) => {
+      const tie = counts[r.votes] > 1 && r.votes > 0;
+      const cut = i < 3 && r.votes > 0;
+      const kw = keywords(r.pros.map(p => p.t), 6).map(k =>
+        `<span class="kw">${esc(k.w)}${k.c>1?`<i>${k.c}</i>`:""}</span>`).join("");
+      const kwn = keywords(r.cons.map(p => p.t), 5).map(k =>
+        `<span class="kw no">${esc(k.w)}${k.c>1?`<i>${k.c}</i>`:""}</span>`).join("");
+      h += `<div class="srow${cut?" cut":""}" data-short="${esc(r.a.n)}">
+        <div class="sv">${r.votes}</div>
+        <div class="sb">
+          <div class="sn">${esc(r.a.n)}${tie?`<span class="stie">tie at ${r.votes}</span>`:""}
+            ${r.seen<3?`<span class="sthin">only ${r.seen} reviewed</span>`:""}</div>
+          <div class="swho">${r.pro.map(w=>`<span class="wp">${esc(w)}</span>`).join("")}
+            ${r.con.map(w=>`<span class="wc">${esc(w)}</span>`).join("")}</div>
+          ${kw?`<div class="kws">${kw}</div>`:""}
+          ${kwn?`<div class="kws">${kwn}</div>`:""}
+        </div>
+      </div>`;
+      if(OPENSHORT === r.a.n){
+        const blk = (title, arr, cls) => arr.length
+          ? `<div class="sq"><h5>${title}</h5>${arr.map(x =>
+              `<p class="${cls||""}"><b>${esc(x.who)}</b> ${esc(x.t)}</p>`).join("")}</div>` : "";
+        h += `<div class="sopen">
+          ${blk("Why it should go through", r.pros)}
+          ${blk("Why it did not make a three", r.cons, "dim")}
+          ${blk("Worth working with outside the Challenge", r.outside, "dim")}
+          ${blk("Other notes", r.notes, "dim")}
+        </div>`;
+      }
+    });
+  });
+  $("view").innerHTML = h;
+}
+
+function viewShortCoverage(){
+  $("secTitle").textContent = "Short list — who has voted";
+  const {done, sent} = shortDone();
+  const roster = shortRoster();
+  $("secNote").textContent = roster.length + " reviewers";
+  let h = noteBand("A reviewer is finished once every application in their scope has a verdict " +
+    "and their three are picked per theme. Submitted means they pressed the button at the end.");
+  h += `<div class="acards">
+    ${card("Submitted", sent.size, "of " + roster.length + " reviewers")}
+    ${card("Verdicts in", done.size, "")}
+    ${card("Not started", roster.filter(r => !SHORT_APPS.some(a =>
+        (!r.theme || a.t === r.theme) && done.has(r.name + "|" + a.n))).length, "no verdicts at all")}
+  </div>`;
+  roster.forEach(r => {
+    const n = SHORT_APPS.filter(a => (!r.theme || a.t === r.theme) && done.has(r.name + "|" + a.n)).length;
+    const pct = r.scope ? Math.round(n / r.scope * 100) : 0;
+    h += `<div class="cvrow"><div class="cvn"><b>${esc(r.name)}</b><span>${esc(r.org)}${
+      r.theme ? " · " + esc(SHORT_THEMES[r.theme-1].name) : " · all three themes"}</span></div>
+      <div class="cvbar"><span style="width:${pct}%"></span></div>
+      <div class="cvv">${n} / ${r.scope}${sent.has(r.name) ? ' <span class="sdone">submitted</span>' : ""}</div></div>`;
+  });
+  $("view").innerHTML = h;
+}
+let OPENSHORT = "";
+
 function viewCoverage(){
   $("secTitle").textContent="Coverage";
   const total=appsForStage().length;
@@ -2041,13 +2294,26 @@ function exportAll(){
 }
 
 /* ── wiring ── */
+const TABS={
+  long:[["combined","Ranking"],["coverage","Coverage"],["spread","Disagreement"],
+        ["themes","Themes"],["calib","Calibration"],["select","Mid list selection"]],
+  short:[["votes","The vote"],["scoverage","Coverage"]]
+};
 function render(){
+  const tabs=TABS[STAGE]||TABS.long;
+  if(!tabs.some(([v])=>v===VIEW)) VIEW=tabs[0][0];
+  $("tabs").innerHTML=tabs.map(([v,l])=>
+    `<button data-view="${v}"${v===VIEW?' class="on"':""}>${l}</button>`).join("");
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.view===VIEW));
   document.querySelectorAll(".stagesw button").forEach(b=>b.classList.toggle("on",b.dataset.stage===STAGE));
   if(LOADERR && !REV.length) return empty(esc(LOADERR)+
     `<br><br>Check that the sheet and the score endpoint are reachable, then reload.`);
-  ({combined:viewCombined, coverage:viewCoverage, spread:viewSpread,
-    themes:viewThemes, calib:viewCalib, select:viewSelect}[VIEW]||viewCombined)();
+  if(STAGE==="short"){
+    ({votes:viewShortVotes, scoverage:viewShortCoverage}[VIEW]||viewShortVotes)();
+  }else{
+    ({combined:viewCombined, coverage:viewCoverage, spread:viewSpread,
+      themes:viewThemes, calib:viewCalib, select:viewSelect}[VIEW]||viewCombined)();
+  }
   if(FOCUSID){
     const el=document.getElementById(FOCUSID);
     if(el){ el.focus(); try{ el.selectionStart=el.selectionEnd=el.value.length; }catch(err){} }
@@ -2102,6 +2368,8 @@ document.addEventListener("click",async e=>{
   }
   if(t.dataset.view){ VIEW=t.dataset.view; render(); return; }
   if(t.dataset.stage){ STAGE=t.dataset.stage; render(); }
+  const sr=t.closest&&t.closest("[data-short]");
+  if(sr){ OPENSHORT = OPENSHORT===sr.dataset.short ? "" : sr.dataset.short; render(); }
 });
 
 async function start(){
