@@ -1106,8 +1106,16 @@ async function post(rec){
     body: JSON.stringify({key:CFG.scriptKey||"", action:"save", stage:"short", review:rec})
   });
   if(!res.ok) throw new Error("HTTP " + res.status);
-  const out = await res.json().catch(() => ({ok:true}));
-  if(out && out.ok === false) throw new Error(out.error || "rejected by the script");
+  /* a reply that is not JSON is not a save: an Apps Script running an older
+     version, or a sign-in page served with a 200, both look like this */
+  let out;
+  try{ out = JSON.parse(await res.text()); }
+  catch(e){ throw new Error("the endpoint did not answer in JSON — check the deployment"); }
+  if(!out || out.ok !== true) throw new Error((out && out.error) || "rejected by the script");
+  /* the old script knows nothing of the short list and files it as a score,
+     which answers ok but puts the row in the wrong tab */
+  if(out.tab && out.tab !== "shortlist votes")
+    throw new Error("written to “" + out.tab + "” instead — Scores.gs is not the new version, or it has not been redeployed");
   return true;
 }
 
