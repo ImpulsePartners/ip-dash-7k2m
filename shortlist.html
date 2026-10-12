@@ -1099,7 +1099,8 @@ function toast(t){ const el=$("toast"); el.textContent=t; el.hidden=false;
   clearTimeout(toast._t); toast._t=setTimeout(()=>{el.hidden=true;}, 3200); }
 
 async function post(rec){
-  if(!CFG || !CFG.scriptUrl || ROLE !== "reviewer") return false;
+  if(ROLE !== "reviewer") throw new Error("admin preview, nothing is saved");
+  if(!CFG || !CFG.scriptUrl) throw new Error("no score endpoint in this page's configuration");
   const res = await fetch(CFG.scriptUrl, {
     method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
     body: JSON.stringify({key:CFG.scriptKey||"", action:"save", stage:"short", review:rec})
@@ -1208,7 +1209,8 @@ function renderPane(){
   o.push('<div class="sl-foot">'+
     '<div class="sl-st'+(answered(a)?"":" sl-warn")+'" id="st">'+
       (!v.verdict ? "Choose Proceed or Do not proceed."
-        : answered(a) ? "Saved." : "Answer the questions above to finish this one.")+'</div>'+
+        : answered(a) ? (v.sent ? "Saved to the sheet." : "Not sent yet — press Save.")
+                      : "Answer the questions above to finish this one.")+'</div>'+
     (v.verdict?'<button type="button" class="sl-navb" id="saveBtn">Save</button>':'')+
     (i>0?'<button type="button" class="sl-navb" id="prev">&larr; Previous</button>':'')+
     (i<list.length-1?'<button type="button" class="sl-navb" id="next">Next &rarr;</button>':'')+
@@ -1228,8 +1230,8 @@ function renderPane(){
   });
   if($("saveBtn")) $("saveBtn").onclick = async e => {
     const btn = e.currentTarget; btn.textContent = "Saving…"; btn.disabled = true;
-    await flush(a.n);
-    btn.textContent = answered(a) ? "Saved ✓" : "Save";
+    const ok = await flush(a.n);
+    btn.textContent = ok === true ? "Saved ✓" : ok === false ? "Not saved" : "Save";
     btn.disabled = false;
     setTimeout(() => { if($("saveBtn")) $("saveBtn").textContent = "Save"; }, 2600);
   };
@@ -1280,14 +1282,32 @@ function touch(n, k, val){ const v = VOTES[n] || (VOTES[n] = {}); v[k] = val; ls
 }
 async function flush(n){
   lsSave(); renderList(); renderQuota();
-  const a = APPS.find(x => x.n === n); if(!answered(a)) return;
+  const a = APPS.find(x => x.n === n); if(!answered(a)) return null;
   const v = VOTES[n];
   const rec = {at:new Date().toISOString(), reviewer:ME.name, org:ME.org,
     app:n, theme:THEMES[a.t-1].name, verdict:v.verdict,
     q_solves:v.q_solves||"", q_stands_out:v.q_stands_out||"", q_pilot:v.q_pilot||"",
     q_reason:v.q_reason||"", q_outside:v.q_outside||"", q_outside_why:v.q_outside_why||"",
     note:v.note||""};
-  try{ await post(rec); }catch(e){ /* the browser copy is already written; retried on the next save */ }
+  try{
+    await post(rec);
+    v.sent = true; lsSave(); markSaved(true, "");
+    return true;
+  }catch(e){
+    /* the browser copy is written either way, but saying "saved" when the
+       sheet refused would be a lie the reviewer only finds out about later */
+    v.sent = false; lsSave(); markSaved(false, String((e && e.message) || e));
+    return false;
+  }
+}
+/* the one place the save state is put on screen */
+function markSaved(ok, why){
+  const st = $("st"); if(!st) return;
+  st.textContent = ok ? "Saved to the sheet."
+    : "Kept in this browser, but the sheet did not take it — " + why +
+      ". Press Save again, or tell the Challenge team.";
+  st.className = "sl-st" + (ok ? "" : " sl-warn");
+  if(!ok) toast("Not saved to the sheet: " + why);
 }
 async function finish(){
   if(!allAnswered() || !quotasMet()) return;
