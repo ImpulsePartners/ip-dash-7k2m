@@ -1115,7 +1115,9 @@ async function post(rec){
   /* the old script knows nothing of the short list and files it as a score,
      which answers ok but puts the row in the wrong tab */
   if(out.tab && out.tab !== "shortlist votes")
-    throw new Error("written to “" + out.tab + "” instead — Scores.gs is not the new version, or it has not been redeployed");
+    throw new Error("written to “" + out.tab + "” instead — this page is posting to deployment …" +
+      String(CFG.scriptUrl).replace(/\/exec.*$/,"").slice(-14) +
+      ", which is running the old script. Compare that with the Deployment ID in Manage deployments.");
   return true;
 }
 
